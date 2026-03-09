@@ -107,15 +107,15 @@
 
                 <div class="kpi-grid" style="margin-bottom: var(--space-xl);">
                     <div class="kpi-card">
-                        <div class="kpi-label">Total Campus GFA</div>
+                        <div class="kpi-label">Total Campus GFA <span class="info-dot" data-tooltip="Aggregate Gross Floor Area for the entire project">i</span></div>
                         <div class="kpi-value" id="kpi-total-gfa" style="color: var(--accent-cyan);">0<span class="kpi-unit">m²</span></div>
                     </div>
                     <div class="kpi-card">
-                        <div class="kpi-label">Target Employees</div>
+                        <div class="kpi-label">Target Employees <span class="info-dot" data-tooltip="Total workforce capacity for the campus">i</span></div>
                         <div class="kpi-value" id="kpi-employees" style="color: var(--accent-lavender);">0</div>
                     </div>
                     <div class="kpi-card">
-                        <div class="kpi-label">GFA / Employee</div>
+                        <div class="kpi-label">GFA / Employee <span class="info-dot" data-tooltip="Gross Floor Area allocated per person">i</span></div>
                         <div class="kpi-value" id="kpi-gfa-emp" style="color: var(--accent-emerald);">0<span class="kpi-unit">m²</span></div>
                     </div>
                 </div>
@@ -140,7 +140,7 @@
                     <div class="overview-panel">
                         <h3>Quick Configuration</h3>
                         <div class="control-group">
-                            <label>Reference Benchmark</label>
+                            <label>Reference Benchmark <span class="info-dot" data-tooltip="Starts with presets from renowned campuses">i</span></label>
                             <select id="benchmark" onchange="loadBenchmark()">
                                 <option value="custom">Custom / Manual Input</option>
                                 <option value="apple">Apple Park</option>
@@ -151,11 +151,11 @@
                             </select>
                         </div>
                         <div class="control-group">
-                            <label>Target Employees</label>
+                            <label>Target Employees <span class="info-dot" data-tooltip="Estimated headcount working at this location">i</span></label>
                             <input type="number" id="employees" value="5000" oninput="calculate()">
                         </div>
                         <div class="control-group">
-                            <label>GFA per Employee (m²)</label>
+                            <label>GFA per Employee (m²) <span class="info-dot" data-tooltip="Standard space multiplier. Impacts total GFA.">i</span></label>
                             <input type="number" id="gfaPerEmp" value="25" oninput="calculate()">
                         </div>
                     </div>
@@ -172,7 +172,7 @@
                                 <thead>
                                     <tr>
                                         <th>Program Type</th>
-                                        <th>Share (%)</th>
+                                        <th style="display:flex; align-items:center; gap:6px;">Share (%) <span class="info-dot" data-tooltip="Total must equal 100%">i</span></th>
                                         <th>Required Area (m²)</th>
                                     </tr>
                                 </thead>
@@ -181,7 +181,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th>Total Allocation</th>
+                                        <th>Total Allocation <span class="info-dot" data-tooltip="Check to ensure all percentages add up">i</span></th>
                                         <th id="total-pct" style="font-weight: 700;">100%</th>
                                         <th id="total-area-check">0</th>
                                     </tr>
@@ -214,12 +214,12 @@
                             <table class="data-table">
                                 <thead>
                                     <tr>
-                                        <th>Program</th>
+                                        <th>Program <span class="info-dot" data-tooltip="Spatial functions generated as volumes">i</span></th>
                                         <th>Target GFA</th>
                                         <th>L (m)</th>
                                         <th>W (m)</th>
-                                        <th>H (m)</th>
-                                        <th>Boxes</th>
+                                        <th style="display:flex; align-items:center; gap:6px;">H (m) <span class="info-dot" data-tooltip="Standard floor or total height">i</span></th>
+                                        <th>Boxes <span class="info-dot" data-tooltip="Quantity generated in 3D scene">i</span></th>
                                     </tr>
                                 </thead>
                                 <tbody id="catalog-table-body">
