@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMAA — Program Configurator</title>
+    <meta name="description" content="DMAA Architectural Program Configurator for concept design phase. Configure spatial programs, benchmarks, and 3D module catalogs.">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/OBJExporter.js"></script>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- ================================================================
+         VIEW: DASHBOARD
+         ================================================================ -->
+    <div id="view-dashboard" class="view active">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="brand">
+                <div class="brand-logo">DA</div>
+                <div class="brand-text">DMAA <span>Program Configurator</span></div>
+            </div>
+            <div class="top-bar-actions">
+                <button class="btn btn-primary" onclick="openNewProjectModal()">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+                    New Project
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <div class="dashboard-header">
+                <h1>Your Projects</h1>
+                <p>Select a project to configure its spatial program, or create a new one from scratch.</p>
+            </div>
+
+            <div class="projects-grid" id="projects-grid">
+                <!-- New Project Card (always first) -->
+                <div class="new-project-card" onclick="openNewProjectModal()">
+                    <div class="new-project-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </div>
+                    <span>Create New Project</span>
+                </div>
+                <!-- Project cards rendered dynamically by JS -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================================
+         VIEW: EDITOR
+         ================================================================ -->
+    <div id="view-editor" class="view">
+        <!-- Editor Top Bar -->
+        <div class="editor-top-bar">
+            <div class="breadcrumb">
+                <a onclick="goToDashboard()">Projects</a>
+                <span class="separator">›</span>
+                <span class="current" id="breadcrumb-project-name">Project</span>
+            </div>
+            <div class="editor-actions">
+                <button id="editor-btn-ppt" class="btn btn-ghost" style="display:none;" onclick="exportPPT()">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
+                    Export PPT
+                </button>
+                <button id="editor-btn-obj" class="btn btn-success" style="display:none;" onclick="exportOBJ()">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
+                    Export 3D OBJ
+                </button>
+                <button class="btn btn-ghost" onclick="goToDashboard()">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="7" x2="2" y2="7"/><polyline points="6 3 2 7 6 11"/></svg>
+                    Back
+                </button>
+            </div>
+        </div>
+
+        <!-- Editor Tabs -->
+        <div class="editor-tabs">
+            <button class="editor-tab active" onclick="switchEditorTab(0)">Overview</button>
+            <button class="editor-tab" onclick="switchEditorTab(1)">Master Program</button>
+            <button class="editor-tab" onclick="switchEditorTab(2)">3D Catalog</button>
+            <button class="editor-tab" onclick="switchEditorTab(3)">Export</button>
+        </div>
+
+        <!-- Editor Content -->
+        <div class="editor-content">
+
+            <!-- ─── Tab 0: Overview ─── -->
+            <div id="tab-panel-overview" class="tab-panel active">
+                <div class="section-title">Project Details</div>
+
+                <div class="kpi-grid" style="margin-bottom: var(--space-xl);">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Total Campus GFA</div>
+                        <div class="kpi-value" id="kpi-total-gfa" style="color: var(--accent-cyan);">0<span class="kpi-unit">m²</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Target Employees</div>
+                        <div class="kpi-value" id="kpi-employees" style="color: var(--accent-lavender);">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">GFA / Employee</div>
+                        <div class="kpi-value" id="kpi-gfa-emp" style="color: var(--accent-emerald);">0<span class="kpi-unit">m²</span></div>
+                    </div>
+                </div>
+
+                <div class="overview-grid">
+                    <div class="overview-panel">
+                        <h3>Project Information</h3>
+                        <div class="control-group">
+                            <label>Project Name</label>
+                            <input type="text" id="edit-name" placeholder="e.g. NEOM AI Campus" onchange="saveCurrentProject()">
+                        </div>
+                        <div class="control-group">
+                            <label>Client</label>
+                            <input type="text" id="edit-client" placeholder="e.g. NEOM Company" onchange="saveCurrentProject()">
+                        </div>
+                        <div class="control-group">
+                            <label>Typology</label>
+                            <input type="text" id="edit-typology" placeholder="e.g. AI / Technology Campus" onchange="saveCurrentProject()">
+                        </div>
+                    </div>
+
+                    <div class="overview-panel">
+                        <h3>Quick Configuration</h3>
+                        <div class="control-group">
+                            <label>Reference Benchmark</label>
+                            <select id="benchmark" onchange="loadBenchmark()">
+                                <option value="custom">Custom / Manual Input</option>
+                                <option value="apple">Apple Park</option>
+                                <option value="microsoft">Microsoft Redmond</option>
+                                <option value="google">Googleplex</option>
+                                <option value="meta">Meta Menlo Park</option>
+                                <option value="nvidia">Nvidia Campus</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Target Employees</label>
+                            <input type="number" id="employees" value="5000" oninput="calculate()">
+                        </div>
+                        <div class="control-group">
+                            <label>GFA per Employee (m²)</label>
+                            <input type="number" id="gfaPerEmp" value="25" oninput="calculate()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── Tab 1: Master Program ─── -->
+            <div id="tab-panel-program" class="tab-panel">
+                <div class="form-grid">
+                    <div>
+                        <div class="section-title">Spatial Program</div>
+                        <div class="data-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Program Type</th>
+                                        <th>Share (%)</th>
+                                        <th>Required Area (m²)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="program-color-dot" style="background: var(--clr-office);"></span>Offices / R&D</td>
+                                        <td><input type="number" class="pct-input" id="pct-office" value="50" onchange="balancePercentages('office')"></td>
+                                        <td id="area-office">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="program-color-dot" style="background: var(--clr-landscape);"></span>Landscape / Open Space</td>
+                                        <td><input type="number" class="pct-input" id="pct-land" value="15" onchange="balancePercentages('land')"></td>
+                                        <td id="area-land">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="program-color-dot" style="background: var(--clr-amenities);"></span>Amenities / Social</td>
+                                        <td><input type="number" class="pct-input" id="pct-amenities" value="10" onchange="balancePercentages('amenities')"></td>
+                                        <td id="area-amenities">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="program-color-dot" style="background: var(--clr-housing);"></span>Housing / Hospitality</td>
+                                        <td><input type="number" class="pct-input" id="pct-housing" value="15" onchange="balancePercentages('housing')"></td>
+                                        <td id="area-housing">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="program-color-dot" style="background: var(--clr-mobility);"></span>Mobility / Parking</td>
+                                        <td><input type="number" class="pct-input" id="pct-mobility" value="7" onchange="balancePercentages('mobility')"></td>
+                                        <td id="area-mobility">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="program-color-dot" style="background: var(--clr-infra);"></span>Infrastructure / Services</td>
+                                        <td><input type="number" class="pct-input" id="pct-infra" value="3" onchange="balancePercentages('infra')"></td>
+                                        <td id="area-infra">0</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Total Allocation</th>
+                                        <th id="total-pct" style="font-weight: 700;">100%</th>
+                                        <th id="total-area-check">0</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="section-title">Visual Distribution</div>
+                        <div class="chart-box">
+                            <canvas id="programChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── Tab 2: 3D Module Catalog ─── -->
+            <div id="tab-panel-3d" class="tab-panel">
+                <div class="form-grid">
+                    <div>
+                        <div class="section-title">Module Dimensions (L × W × H)</div>
+                        <div class="data-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Program</th>
+                                        <th>Target GFA</th>
+                                        <th>L (m)</th>
+                                        <th>W (m)</th>
+                                        <th>H (m)</th>
+                                        <th>Boxes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="program-color-dot" style="background: var(--clr-office);"></span>Offices</td>
+                                        <td id="3d-gfa-office">0</td>
+                                        <td><input type="number" class="dim-input" id="dim-l-office" value="20" oninput="update3D()"></td>
+                                        <td><input type="number" class="dim-input" id="dim-w-office" value="20" oninput="update3D()"></td>
+                                        <td><input type="number" class="dim-input" id="dim-h-office" value="4" oninput="update3D()"></td>
+                                        <td id="box-count-office" style="font-weight:700;">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="program-color-dot" style="background: var(--clr-amenities);"></span>Amenities</td>
+                                        <td id="3d-gfa-amenities">0</td>
+                                        <td><input type="number" class="dim-input" id="dim-l-amenities" value="15" oninput="update3D()"></td>
+                                        <td><input type="number" class="dim-input" id="dim-w-amenities" value="15" oninput="update3D()"></td>
+                                        <td><input type="number" class="dim-input" id="dim-h-amenities" value="5" oninput="update3D()"></td>
+                                        <td id="box-count-amenities" style="font-weight:700;">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="program-color-dot" style="background: var(--clr-housing);"></span>Housing</td>
+                                        <td id="3d-gfa-housing">0</td>
+                                        <td><input type="number" class="dim-input" id="dim-l-housing" value="10" oninput="update3D()"></td>
+                                        <td><input type="number" class="dim-input" id="dim-w-housing" value="6" oninput="update3D()"></td>
+                                        <td><input type="number" class="dim-input" id="dim-h-housing" value="3.5" oninput="update3D()"></td>
+                                        <td id="box-count-housing" style="font-weight:700;">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="program-color-dot" style="background: var(--clr-infra);"></span>Infrastructure</td>
+                                        <td id="3d-gfa-infra">0</td>
+                                        <td><input type="number" class="dim-input" id="dim-l-infra" value="10" oninput="update3D()"></td>
+                                        <td><input type="number" class="dim-input" id="dim-w-infra" value="10" oninput="update3D()"></td>
+                                        <td><input type="number" class="dim-input" id="dim-h-infra" value="5" oninput="update3D()"></td>
+                                        <td id="box-count-infra" style="font-weight:700;">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="program-color-dot" style="background: var(--clr-landscape);"></span>Landscape</td>
+                                        <td id="3d-gfa-land">0</td>
+                                        <td colspan="3" style="text-align:center; color:var(--text-muted);">Surface — N/A</td>
+                                        <td>1 surf.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="program-color-dot" style="background: var(--clr-mobility);"></span>Mobility</td>
+                                        <td id="3d-gfa-mobility">0</td>
+                                        <td colspan="3" style="text-align:center; color:var(--text-muted);">Surface — N/A</td>
+                                        <td>1 surf.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="section-title">Live 3D Preview</div>
+                        <div class="viewport-3d" id="canvas-3d"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── Tab 3: Export ─── -->
+            <div id="tab-panel-export" class="tab-panel">
+                <div class="section-title">Export Options</div>
+                <div class="overview-grid">
+                    <div class="overview-panel" style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:200px; gap:var(--space-lg); text-align:center;">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="var(--accent-coral)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7">
+                            <rect x="8" y="6" width="32" height="36" rx="3"/>
+                            <line x1="16" y1="16" x2="32" y2="16"/>
+                            <line x1="16" y1="22" x2="28" y2="22"/>
+                            <line x1="16" y1="28" x2="24" y2="28"/>
+                        </svg>
+                        <div>
+                            <h3 style="font-size:16px; margin-bottom:6px;">Export to PowerPoint</h3>
+                            <p style="font-size:13px; color:var(--text-secondary); max-width:280px;">Generate a branded PPTX slide with your spatial program summary, doughnut chart, and data table.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="exportPPT()">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
+                            Download PPT
+                        </button>
+                    </div>
+
+                    <div class="overview-panel" style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:200px; gap:var(--space-lg); text-align:center;">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="var(--accent-emerald)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7">
+                            <path d="M24 6L40 16V32L24 42L8 32V16L24 6Z"/>
+                            <line x1="24" y1="42" x2="24" y2="22"/>
+                            <line x1="8" y1="16" x2="24" y2="22"/>
+                            <line x1="40" y1="16" x2="24" y2="22"/>
+                        </svg>
+                        <div>
+                            <h3 style="font-size:16px; margin-bottom:6px;">Export 3D Model (OBJ)</h3>
+                            <p style="font-size:13px; color:var(--text-secondary); max-width:280px;">Download an OBJ file of the 3D module catalog for use in Rhino, SketchUp, Blender, or other 3D tools.</p>
+                        </div>
+                        <button class="btn btn-success" onclick="switchEditorTab(2); setTimeout(()=>{ update3D(); setTimeout(exportOBJ, 500); }, 200);">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
+                            Download OBJ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /app-container -->
+
+
+<!-- ================================================================
+     MODAL: New Project
+     ================================================================ -->
+<div id="modal-overlay" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+        <h2>New Project</h2>
+        <div class="control-group">
+            <label>Project Name</label>
+            <input type="text" id="modal-project-name" placeholder="e.g. Dubai Cultural Quarter">
+        </div>
+        <div class="control-group">
+            <label>Client</label>
+            <input type="text" id="modal-project-client" placeholder="e.g. Dubai Holding">
+        </div>
+        <div class="control-group">
+            <label>Typology</label>
+            <input type="text" id="modal-project-typology" placeholder="e.g. Mixed-Use Cultural">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="createNewProject()">Create Project</button>
+        </div>
+    </div>
+</div>
+
+<!-- Application Script -->
+<script src="js/app.js"></script>
+
+</body>
+</html>

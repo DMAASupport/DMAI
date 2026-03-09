@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMAA - AI Campus Designer - VisionOS</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/OBJExporter.js"></script>
+
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.85);
+            --sys-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--sys-font);
+            margin: 0;
+            padding: 2vh;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow);
+            padding: clamp(20px, 4vh, 40px);
+            width: 100%;
+            max-width: 130vh;
+            box-sizing: border-box;
+        }
+
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5vh; }
+        
+        h1 { font-size: clamp(20px, 3vh, 32px); font-weight: 500; margin: 0; }
+        h2 { font-size: clamp(16px, 2vh, 20px); font-weight: 500; margin: 1.5vh 0; color: var(--text-main); }
+
+        .btn-action {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: clamp(8px, 1.2vh, 12px) clamp(16px, 2.5vh, 24px);
+            border-radius: 30px;
+            font-size: clamp(12px, 1.5vh, 16px);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .btn-action:hover { background: rgba(255,255,255,0.4); }
+
+        /* TABS */
+        .tabs { display: flex; gap: 10px; margin-bottom: 2vh; border-bottom: 1px solid var(--glass-border); padding-bottom: 1vh; }
+        .tab-btn { background: none; border: none; color: var(--text-muted); font-size: clamp(14px, 1.8vh, 18px); cursor: pointer; padding: 8px 16px; border-radius: 10px; transition: all 0.3s; }
+        .tab-btn.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4vh;
+            margin-bottom: 2vh;
+        }
+
+        .control-group { margin-bottom: 1.5vh; }
+        label { display: block; font-size: clamp(12px, 1.5vh, 16px); color: var(--text-muted); margin-bottom: 0.5vh; }
+        
+        input, select {
+            width: 100%;
+            padding: clamp(6px, 1.2vh, 12px);
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: clamp(14px, 1.6vh, 16px);
+            outline: none;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            font-family: var(--sys-font);
+        }
+
+        input:focus, select:focus {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        option { background: #333; color: white; }
+
+        .chart-container { position: relative; height: clamp(180px, 25vh, 300px); display: flex; justify-content: center; align-items: center; }
+        
+        /* 3D Container */
+        #canvas-3d { 
+            width: 100%; 
+            height: clamp(300px, 45vh, 500px); 
+            background: rgba(0,0,0,0.2); 
+            border-radius: 15px; 
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 1vh; }
+        th, td { padding: clamp(6px, 1.2vh, 12px); text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.15); }
+        th { color: var(--text-muted); font-weight: 500; font-size: clamp(12px, 1.5vh, 16px); }
+        td { font-size: clamp(13px, 1.6vh, 16px); font-weight: 400; }
+        
+        .highlight { font-size: clamp(20px, 3vh, 28px); font-weight: 600; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); margin-top: 5px; }
+        .pct-input { width: clamp(50px, 7vh, 80px); padding: 6px; text-align: center; }
+        .dim-input { width: clamp(40px, 6vh, 70px); padding: 6px; text-align: center; }
+        
+        #total-pct { font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="glass-panel">
+    <div class="header-flex">
+        <h1>DMAA - AI Campus Designer</h1>
+        <div id="btn-group-1">
+            <button class="btn-action" onclick="exportPPT()">Export to PPT Slide</button>
+        </div>
+        <div id="btn-group-2" style="display:none;">
+            <button class="btn-action" onclick="exportOBJ()" style="background: rgba(74, 222, 128, 0.3); border-color: #4ade80;">Export 3D OBJ Catalog</button>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(1)" id="tab-btn-1">1. Master Program</button>
+        <button class="tab-btn" onclick="switchTab(2)" id="tab-btn-2">2. 3D Module Catalog</button>
+    </div>
+
+    <div id="tab-1" class="tab-content active">
+        <div class="layout-grid">
+            <div>
+                <h2>1. Parameters</h2>
+                <div class="control-group">
+                    <label>Reference Benchmark</label>
+                    <select id="benchmark" onchange="loadBenchmark()">
+                        <option value="custom">Custom / Manual Input</option>
+                        <option value="apple">Apple Park</option>
+                        <option value="microsoft">Microsoft Redmond</option>
+                        <option value="google">Googleplex</option>
+                        <option value="meta">Meta Menlo Park</option>
+                        <option value="nvidia">Nvidia Campus</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Target Employees</label>
+                    <input type="number" id="employees" value="5000" oninput="calculate()">
+                </div>
+                <div class="control-group">
+                    <label>GFA per Employee (m²)</label>
+                    <input type="number" id="gfaPerEmp" value="25" oninput="calculate()">
+                </div>
+                
+                <div class="control-group" style="margin-top: 2vh;">
+                    <label>Total Campus GFA (m²)</label>
+                    <div id="totalGfa" class="highlight">125,000</div>
+                </div>
+            </div>
+
+            <div>
+                <h2>2. Visual Distribution</h2>
+                <div class="chart-container">
+                    <canvas id="programChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <h2>3. Spatial Program</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Program Type</th>
+                    <th>Share (%)</th>
+                    <th>Required Area (m²)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Offices / R&D</td>
+                    <td><input type="number" class="pct-input" id="pct-office" value="50" onchange="balancePercentages('pct-office')"></td>
+                    <td id="area-office">0</td>
+                </tr>
+                <tr>
+                    <td>Landscape / Open Space</td>
+                    <td><input type="number" class="pct-input" id="pct-land" value="15" onchange="balancePercentages('pct-land')"></td>
+                    <td id="area-land">0</td>
+                </tr>
+                <tr>
+                    <td>Amenities / Social</td>
+                    <td><input type="number" class="pct-input" id="pct-amenities" value="10" onchange="balancePercentages('pct-amenities')"></td>
+                    <td id="area-amenities">0</td>
+                </tr>
+                <tr>
+                    <td>Housing / Hospitality</td>
+                    <td><input type="number" class="pct-input" id="pct-housing" value="15" onchange="balancePercentages('pct-housing')"></td>
+                    <td id="area-housing">0</td>
+                </tr>
+                <tr>
+                    <td>Mobility / Parking</td>
+                    <td><input type="number" class="pct-input" id="pct-mobility" value="7" onchange="balancePercentages('pct-mobility')"></td>
+                    <td id="area-mobility">0</td>
+                </tr>
+                <tr>
+                    <td>Infrastructure / Services</td>
+                    <td><input type="number" class="pct-input" id="pct-infra" value="3" onchange="balancePercentages('pct-infra')"></td>
+                    <td id="area-infra">0</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>Total Allocation</th>
+                    <th id="total-pct" style="font-size: clamp(14px, 1.8vh, 20px);">100%</th>
+                    <th id="total-area-check" style="font-size: clamp(14px, 1.8vh, 20px);">0</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div id="tab-2" class="tab-content">
+        <div class="layout-grid">
+            <div>
+                <h2>Module Dimensions (L × W × H)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Program</th>
+                            <th>Target GFA</th>
+                            <th>L (m)</th>
+                            <th>W (m)</th>
+                            <th>H (m)</th>
+                            <th>Total Boxes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="color: #FF6384; font-weight:bold;">Offices</td>
+                            <td id="3d-gfa-office">0</td>
+                            <td><input type="number" class="dim-input" id="dim-l-office" value="20" oninput="update3D()"></td>
+                            <td><input type="number" class="dim-input" id="dim-w-office" value="20" oninput="update3D()"></td>
+                            <td><input type="number" class="dim-input" id="dim-h-office" value="4" oninput="update3D()"></td>
+                            <td id="box-count-office" class="highlight" style="font-size: 16px;">0</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #FFCE56; font-weight:bold;">Amenities</td>
+                            <td id="3d-gfa-amenities">0</td>
+                            <td><input type="number" class="dim-input" id="dim-l-amenities" value="15" oninput="update3D()"></td>
+                            <td><input type="number" class="dim-input" id="dim-w-amenities" value="15" oninput="update3D()"></td>
+                            <td><input type="number" class="dim-input" id="dim-h-amenities" value="5" oninput="update3D()"></td>
+                            <td id="box-count-amenities" class="highlight" style="font-size: 16px;">0</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #FF9F40; font-weight:bold;">Housing</td>
+                            <td id="3d-gfa-housing">0</td>
+                            <td><input type="number" class="dim-input" id="dim-l-housing" value="10" oninput="update3D()"></td>
+                            <td><input type="number" class="dim-input" id="dim-w-housing" value="6" oninput="update3D()"></td>
+                            <td><input type="number" class="dim-input" id="dim-h-housing" value="3.5" oninput="update3D()"></td>
+                            <td id="box-count-housing" class="highlight" style="font-size: 16px;">0</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #9966FF; font-weight:bold;">Infrastructure</td>
+                            <td id="3d-gfa-infra">0</td>
+                            <td><input type="number" class="dim-input" id="dim-l-infra" value="10" oninput="update3D()"></td>
+                            <td><input type="number" class="dim-input" id="dim-w-infra" value="10" oninput="update3D()"></td>
+                            <td><input type="number" class="dim-input" id="dim-h-infra" value="5" oninput="update3D()"></td>
+                            <td id="box-count-infra" class="highlight" style="font-size: 16px;">0</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #4BC0C0;">Landscape (Surface)</td>
+                            <td id="3d-gfa-land">0</td>
+                            <td colspan="3" style="text-align:center; color:rgba(255,255,255,0.5);">N/A</td>
+                            <td>1 Surface</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #36A2EB;">Mobility (Surface)</td>
+                            <td id="3d-gfa-mobility">0</td>
+                            <td colspan="3" style="text-align:center; color:rgba(255,255,255,0.5);">N/A</td>
+                            <td>1 Surface</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <h2>Live 3D Catalog Preview</h2>
+                <div id="canvas-3d"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- UI & TABS ---
+    function switchTab(tabIndex) {
+        document.getElementById('tab-1').classList.remove('active');
+        document.getElementById('tab-2').classList.remove('active');
+        document.getElementById('tab-btn-1').classList.remove('active');
+        document.getElementById('tab-btn-2').classList.remove('active');
+        
+        document.getElementById('btn-group-1').style.display = 'none';
+        document.getElementById('btn-group-2').style.display = 'none';
+
+        document.getElementById('tab-' + tabIndex).classList.add('active');
+        document.getElementById('tab-btn-' + tabIndex).classList.add('active');
+        document.getElementById('btn-group-' + tabIndex).style.display = 'block';
+
+        if(tabIndex === 2) {
+            // Give browser 50ms to apply display:block before initializing 3D sizes
+            setTimeout(() => {
+                if (!scene3d) {
+                    init3D();
+                } else {
+                    resize3D();
+                }
+                update3D();
+            }, 50);
+        }
+    }
+
+    // --- 2D MASTER PROGRAM LOGIC ---
+    Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif';
+    Chart.defaults.color = 'rgba(255, 255, 255, 0.85)';
+
+    const benchmarks = {
+        custom: { gfaPerEmp: 25.0, pct: [50, 15, 10, 15, 7, 3] },
+        apple: { gfaPerEmp: 26.6, pct: [15, 80, 3, 0, 1, 1] },
+        microsoft: { gfaPerEmp: 29.5, pct: [38, 42, 8, 0, 8, 4] },
+        google: { gfaPerEmp: 17.2, pct: [48, 32, 10, 0, 7, 3] },
+        meta: { gfaPerEmp: 30.0, pct: [55, 20, 13, 0, 9, 3] },
+        nvidia: { gfaPerEmp: 23.2, pct: [65, 15, 10, 0, 7, 3] }
+    };
+
+    const pctIds = ['pct-office', 'pct-land', 'pct-amenities', 'pct-housing', 'pct-mobility', 'pct-infra'];
+    let chartInstance = null;
+    let computedGFA = { office: 0, land: 0, amenities: 0, housing: 0, mobility: 0, infra: 0 };
+
+    function initChart() {
+        const ctx = document.getElementById('programChart').getContext('2d');
+        chartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Offices', 'Landscape', 'Amenities', 'Housing', 'Mobility', 'Infrastructure'],
+                datasets: [{
+                    data: [50, 15, 10, 15, 7, 3],
+                    backgroundColor: [ '#FF6384', '#4BC0C0', '#FFCE56', '#FF9F40', '#36A2EB', '#9966FF' ],
+                    borderColor: 'rgba(255, 255, 255, 0.2)', borderWidth: 2
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 12 }, boxWidth: 12 } } }, cutout: '65%' }
+        });
+    }
+
+    function balancePercentages(changedId) {
+        let changedValue = parseFloat(document.getElementById(changedId).value) || 0;
+        if (changedValue > 100) changedValue = 100;
+        if (changedValue < 0) changedValue = 0;
+        document.getElementById(changedId).value = changedValue;
+
+        const otherIds = pctIds.filter(id => id !== changedId);
+        let otherTotal = otherIds.reduce((sum, id) => sum + (parseFloat(document.getElementById(id).value) || 0), 0);
+        let remainder = 100 - changedValue;
+
+        if (otherTotal === 0 && remainder > 0) {
+            let split = remainder / otherIds.length;
+            otherIds.forEach(id => { document.getElementById(id).value = parseFloat(split.toFixed(1)); });
+        } else if (otherTotal > 0) {
+            otherIds.forEach(id => {
+                let currentVal = parseFloat(document.getElementById(id).value) || 0;
+                let newVal = (currentVal / otherTotal) * remainder;
+                document.getElementById(id).value = parseFloat(newVal.toFixed(1)); 
+            });
+        }
+        calculate();
+    }
+
+    function loadBenchmark() {
+        const data = benchmarks[document.getElementById('benchmark').value];
+        document.getElementById('gfaPerEmp').value = data.gfaPerEmp.toFixed(1);
+        document.getElementById('pct-office').value = data.pct[0];
+        document.getElementById('pct-land').value = data.pct[1];
+        document.getElementById('pct-amenities').value = data.pct[2];
+        document.getElementById('pct-housing').value = data.pct[3];
+        document.getElementById('pct-mobility').value = data.pct[4];
+        document.getElementById('pct-infra').value = data.pct[5];
+        calculate();
+    }
+
+    function calculate() {
+        const emp = parseFloat(document.getElementById('employees').value) || 0;
+        const gfaPerEmp = parseFloat(document.getElementById('gfaPerEmp').value) || 0;
+        const totalGFA = emp * gfaPerEmp;
+        document.getElementById('totalGfa').innerText = totalGFA.toLocaleString('en-US');
+
+        const pOff = parseFloat(document.getElementById('pct-office').value) || 0;
+        const pLan = parseFloat(document.getElementById('pct-land').value) || 0;
+        const pAme = parseFloat(document.getElementById('pct-amenities').value) || 0;
+        const pHou = parseFloat(document.getElementById('pct-housing').value) || 0;
+        const pMob = parseFloat(document.getElementById('pct-mobility').value) || 0;
+        const pInf = parseFloat(document.getElementById('pct-infra').value) || 0;
+
+        const totalPct = Math.round((pOff + pLan + pAme + pHou + pMob + pInf) * 10) / 10;
+        document.getElementById('total-pct').innerText = totalPct + '%';
+        document.getElementById('total-pct').style.color = (totalPct >= 99.9 && totalPct <= 100.1) ? '#4ade80' : '#f87171';
+
+        computedGFA = {
+            office: Math.round(totalGFA * (pOff/100)),
+            land: Math.round(totalGFA * (pLan/100)),
+            amenities: Math.round(totalGFA * (pAme/100)),
+            housing: Math.round(totalGFA * (pHou/100)),
+            mobility: Math.round(totalGFA * (pMob/100)),
+            infra: Math.round(totalGFA * (pInf/100))
+        };
+
+        document.getElementById('area-office').innerText = computedGFA.office.toLocaleString();
+        document.getElementById('area-land').innerText = computedGFA.land.toLocaleString();
+        document.getElementById('area-amenities').innerText = computedGFA.amenities.toLocaleString();
+        document.getElementById('area-housing').innerText = computedGFA.housing.toLocaleString();
+        document.getElementById('area-mobility').innerText = computedGFA.mobility.toLocaleString();
+        document.getElementById('area-infra').innerText = computedGFA.infra.toLocaleString();
+        document.getElementById('total-area-check').innerText = Math.round(totalGFA * (totalPct/100)).toLocaleString();
+
+        document.getElementById('3d-gfa-office').innerText = computedGFA.office.toLocaleString();
+        document.getElementById('3d-gfa-land').innerText = computedGFA.land.toLocaleString();
+        document.getElementById('3d-gfa-amenities').innerText = computedGFA.amenities.toLocaleString();
+        document.getElementById('3d-gfa-housing').innerText = computedGFA.housing.toLocaleString();
+        document.getElementById('3d-gfa-mobility').innerText = computedGFA.mobility.toLocaleString();
+        document.getElementById('3d-gfa-infra').innerText = computedGFA.infra.toLocaleString();
+
+        if (chartInstance) {
+            chartInstance.data.datasets[0].data = [pOff, pLan, pAme, pHou, pMob, pInf];
+            chartInstance.update();
+        }
+        
+        if (document.getElementById('tab-2').classList.contains('active')) update3D();
+    }
+
+    // --- 3D CATALOG LOGIC ---
+    let scene3d, camera3d, renderer3d, controls3d, exporter;
+    let meshesGroup = new THREE.Group();
+
+    function init3D() {
+        const container = document.getElementById('canvas-3d');
+        scene3d = new THREE.Scene();
+        
+        camera3d = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 10000);
+        camera3d.position.set(150, 150, 200);
+
+        renderer3d = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer3d.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer3d.domElement);
+
+        controls3d = new THREE.OrbitControls(camera3d, renderer3d.domElement);
+        controls3d.enableDamping = true;
+        
+        const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+        scene3d.add(ambient);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(100, 200, 100);
+        scene3d.add(dirLight);
+
+        scene3d.add(meshesGroup);
+        exporter = new THREE.OBJExporter();
+
+        animate3D();
+    }
+
+    function resize3D() {
+        if (!camera3d || !renderer3d) return;
+        const container = document.getElementById('canvas-3d');
+        camera3d.aspect = container.clientWidth / container.clientHeight;
+        camera3d.updateProjectionMatrix();
+        renderer3d.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    window.addEventListener('resize', resize3D);
+
+    function animate3D() {
+        requestAnimationFrame(animate3D);
+        if(controls3d) controls3d.update();
+        if(renderer3d && scene3d && camera3d) renderer3d.render(scene3d, camera3d);
+    }
+
+    function addBoxesToScene(name, colorHex, gfa, lId, wId, hId, isSurface, startZ) {
+        const groupLayer = new THREE.Group();
+        groupLayer.name = name; 
+
+        if (gfa <= 0) return 0;
+
+        const mat = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.3 });
+
+        if (isSurface) {
+            const side = Math.sqrt(gfa);
+            const geo = new THREE.BoxGeometry(side, 0.5, side);
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(side/2, 0.25, startZ + side/2);
+            groupLayer.add(mesh);
+            meshesGroup.add(groupLayer);
+            return side + 15; 
+        }
+
+        const L = parseFloat(document.getElementById(lId).value) || 10;
+        const W = parseFloat(document.getElementById(wId).value) || 10;
+        const H = parseFloat(document.getElementById(hId).value) || 4;
+        
+        const boxArea = L * W;
+        const count = Math.ceil(gfa / boxArea); 
+        
+        document.getElementById(`box-count-${lId.split('-')[2]}`).innerText = count.toLocaleString();
+
+        const geo = new THREE.BoxGeometry(L, H, W);
+        const spacing = 2; 
+        
+        const cols = Math.ceil(Math.sqrt(count));
+        let x = 0, z = 0;
+        let maxDepth = 0;
+
+        const renderCount = Math.min(count, 1500); 
+
+        for(let i=0; i < renderCount; i++) {
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(x * (L + spacing) + L/2, H/2, startZ + z * (W + spacing) + W/2);
+            groupLayer.add(mesh);
+            
+            maxDepth = Math.max(maxDepth, z * (W + spacing) + W);
+            x++;
+            if (x >= cols) { x = 0; z++; }
+        }
+
+        meshesGroup.add(groupLayer);
+        return maxDepth + 15; 
+    }
+
+    function update3D() {
+        if (!scene3d) return; 
+        
+        while(meshesGroup.children.length > 0){ 
+            meshesGroup.remove(meshesGroup.children[0]); 
+        }
+
+        let zOffset = 0;
+        
+        zOffset += addBoxesToScene('Layer_Offices', 0xFF6384, computedGFA.office, 'dim-l-office', 'dim-w-office', 'dim-h-office', false, zOffset);
+        zOffset += addBoxesToScene('Layer_Amenities', 0xFFCE56, computedGFA.amenities, 'dim-l-amenities', 'dim-w-amenities', 'dim-h-amenities', false, zOffset);
+        zOffset += addBoxesToScene('Layer_Housing', 0xFF9F40, computedGFA.housing, 'dim-l-housing', 'dim-w-housing', 'dim-h-housing', false, zOffset);
+        zOffset += addBoxesToScene('Layer_Infrastructure', 0x9966FF, computedGFA.infra, 'dim-l-infra', 'dim-w-infra', 'dim-h-infra', false, zOffset);
+        
+        zOffset += addBoxesToScene('Layer_Landscape', 0x4BC0C0, computedGFA.land, null, null, null, true, zOffset);
+        zOffset += addBoxesToScene('Layer_Mobility', 0x36A2EB, computedGFA.mobility, null, null, null, true, zOffset);
+
+        if(zOffset > 0) camera3d.position.set(zOffset/2, Math.max(zOffset/2, 100), zOffset);
+        controls3d.target.set(zOffset/4, 0, zOffset/2);
+    }
+
+    // --- EXPORTS ---
+    function exportOBJ() {
+        const result = exporter.parse(meshesGroup);
+        const blob = new Blob([result], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'DMAA_AI_Campus_Catalog.obj';
+        link.click();
+    }
+
+    function exportPPT() {
+        try {
+            let pres = new PptxGenJS();
+            pres.layout = 'LAYOUT_16x9'; 
+            let slide = pres.addSlide();
+            slide.background = { color: "1A2A6C" };
+            slide.addShape(pres.ShapeType.rect, { x: 0.25, y: 0.25, w: 9.5, h: 5.125, fill: { color: "FFFFFF", transparency: 90 }, line: { color: "FFFFFF", transparency: 70, pt: 1 }, rectRadius: 0.05 });
+            slide.addText("DMAA - AI Campus Designer", { x: 0.5, y: 0.4, w: 9.0, h: 0.4, fontSize: 24, bold: true, color: "FFFFFF", fontFace: "Arial" });
+            
+            let emp = document.getElementById('employees').value;
+            let gfa = document.getElementById('totalGfa').innerText;
+            let bSelect = document.getElementById('benchmark');
+            let bStr = bSelect.options[bSelect.selectedIndex].text;
+
+            let paramText = [
+                { text: "Benchmark:\n", options: { fontSize: 11, color: "CCCCCC" } }, { text: bStr + "\n\n", options: { fontSize: 14, color: "FFFFFF", bold: true } },
+                { text: "Target Employees:\n", options: { fontSize: 11, color: "CCCCCC" } }, { text: emp + "\n\n", options: { fontSize: 14, color: "FFFFFF", bold: true } },
+                { text: "Total Campus GFA:\n", options: { fontSize: 11, color: "CCCCCC" } }, { text: gfa + " m²", options: { fontSize: 20, color: "4ADE80", bold: true } }
+            ];
+            slide.addText(paramText, { x: 0.5, y: 1.0, w: 3.5, h: 1.8, fontFace: "Arial", valign: "top" });
+
+            let chartData = [{
+                name: "Program",
+                labels: ["Offices", "Landscape", "Amenities", "Housing", "Mobility", "Infrastructure"],
+                values: [ computedGFA.office, computedGFA.land, computedGFA.amenities, computedGFA.housing, computedGFA.mobility, computedGFA.infra ]
+            }];
+            slide.addChart(pres.ChartType.doughnut, chartData, { x: 4.2, y: 0.4, w: 5.0, h: 2.5, showLegend: true, legendPos: 'r', doughnutHoleSize: 65, chartColors: ["FF6384", "4BC0C0", "FFCE56", "FF9F40", "36A2EB", "9966FF"], legendColor: "FFFFFF", legendFontSize: 11, showValue: false, showPercent: true, dataLabels: { color: "FFFFFF", fontSize: 10, position: "outEnd" } });
+
+            let rows = [
+                [ { text: "Program", options: { bold: true, color: "FFFFFF", fill: "333333" } }, { text: "Share (%)", options: { bold: true, color: "FFFFFF", fill: "333333" } }, { text: "GFA (m²)", options: { bold: true, color: "FFFFFF", fill: "333333" } } ],
+                ["Offices", document.getElementById('pct-office').value + "%", computedGFA.office.toLocaleString()],
+                ["Landscape", document.getElementById('pct-land').value + "%", computedGFA.land.toLocaleString()],
+                ["Amenities", document.getElementById('pct-amenities').value + "%", computedGFA.amenities.toLocaleString()],
+                ["Housing", document.getElementById('pct-housing').value + "%", computedGFA.housing.toLocaleString()],
+                ["Mobility", document.getElementById('pct-mobility').value + "%", computedGFA.mobility.toLocaleString()],
+                ["Infrastructure", document.getElementById('pct-infra').value + "%", computedGFA.infra.toLocaleString()]
+            ];
+            slide.addTable(rows, { x: 0.5, y: 3.0, w: 9.0, colW: [4.0, 2.5, 2.5], border: { pt: 0.5, color: "FFFFFF", transparency: 70 }, fontSize: 12, color: "FFFFFF", valign: "middle" });
+            pres.writeFile({ fileName: "DMAA_AI_Campus_Summary.pptx" });
+        } catch (error) { alert("Export failed. Please check internet connection."); }
+    }
+
+    window.onload = () => {
+        initChart();
+        calculate();
+    };
+</script>
+
+</body>
+</html>
