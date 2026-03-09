@@ -176,37 +176,8 @@
                                         <th>Required Area (m²)</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><span class="program-color-dot" style="background: var(--clr-office);"></span>Offices / R&D</td>
-                                        <td><input type="number" class="pct-input" id="pct-office" value="50" onchange="balancePercentages('office')"></td>
-                                        <td id="area-office">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="program-color-dot" style="background: var(--clr-landscape);"></span>Landscape / Open Space</td>
-                                        <td><input type="number" class="pct-input" id="pct-land" value="15" onchange="balancePercentages('land')"></td>
-                                        <td id="area-land">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="program-color-dot" style="background: var(--clr-amenities);"></span>Amenities / Social</td>
-                                        <td><input type="number" class="pct-input" id="pct-amenities" value="10" onchange="balancePercentages('amenities')"></td>
-                                        <td id="area-amenities">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="program-color-dot" style="background: var(--clr-housing);"></span>Housing / Hospitality</td>
-                                        <td><input type="number" class="pct-input" id="pct-housing" value="15" onchange="balancePercentages('housing')"></td>
-                                        <td id="area-housing">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="program-color-dot" style="background: var(--clr-mobility);"></span>Mobility / Parking</td>
-                                        <td><input type="number" class="pct-input" id="pct-mobility" value="7" onchange="balancePercentages('mobility')"></td>
-                                        <td id="area-mobility">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="program-color-dot" style="background: var(--clr-infra);"></span>Infrastructure / Services</td>
-                                        <td><input type="number" class="pct-input" id="pct-infra" value="3" onchange="balancePercentages('infra')"></td>
-                                        <td id="area-infra">0</td>
-                                    </tr>
+                                <tbody id="program-table-body">
+                                    <!-- Rows rendered dynamically by JS -->
                                 </tbody>
                                 <tfoot>
                                     <tr>
@@ -216,6 +187,12 @@
                                     </tr>
                                 </tfoot>
                             </table>
+                        </div>
+                        <div style="margin-top: 16px; text-align: left;">
+                            <button class="btn btn-ghost" onclick="addCustomProgramType()">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="margin-right: 6px;"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+                                Add Program Type
+                            </button>
                         </div>
                     </div>
 
@@ -245,51 +222,8 @@
                                         <th>Boxes</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><span class="program-color-dot" style="background: var(--clr-office);"></span>Offices</td>
-                                        <td id="3d-gfa-office">0</td>
-                                        <td><input type="number" class="dim-input" id="dim-l-office" value="20" oninput="update3D()"></td>
-                                        <td><input type="number" class="dim-input" id="dim-w-office" value="20" oninput="update3D()"></td>
-                                        <td><input type="number" class="dim-input" id="dim-h-office" value="4" oninput="update3D()"></td>
-                                        <td id="box-count-office" style="font-weight:700;">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="program-color-dot" style="background: var(--clr-amenities);"></span>Amenities</td>
-                                        <td id="3d-gfa-amenities">0</td>
-                                        <td><input type="number" class="dim-input" id="dim-l-amenities" value="15" oninput="update3D()"></td>
-                                        <td><input type="number" class="dim-input" id="dim-w-amenities" value="15" oninput="update3D()"></td>
-                                        <td><input type="number" class="dim-input" id="dim-h-amenities" value="5" oninput="update3D()"></td>
-                                        <td id="box-count-amenities" style="font-weight:700;">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="program-color-dot" style="background: var(--clr-housing);"></span>Housing</td>
-                                        <td id="3d-gfa-housing">0</td>
-                                        <td><input type="number" class="dim-input" id="dim-l-housing" value="10" oninput="update3D()"></td>
-                                        <td><input type="number" class="dim-input" id="dim-w-housing" value="6" oninput="update3D()"></td>
-                                        <td><input type="number" class="dim-input" id="dim-h-housing" value="3.5" oninput="update3D()"></td>
-                                        <td id="box-count-housing" style="font-weight:700;">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="program-color-dot" style="background: var(--clr-infra);"></span>Infrastructure</td>
-                                        <td id="3d-gfa-infra">0</td>
-                                        <td><input type="number" class="dim-input" id="dim-l-infra" value="10" oninput="update3D()"></td>
-                                        <td><input type="number" class="dim-input" id="dim-w-infra" value="10" oninput="update3D()"></td>
-                                        <td><input type="number" class="dim-input" id="dim-h-infra" value="5" oninput="update3D()"></td>
-                                        <td id="box-count-infra" style="font-weight:700;">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="program-color-dot" style="background: var(--clr-landscape);"></span>Landscape</td>
-                                        <td id="3d-gfa-land">0</td>
-                                        <td colspan="3" style="text-align:center; color:var(--text-muted);">Surface — N/A</td>
-                                        <td>1 surf.</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="program-color-dot" style="background: var(--clr-mobility);"></span>Mobility</td>
-                                        <td id="3d-gfa-mobility">0</td>
-                                        <td colspan="3" style="text-align:center; color:var(--text-muted);">Surface — N/A</td>
-                                        <td>1 surf.</td>
-                                    </tr>
+                                <tbody id="catalog-table-body">
+                                    <!-- Rows rendered dynamically by JS -->
                                 </tbody>
                             </table>
                         </div>

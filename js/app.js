@@ -2,6 +2,27 @@
    DMAA Program Configurator — Application Logic
    ============================================================ */
 
+// ─── Project Migration ─────────────────────────────────────
+function migrateProject(p) {
+  if (p.programs) return p; // Already migrated
+
+  // Safe fallback if dims exist
+  const getDims = (key, defaultDims) => p.dims && p.dims[key] ? p.dims[key] : defaultDims;
+  const getShare = (key, defaultShare) => p.pct && p.pct[key] !== undefined ? p.pct[key] : defaultShare;
+
+  p.programs = [
+    { id: 'office', name: 'Offices / R&D', color: '#ff6b8a', share: getShare('office', 50), dims: getDims('office', { l: 20, w: 20, h: 4 }), isSurface: false },
+    { id: 'land', name: 'Landscape', color: '#34d399', share: getShare('land', 15), dims: null, isSurface: true },
+    { id: 'amenities', name: 'Amenities', color: '#fbbf24', share: getShare('amenities', 10), dims: getDims('amenities', { l: 15, w: 15, h: 5 }), isSurface: false },
+    { id: 'housing', name: 'Housing', color: '#fb923c', share: getShare('housing', 15), dims: getDims('housing', { l: 10, w: 6, h: 3.5 }), isSurface: false },
+    { id: 'mobility', name: 'Mobility', color: '#60a5fa', share: getShare('mobility', 7), dims: null, isSurface: true },
+    { id: 'infra', name: 'Infrastructure', color: '#a78bfa', share: getShare('infra', 3), dims: getDims('infra', { l: 10, w: 10, h: 5 }), isSurface: false }
+  ];
+  delete p.pct;
+  delete p.dims;
+  return p;
+}
+
 // ─── Project Store ─────────────────────────────────────────
 const Store = {
   KEY: 'dmaa-projects',
@@ -63,12 +84,13 @@ const Store = {
   load() {
     const raw = localStorage.getItem(this.KEY);
     if (raw) {
-      try { return JSON.parse(raw); }
+      try { return JSON.parse(raw).map(migrateProject); }
       catch { /* fall through */ }
     }
     // First time — seed defaults
-    this.save(this.defaults);
-    return [...this.defaults];
+    const defaultsMigrated = this.defaults.map(migrateProject);
+    this.save(defaultsMigrated);
+    return [...defaultsMigrated];
   },
 
   save(projects) {
@@ -191,13 +213,14 @@ function createNewProject() {
     employees: 5000,
     gfaPerEmp: 25,
     benchmark: 'custom',
-    pct: { office: 50, land: 15, amenities: 10, housing: 15, mobility: 7, infra: 3 },
-    dims: {
-      office: { l: 20, w: 20, h: 4 },
-      amenities: { l: 15, w: 15, h: 5 },
-      housing: { l: 10, w: 6, h: 3.5 },
-      infra: { l: 10, w: 10, h: 5 }
-    },
+    programs: [
+      { id: 'office', name: 'Offices / R&D', color: '#ff6b8a', share: 50, dims: { l: 20, w: 20, h: 4 }, isSurface: false },
+      { id: 'land', name: 'Landscape', color: '#34d399', share: 15, dims: null, isSurface: true },
+      { id: 'amenities', name: 'Amenities', color: '#fbbf24', share: 10, dims: { l: 15, w: 15, h: 5 }, isSurface: false },
+      { id: 'housing', name: 'Housing', color: '#fb923c', share: 15, dims: { l: 10, w: 6, h: 3.5 }, isSurface: false },
+      { id: 'mobility', name: 'Mobility', color: '#60a5fa', share: 7, dims: null, isSurface: true },
+      { id: 'infra', name: 'Infrastructure', color: '#a78bfa', share: 3, dims: { l: 10, w: 10, h: 5 }, isSurface: false }
+    ],
     createdAt: new Date().toISOString().split('T')[0]
   };
 
@@ -288,18 +311,8 @@ function initEditor() {
   document.getElementById('employees').value = currentProject.employees;
   document.getElementById('gfaPerEmp').value = currentProject.gfaPerEmp;
 
-  // Percentages
-  pctKeys.forEach(key => {
-    document.getElementById('pct-' + key).value = currentProject.pct[key];
-  });
-
-  // Module dimensions
-  const dimKeys = ['office', 'amenities', 'housing', 'infra'];
-  dimKeys.forEach(key => {
-    document.getElementById('dim-l-' + key).value = currentProject.dims[key].l;
-    document.getElementById('dim-w-' + key).value = currentProject.dims[key].w;
-    document.getElementById('dim-h-' + key).value = currentProject.dims[key].h;
-  });
+  renderProgramTable();
+  renderCatalogTable();
 
   // Reset to first tab
   switchEditorTab(0);
@@ -338,6 +351,119 @@ function switchEditorTab(idx) {
   }
 }
 
+// ─── Dynamic Renders & Handlers ────────────────────────────
+function renderProgramTable() {
+  const tbody = document.getElementById('program-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  
+  currentProject.programs.forEach(prog => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div style="display:flex; align-items:center;">
+          <input type="color" value="${prog.color}" style="width:24px; height:24px; border:none; padding:0; background:none; cursor:pointer; margin-right:8px; border-radius:50%;" onchange="updateProgramColor('${prog.id}', this.value)">
+          <input type="text" value="${escapeHtml(prog.name)}" class="pct-input" style="width:140px; text-align:left; font-size:13px;" onchange="updateProgramName('${prog.id}', this.value)">
+        </div>
+      </td>
+      <td>
+        <input type="number" class="pct-input" value="${prog.share}" onchange="updateProgramShare('${prog.id}', this.value)">
+      </td>
+      <td id="area-${prog.id}">0</td>
+      <td style="width:40px; text-align:center;">
+        <button class="btn btn-ghost" style="padding:4px; color:var(--text-danger);" onclick="removeProgramType('${prog.id}')">×</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderCatalogTable() {
+  const tbody = document.getElementById('catalog-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  currentProject.programs.forEach(prog => {
+    const tr = document.createElement('tr');
+    let dimsMarkup = '';
+    
+    if (prog.isSurface) {
+      dimsMarkup = `
+        <td colspan="3" style="text-align:center; color:var(--text-muted);">Surface — N/A</td>
+        <td>1 surf.</td>
+      `;
+    } else {
+      const d = prog.dims || {l:10, w:10, h:4};
+      dimsMarkup = `
+        <td><input type="number" class="dim-input" value="${d.l}" onchange="updateProgramDim('${prog.id}', 'l', this.value)"></td>
+        <td><input type="number" class="dim-input" value="${d.w}" onchange="updateProgramDim('${prog.id}', 'w', this.value)"></td>
+        <td><input type="number" class="dim-input" value="${d.h}" onchange="updateProgramDim('${prog.id}', 'h', this.value)"></td>
+        <td id="box-count-${prog.id}" style="font-weight:700;">0</td>
+      `;
+    }
+
+    tr.innerHTML = `
+      <td><span class="program-color-dot" style="background: ${prog.color};"></span>${escapeHtml(prog.name)}</td>
+      <td id="3d-gfa-${prog.id}">0</td>
+      ${dimsMarkup}
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function addCustomProgramType() {
+  if (!currentProject) return;
+  const newId = 'prog-' + Date.now();
+  const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+  currentProject.programs.push({
+    id: newId,
+    name: 'New Program',
+    color: randomColor,
+    share: 0,
+    dims: { l: 15, w: 15, h: 4 },
+    isSurface: false
+  });
+  renderProgramTable();
+  renderCatalogTable();
+  calculate();
+}
+
+function removeProgramType(id) {
+  if (!currentProject) return;
+  currentProject.programs = currentProject.programs.filter(p => p.id !== id);
+  renderProgramTable();
+  renderCatalogTable();
+  calculate();
+}
+
+function updateProgramName(id, val) {
+  const p = currentProject.programs.find(x => x.id === id);
+  if (p) p.name = val;
+  renderCatalogTable();
+  if(chartInstance) calculate(); 
+  saveCurrentProject();
+}
+
+function updateProgramColor(id, val) {
+  const p = currentProject.programs.find(x => x.id === id);
+  if (p) p.color = val;
+  renderCatalogTable();
+  if(chartInstance) calculate(); 
+  saveCurrentProject();
+}
+
+function updateProgramShare(id, val) {
+  const p = currentProject.programs.find(x => x.id === id);
+  if (p) p.share = Math.max(0, Math.min(100, parseFloat(val) || 0));
+  balancePercentages(id);
+}
+
+function updateProgramDim(id, axis, val) {
+  const p = currentProject.programs.find(x => x.id === id);
+  if (p && p.dims) p.dims[axis] = parseFloat(val) || 10;
+  update3D();
+  saveCurrentProject();
+}
 
 // ─── Saving ────────────────────────────────────────────────
 function saveCurrentProject() {
@@ -353,20 +479,7 @@ function saveCurrentProject() {
   currentProject.employees = parseFloat(document.getElementById('employees').value) || 0;
   currentProject.gfaPerEmp = parseFloat(document.getElementById('gfaPerEmp').value) || 0;
 
-  // Percentages
-  pctKeys.forEach(key => {
-    currentProject.pct[key] = parseFloat(document.getElementById('pct-' + key).value) || 0;
-  });
 
-  // Dimensions
-  const dimKeys = ['office', 'amenities', 'housing', 'infra'];
-  dimKeys.forEach(key => {
-    currentProject.dims[key] = {
-      l: parseFloat(document.getElementById('dim-l-' + key).value) || 10,
-      w: parseFloat(document.getElementById('dim-w-' + key).value) || 10,
-      h: parseFloat(document.getElementById('dim-h-' + key).value) || 4
-    };
-  });
 
   Store.update(currentProject);
 }
@@ -375,13 +488,18 @@ function saveCurrentProject() {
 // ─── Master Program Calculation ────────────────────────────
 function initChart() {
   const ctx = document.getElementById('programChart').getContext('2d');
+  
+  const labels = currentProject.programs.map(p => p.name);
+  const colors = currentProject.programs.map(p => p.color);
+  const data = currentProject.programs.map(p => p.share);
+
   chartInstance = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: programLabels,
+      labels: labels,
       datasets: [{
-        data: [50, 15, 10, 15, 7, 3],
-        backgroundColor: programColors,
+        data: data,
+        backgroundColor: colors,
         borderColor: 'rgba(10, 11, 16, 0.6)',
         borderWidth: 3,
         hoverBorderColor: 'rgba(255,255,255,0.3)',
@@ -434,35 +552,51 @@ function initChart() {
 function loadBenchmark() {
   const data = benchmarks[document.getElementById('benchmark').value];
   document.getElementById('gfaPerEmp').value = data.gfaPerEmp.toFixed(1);
-  pctKeys.forEach((key, i) => {
-    document.getElementById('pct-' + key).value = data.pct[i];
+  
+  const standardIds = ['office', 'land', 'amenities', 'housing', 'mobility', 'infra'];
+  standardIds.forEach((id, i) => {
+    const p = currentProject.programs.find(prog => prog.id === id);
+    if(p) p.share = data.pct[i];
   });
+  
+  // Custom ones share = 0
+  currentProject.programs.forEach(p => {
+    if(!standardIds.includes(p.id)) p.share = 0;
+  });
+  
+  renderProgramTable();
   calculate();
 }
 
-function balancePercentages(changedKey) {
-  let changedValue = parseFloat(document.getElementById('pct-' + changedKey).value) || 0;
-  changedValue = Math.max(0, Math.min(100, changedValue));
-  document.getElementById('pct-' + changedKey).value = changedValue;
+function balancePercentages(changedId) {
+  const changedProg = currentProject.programs.find(p => p.id === changedId);
+  if (!changedProg) return;
+  
+  changedProg.share = Math.max(0, Math.min(100, changedProg.share));
 
-  const otherKeys = pctKeys.filter(k => k !== changedKey);
-  let otherTotal = otherKeys.reduce((sum, k) => sum + (parseFloat(document.getElementById('pct-' + k).value) || 0), 0);
-  const remainder = 100 - changedValue;
+  const others = currentProject.programs.filter(k => k.id !== changedId);
+  let otherTotal = others.reduce((sum, p) => sum + p.share, 0);
+  const remainder = 100 - changedProg.share;
 
   if (otherTotal === 0 && remainder > 0) {
-    const split = remainder / otherKeys.length;
-    otherKeys.forEach(k => { document.getElementById('pct-' + k).value = parseFloat(split.toFixed(1)); });
+    if (others.length > 0) {
+      const split = remainder / others.length;
+      others.forEach(p => p.share = parseFloat(split.toFixed(1)));
+    }
   } else if (otherTotal > 0) {
-    otherKeys.forEach(k => {
-      const currentVal = parseFloat(document.getElementById('pct-' + k).value) || 0;
-      const newVal = (currentVal / otherTotal) * remainder;
-      document.getElementById('pct-' + k).value = parseFloat(newVal.toFixed(1));
+    others.forEach(p => {
+      const newVal = (p.share / otherTotal) * remainder;
+      p.share = parseFloat(newVal.toFixed(1));
     });
   }
+  
+  renderProgramTable();
   calculate();
 }
 
 function calculate() {
+  if (!currentProject) return;
+
   const emp = parseFloat(document.getElementById('employees').value) || 0;
   const gfaPerEmp = parseFloat(document.getElementById('gfaPerEmp').value) || 0;
   const totalGFA = emp * gfaPerEmp;
@@ -472,12 +606,8 @@ function calculate() {
   document.getElementById('kpi-employees').textContent = emp.toLocaleString('en-US');
   document.getElementById('kpi-gfa-emp').textContent = gfaPerEmp.toFixed(1);
 
-  const pctValues = {};
   let totalPct = 0;
-  pctKeys.forEach(key => {
-    pctValues[key] = parseFloat(document.getElementById('pct-' + key).value) || 0;
-    totalPct += pctValues[key];
-  });
+  currentProject.programs.forEach(p => totalPct += p.share);
   totalPct = Math.round(totalPct * 10) / 10;
 
   // Total allocation badge
@@ -485,24 +615,28 @@ function calculate() {
   totalPctEl.textContent = totalPct + '%';
   totalPctEl.style.color = (totalPct >= 99.9 && totalPct <= 100.1) ? '#34d399' : '#ef4444';
 
-  // Computed GFA per program
-  pctKeys.forEach(key => {
-    computedGFA[key] = Math.round(totalGFA * (pctValues[key] / 100));
-    document.getElementById('area-' + key).textContent = computedGFA[key].toLocaleString();
+  // Computed GFA per program & Area Readouts
+  computedGFA = {};
+  currentProject.programs.forEach(p => {
+    computedGFA[p.id] = Math.round(totalGFA * (p.share / 100));
+    
+    // Update DOM cells if table is rendered
+    const elTable = document.getElementById('area-' + p.id);
+    if (elTable) elTable.textContent = computedGFA[p.id].toLocaleString();
+    
+    const el3D = document.getElementById('3d-gfa-' + p.id);
+    if (el3D) el3D.textContent = computedGFA[p.id].toLocaleString();
   });
 
   const totalArea = Math.round(totalGFA * (totalPct / 100));
-  document.getElementById('total-area-check').textContent = totalArea.toLocaleString();
-
-  // Update 3D tab GFA readouts
-  pctKeys.forEach(key => {
-    const el = document.getElementById('3d-gfa-' + key);
-    if (el) el.textContent = computedGFA[key].toLocaleString();
-  });
+  const elTotalArea = document.getElementById('total-area-check');
+  if (elTotalArea) elTotalArea.textContent = totalArea.toLocaleString();
 
   // Update chart
   if (chartInstance) {
-    chartInstance.data.datasets[0].data = pctKeys.map(k => pctValues[k]);
+    chartInstance.data.labels = currentProject.programs.map(p => p.name);
+    chartInstance.data.datasets[0].data = currentProject.programs.map(p => p.share);
+    chartInstance.data.datasets[0].backgroundColor = currentProject.programs.map(p => p.color);
     chartInstance.update();
   }
 
@@ -575,21 +709,21 @@ function animate3D() {
   if (renderer3d && scene3d && camera3d) renderer3d.render(scene3d, camera3d);
 }
 
-function addBoxesToScene(name, colorHex, gfa, dimKey, isSurface, startZ) {
+function addBoxesToScene(prog, gfa, startZ) {
   const groupLayer = new THREE.Group();
-  groupLayer.name = name;
+  groupLayer.name = 'Layer_' + prog.id;
 
   if (gfa <= 0) return 0;
 
   const mat = new THREE.MeshStandardMaterial({
-    color: colorHex,
+    color: prog.color,
     roughness: 0.35,
     metalness: 0.1,
     transparent: true,
     opacity: 0.85
   });
 
-  if (isSurface) {
+  if (prog.isSurface) {
     const side = Math.sqrt(gfa);
     const geo = new THREE.BoxGeometry(side, 0.5, side);
     const mesh = new THREE.Mesh(geo, mat);
@@ -599,14 +733,14 @@ function addBoxesToScene(name, colorHex, gfa, dimKey, isSurface, startZ) {
     return side + 15;
   }
 
-  const L = parseFloat(document.getElementById('dim-l-' + dimKey).value) || 10;
-  const W = parseFloat(document.getElementById('dim-w-' + dimKey).value) || 10;
-  const H = parseFloat(document.getElementById('dim-h-' + dimKey).value) || 4;
+  const L = prog.dims && prog.dims.l ? prog.dims.l : 10;
+  const W = prog.dims && prog.dims.w ? prog.dims.w : 10;
+  const H = prog.dims && prog.dims.h ? prog.dims.h : 4;
 
   const boxArea = L * W;
   const count = Math.ceil(gfa / boxArea);
 
-  const boxCountEl = document.getElementById('box-count-' + dimKey);
+  const boxCountEl = document.getElementById('box-count-' + prog.id);
   if (boxCountEl) boxCountEl.textContent = count.toLocaleString();
 
   const geo = new THREE.BoxGeometry(L, H, W);
@@ -646,12 +780,9 @@ function update3D() {
 
   let zOffset = 0;
 
-  zOffset += addBoxesToScene('Layer_Offices', colorHex3D.office, computedGFA.office, 'office', false, zOffset);
-  zOffset += addBoxesToScene('Layer_Amenities', colorHex3D.amenities, computedGFA.amenities, 'amenities', false, zOffset);
-  zOffset += addBoxesToScene('Layer_Housing', colorHex3D.housing, computedGFA.housing, 'housing', false, zOffset);
-  zOffset += addBoxesToScene('Layer_Infrastructure', colorHex3D.infra, computedGFA.infra, 'infra', false, zOffset);
-  zOffset += addBoxesToScene('Layer_Landscape', colorHex3D.land, computedGFA.land, null, true, zOffset);
-  zOffset += addBoxesToScene('Layer_Mobility', colorHex3D.mobility, computedGFA.mobility, null, true, zOffset);
+  currentProject.programs.forEach(prog => {
+    zOffset += addBoxesToScene(prog, computedGFA[prog.id], zOffset);
+  });
 
   if (zOffset > 0) camera3d.position.set(zOffset / 2, Math.max(zOffset / 2, 100), zOffset);
   controls3d.target.set(zOffset / 4, 0, zOffset / 2);
@@ -707,13 +838,15 @@ function exportPPT() {
 
     let chartData = [{
       name: 'Program',
-      labels: programLabels,
-      values: [computedGFA.office, computedGFA.land, computedGFA.amenities, computedGFA.housing, computedGFA.mobility, computedGFA.infra]
+      labels: currentProject.programs.map(p => p.name),
+      values: currentProject.programs.map(p => computedGFA[p.id])
     }];
+    const chartColors = currentProject.programs.map(p => p.color.replace('#', ''));
+
     slide.addChart(pres.ChartType.doughnut, chartData, {
       x: 4.2, y: 0.4, w: 5.0, h: 2.5,
       showLegend: true, legendPos: 'r', doughnutHoleSize: 65,
-      chartColors: ['FF6B8A', '34D399', 'FBBF24', 'FB923C', '60A5FA', 'A78BFA'],
+      chartColors: chartColors,
       legendColor: 'FFFFFF', legendFontSize: 11,
       showValue: false, showPercent: true,
       dataLabels: { color: 'FFFFFF', fontSize: 10, position: 'outEnd' }
@@ -724,14 +857,11 @@ function exportPPT() {
         { text: 'Program', options: { bold: true, color: 'FFFFFF', fill: '1a1b25' } },
         { text: 'Share (%)', options: { bold: true, color: 'FFFFFF', fill: '1a1b25' } },
         { text: 'GFA (m²)', options: { bold: true, color: 'FFFFFF', fill: '1a1b25' } }
-      ],
-      ['Offices / R&D', document.getElementById('pct-office').value + '%', computedGFA.office.toLocaleString()],
-      ['Landscape', document.getElementById('pct-land').value + '%', computedGFA.land.toLocaleString()],
-      ['Amenities', document.getElementById('pct-amenities').value + '%', computedGFA.amenities.toLocaleString()],
-      ['Housing', document.getElementById('pct-housing').value + '%', computedGFA.housing.toLocaleString()],
-      ['Mobility', document.getElementById('pct-mobility').value + '%', computedGFA.mobility.toLocaleString()],
-      ['Infrastructure', document.getElementById('pct-infra').value + '%', computedGFA.infra.toLocaleString()]
+      ]
     ];
+    currentProject.programs.forEach(p => {
+      rows.push([p.name, p.share + '%', computedGFA[p.id].toLocaleString()]);
+    });
     slide.addTable(rows, {
       x: 0.5, y: 3.0, w: 9.0, colW: [4.0, 2.5, 2.5],
       border: { pt: 0.5, color: 'FFFFFF', transparency: 80 },
