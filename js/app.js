@@ -59,40 +59,6 @@ const Store = {
       createdAt: '2026-02-01'
     },
     {
-      id: 'proj-vienna',
-      name: 'Vienna Innovation Hub',
-      client: 'City of Vienna',
-      typology: 'Mixed-Use Innovation',
-      employees: 2200,
-      gfaPerEmp: 22,
-      benchmark: 'google',
-      pct: { office: 48, land: 32, amenities: 10, housing: 0, mobility: 7, infra: 3 },
-      dims: {
-        office: { l: 18, w: 18, h: 3.5 },
-        amenities: { l: 12, w: 12, h: 4 },
-        housing: { l: 10, w: 6, h: 3 },
-        infra: { l: 8, w: 8, h: 4 }
-      },
-      createdAt: '2026-01-15'
-    },
-    {
-      id: 'proj-zurich',
-      name: 'Zürich Lake Campus',
-      client: 'Swiss Life AG',
-      typology: 'Corporate Headquarters',
-      employees: 3500,
-      gfaPerEmp: 28,
-      benchmark: 'apple',
-      pct: { office: 15, land: 80, amenities: 3, housing: 0, mobility: 1, infra: 1 },
-      dims: {
-        office: { l: 24, w: 24, h: 4 },
-        amenities: { l: 20, w: 15, h: 5 },
-        housing: { l: 10, w: 6, h: 3.5 },
-        infra: { l: 12, w: 12, h: 5 }
-      },
-      createdAt: '2025-11-20'
-    },
-    {
       id: 'proj-578',
       projectCode: '578',
       name: 'ga8 Frankfurt',
@@ -120,6 +86,9 @@ const Store = {
     if (raw) {
       try {
         let projects = JSON.parse(raw).map(migrateProject);
+        // Remove retired seed projects
+        const retired = ['proj-vienna', 'proj-zurich'];
+        projects = projects.filter(p => !retired.includes(p.id));
         // Inject any seed projects that are missing from existing data
         this.defaults.forEach(seed => {
           if (!projects.find(p => p.id === seed.id)) {
