@@ -44,6 +44,7 @@ const Store = {
   defaults: [
     {
       id: 'proj-neom',
+      projectCode: '586',
       name: 'NEOM AI Campus',
       client: 'NEOM Company',
       typology: 'AI / Technology Campus',
