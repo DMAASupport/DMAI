@@ -632,10 +632,15 @@ body::before {
   gap: var(--space-lg);
 }
 
+@keyframes wordmark-flow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
 .editor-wordmark {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   padding: var(--space-md) 0;
   border-right: 1px solid var(--glass-border);
   padding-right: var(--space-lg);
@@ -645,9 +650,17 @@ body::before {
   font-size: 15px;
   font-weight: 700;
   letter-spacing: -0.3px;
-  color: var(--text-primary);
   line-height: 1;
-  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-cyan) 100%);
+  display: block;
+  background: linear-gradient(90deg,
+    var(--accent-cyan),
+    var(--accent-lavender),
+    var(--accent-coral),
+    var(--accent-amber),
+    var(--accent-cyan)
+  );
+  background-size: 300% 100%;
+  animation: wordmark-flow 5s linear infinite;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -655,11 +668,25 @@ body::before {
 
 .editor-wordmark-sub {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1.2px;
-  color: var(--text-muted);
+  letter-spacing: 0.5px;
   line-height: 1;
+  display: block;
+  width: 100%;
+  text-align-last: justify;
+  background: linear-gradient(90deg,
+    var(--accent-cyan),
+    var(--accent-lavender),
+    var(--accent-coral),
+    var(--accent-amber),
+    var(--accent-cyan)
+  );
+  background-size: 300% 100%;
+  animation: wordmark-flow 5s linear infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .wordmark-large {
@@ -671,8 +698,8 @@ body::before {
   letter-spacing: -0.6px;
 }
 .wordmark-large .editor-wordmark-sub {
-  font-size: 11px;
-  letter-spacing: 2px;
+  font-size: 10px;
+  letter-spacing: 0px;
 }
 
 .breadcrumb {
@@ -1647,6 +1674,7 @@ body::before {
   .kpi-value { font-size: 30px; }
   .dashboard-header h1 { font-size: 36px; }
   .wordmark-large .editor-wordmark-title { font-size: 34px; }
+  .wordmark-large .editor-wordmark-sub { font-size: 11px; }
   .project-card-name { font-size: 20px; }
   .stat-value { font-size: 20px; }
 }
@@ -1655,6 +1683,7 @@ body::before {
   .kpi-value { font-size: 34px; }
   .dashboard-header h1 { font-size: 42px; }
   .wordmark-large .editor-wordmark-title { font-size: 40px; }
+  .wordmark-large .editor-wordmark-sub { font-size: 13px; }
   .project-card-name { font-size: 22px; }
   .stat-value { font-size: 22px; }
   .section-title,
