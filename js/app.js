@@ -596,8 +596,13 @@ function initEditor() {
   document.getElementById('gfaPerEmp').value            = currentProject.gfaPerEmp;
   document.getElementById('siteArea').value             = currentProject.siteArea || 0;
 
-  if (isPast) renderPastOverview();
-  renderGallery();
+  if (isPast) {
+    renderPastOverview();
+    renderPastGallery();
+    initPastGalleryDrop();
+  } else {
+    renderGallery();
+  }
 
   renderProgramTable();
   if (!isPast) renderCatalogTable();
@@ -711,6 +716,14 @@ function renderPastOverview() {
       <h3>Notes</h3>
       <div class="past-notes">${escapeHtml(currentProject.notes)}</div>
     </div>` : ''}
+
+    <div class="section-title" style="margin-top:var(--space-xl);">Renders &amp; Plans</div>
+    <div class="gallery-dropzone" id="past-gallery-dropzone">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.35"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <div class="gallery-dropzone-text">Drop images here or click to browse</div>
+      <div class="gallery-dropzone-sub">PNG · JPG · WEBP renders and plans</div>
+    </div>
+    <div class="gallery-grid" id="past-gallery-grid"></div>
   `;
 }
 
@@ -747,11 +760,55 @@ function renderGallery() {
   `).join('');
 }
 
+function renderPastGallery() {
+  const grid = document.getElementById('past-gallery-grid');
+  if (!grid || !currentProject) return;
+  const images = currentProject.images || [];
+  if (images.length === 0) {
+    grid.innerHTML = '<div class="gallery-empty">No images yet.</div>';
+    return;
+  }
+  grid.innerHTML = images.map(img => `
+    <div class="gallery-item">
+      <img src="${img.dataUrl}" alt="${escapeHtml(img.name)}">
+      <div class="gallery-item-footer">
+        <span class="gallery-item-name">${escapeHtml(img.name)}</span>
+        <button class="gallery-remove-btn" onclick="removeGalleryImage('${img.id}')" title="Remove">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function initPastGalleryDrop() {
+  const dropzone = document.getElementById('past-gallery-dropzone');
+  if (!dropzone) return;
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    handleGalleryFiles(e.dataTransfer.files);
+  });
+  dropzone.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file'; input.multiple = true; input.accept = 'image/*';
+    input.onchange = () => handleGalleryFiles(input.files);
+    input.click();
+  });
+}
+
 function removeGalleryImage(id) {
   if (!currentProject) return;
   currentProject.images = (currentProject.images || []).filter(img => img.id !== id);
-  renderGallery();
+  activeGalleryRender();
   try { Store.update(currentProject); } catch(e) { showSaveStatus('error'); }
+}
+
+function activeGalleryRender() {
+  if (currentProject?.status === 'past') renderPastGallery();
+  else renderGallery();
 }
 
 function handleGalleryFiles(files) {
@@ -768,7 +825,7 @@ function handleGalleryFiles(files) {
         dataUrl: e.target.result
       });
       if (--pending === 0) {
-        renderGallery();
+        activeGalleryRender();
         showSaveStatus('saving');
         try { Store.update(currentProject); showSaveStatus('saved'); }
         catch(err) { showSaveStatus('error'); }

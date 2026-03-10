@@ -1422,9 +1422,8 @@ body::before {
 }
 
 /* ─── Tab mode visibility ─────────────────────────────────── */
-/* Past projects: hide 3D Catalog (3rd) and Export (4th), show Gallery (5th) */
-.mode-past .editor-tab:nth-child(3),
-.mode-past .editor-tab:nth-child(4) { display: none; }
+/* Past projects: hide the entire tab bar — single scrollable page */
+.mode-past .editor-tabs { display: none; }
 
 /* Ongoing projects: hide Gallery (5th) */
 .mode-ongoing .editor-tab:nth-child(5) { display: none; }
