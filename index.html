@@ -44,16 +44,16 @@
         <!-- Dashboard Content -->
         <div class="dashboard-content">
             <div class="dashboard-header">
-                <h1>Your Projects</h1>
-                <p>Shape visionary environments. Configure the spatial backbone of your next architectural masterplan and deploy vibrant, data-driven catalogs into the third dimension.</p>
-            </div>
-
-            <!-- Search bar -->
-            <div class="search-bar-wrapper">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="search-icon">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <input type="text" class="search-input" placeholder="Search by name, client or typology…" oninput="filterDashboard(this.value)">
+                <div class="dashboard-header-text">
+                    <h1>Your Projects</h1>
+                    <p>Shape visionary environments. Configure the spatial backbone of your next architectural masterplan and deploy vibrant, data-driven catalogs into the third dimension.</p>
+                </div>
+                <div class="search-bar-wrapper">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="search-icon">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" class="search-input" placeholder="Search projects…" oninput="filterDashboard(this.value)">
+                </div>
             </div>
 
             <div class="projects-grid" id="projects-grid">
@@ -76,10 +76,13 @@
     <div id="view-editor" class="view">
         <!-- Editor Top Bar -->
         <div class="editor-top-bar">
-            <div class="breadcrumb">
-                <a onclick="goToDashboard()">Projects</a>
-                <span class="separator">›</span>
-                <span class="current" id="breadcrumb-project-name">Project</span>
+            <div class="editor-top-bar-left">
+                <img src="Logos/Delugan%20Meissl%20Associated%20Architects_white.png" alt="DMAA" class="editor-logo">
+                <div class="breadcrumb">
+                    <a onclick="goToDashboard()">Projects</a>
+                    <span class="separator">›</span>
+                    <span class="current" id="breadcrumb-project-name">Project</span>
+                </div>
             </div>
             <div class="editor-actions">
                 <!-- Save status indicator -->
@@ -116,7 +119,7 @@
                 <div class="section-title">Project Details</div>
 
                 <!-- KPI Cards -->
-                <div class="kpi-grid" style="margin-bottom: var(--space-xl);">
+                <div class="kpi-grid">
                     <div class="kpi-card">
                         <div class="kpi-label">Total Campus GFA <span class="info-dot" data-tooltip="Aggregate Gross Floor Area for the entire project">i</span></div>
                         <div class="kpi-value" id="kpi-total-gfa" style="color: var(--accent-cyan);">0<span class="kpi-unit">m²</span></div>
@@ -195,7 +198,7 @@
 
                 <!-- Project Notes -->
                 <div class="notes-section">
-                    <div class="section-title" style="margin-top: var(--space-xl);">Project Notes</div>
+                    <div class="section-title">Project Notes</div>
                     <div class="overview-panel">
                         <textarea id="edit-notes" placeholder="Document client requirements, planning constraints, design decisions, phasing notes…" onchange="saveCurrentProject()"></textarea>
                     </div>

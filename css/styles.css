@@ -379,8 +379,17 @@ body::before {
 }
 
 .dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xl);
   margin-bottom: var(--space-2xl);
   animation: fadeInUp var(--duration-slow) var(--ease-out);
+}
+
+.dashboard-header-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .dashboard-header h1 {
@@ -542,7 +551,7 @@ body::before {
 .project-card-actions {
   display: flex;
   gap: var(--space-sm);
-  padding: var(--space-md) var(--space-lg);
+  padding: 12px var(--space-lg);
   border-top: 1px solid var(--glass-border);
   opacity: 0;
   transform: translateY(4px);
@@ -552,6 +561,12 @@ body::before {
 .project-card:hover .project-card-actions {
   opacity: 1;
   transform: translateY(0);
+}
+
+.card-action-btn {
+  font-size: 12px;
+  padding: 7px 14px;
+  gap: 6px;
 }
 
 /* ============================================================
@@ -568,6 +583,22 @@ body::before {
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.editor-top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.editor-logo {
+  height: 22px;
+  object-fit: contain;
+  opacity: 0.7;
+  transition: opacity var(--duration-fast);
+}
+.editor-logo:hover {
+  opacity: 1;
 }
 
 .breadcrumb {
@@ -689,7 +720,7 @@ body::before {
 /* --- KPI Cards --- */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: var(--space-md);
   margin-bottom: var(--space-xl);
 }
@@ -717,10 +748,11 @@ body::before {
 }
 
 .kpi-value {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
   letter-spacing: -0.5px;
   line-height: 1;
+  word-break: break-all;
 }
 
 .kpi-unit {
@@ -1076,10 +1108,26 @@ body::before {
 }
 
 .overview-panel h3 {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
   margin-bottom: var(--space-lg);
-  color: var(--text-primary);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.overview-panel h3::before {
+  content: '';
+  width: 3px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--accent-cyan);
+  flex-shrink: 0;
 }
 
 /* --- Modal / Dialog --- */
@@ -1138,10 +1186,6 @@ body::before {
     grid-template-columns: 1fr;
   }
 
-  .kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .dashboard-content,
   .editor-content {
     padding: var(--space-lg) var(--space-md);
@@ -1149,10 +1193,6 @@ body::before {
 }
 
 @media (max-width: 600px) {
-  .kpi-grid {
-    grid-template-columns: 1fr;
-  }
-
   .editor-tabs {
     overflow-x: auto;
     padding: 0 var(--space-md);
@@ -1289,8 +1329,8 @@ body::before {
 /* ─── Dashboard Search Bar ────────────────────────────────── */
 .search-bar-wrapper {
   position: relative;
-  margin-bottom: var(--space-lg);
-  max-width: 420px;
+  flex-shrink: 0;
+  width: 280px;
 }
 .search-icon {
   position: absolute;
@@ -1299,25 +1339,33 @@ body::before {
   transform: translateY(-50%);
   color: var(--text-muted);
   pointer-events: none;
+  transition: color var(--duration-fast);
+}
+.search-bar-wrapper:focus-within .search-icon {
+  color: var(--accent-cyan);
 }
 .search-input {
   width: 100%;
-  padding: 10px 16px 10px 40px;
-  background: rgba(255,255,255,0.03);
+  padding: 10px 18px 10px 40px;
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-pill);
   color: var(--text-primary);
   font-family: var(--font);
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   outline: none;
-  transition: all var(--duration-fast);
+  transition: all var(--duration-fast) var(--ease-out);
 }
 .search-input:focus {
-  border-color: rgba(0, 212, 255, 0.4);
-  background: rgba(0, 212, 255, 0.03);
+  border-color: rgba(0, 212, 255, 0.45);
+  background: rgba(0, 212, 255, 0.04);
   box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.08);
 }
-.search-input::placeholder { color: var(--text-muted); }
+.search-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
 
 /* ─── Benchmark Comparison Panel ──────────────────────────── */
 .benchmark-comparison-panel {
@@ -1414,9 +1462,60 @@ body::before {
   max-width: 280px;
 }
 
+/* ─── Notes Section Spacing ───────────────────────────────── */
+.notes-section {
+  margin-top: var(--space-xl);
+}
+
+/* ─── Benchmark comparison panel h3 override ─────────────── */
+.benchmark-comparison-panel h3 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.benchmark-comparison-panel h3::before {
+  content: '';
+  width: 3px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--accent-cyan);
+  flex-shrink: 0;
+}
+
 /* ─── Responsive additions ────────────────────────────────── */
+@media (max-width: 1200px) {
+  .kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 900px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-lg);
+  }
+  .search-bar-wrapper {
+    width: 100%;
+  }
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
   .export-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .kpi-grid {
     grid-template-columns: 1fr;
   }
 }

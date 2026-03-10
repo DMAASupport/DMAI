@@ -318,9 +318,14 @@ function renderDashboard() {
       </div>
       <div class="program-bar">${programBar}</div>
       <div class="project-card-actions">
-        <button class="btn btn-ghost" style="font-size:12px; padding:6px 14px;" onclick="event.stopPropagation(); openProject('${proj.id}')">Open</button>
-        <button class="btn btn-ghost" style="font-size:12px; padding:6px 14px;" onclick="event.stopPropagation(); duplicateProject('${proj.id}')">Duplicate</button>
-        <button class="btn btn-danger" style="font-size:12px; padding:6px 14px;" onclick="event.stopPropagation(); deleteProject('${proj.id}')">Delete</button>
+        <button class="btn btn-ghost card-action-btn" onclick="event.stopPropagation(); duplicateProject('${proj.id}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Duplicate
+        </button>
+        <button class="btn btn-danger card-action-btn" onclick="event.stopPropagation(); deleteProject('${proj.id}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          Delete
+        </button>
       </div>
     `;
     grid.appendChild(card);
