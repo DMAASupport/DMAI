@@ -621,6 +621,19 @@ body::before {
   line-height: 1;
 }
 
+.wordmark-large {
+  border-right: none;
+  padding-right: 0;
+}
+.wordmark-large .editor-wordmark-title {
+  font-size: 30px;
+  letter-spacing: -0.6px;
+}
+.wordmark-large .editor-wordmark-sub {
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
 .breadcrumb {
   display: flex;
   align-items: center;
