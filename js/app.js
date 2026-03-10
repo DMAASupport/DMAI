@@ -82,6 +82,27 @@ const Store = {
         { id: 'sonstig', name: 'Mixed Use',           color: '#00d4ff', share:  3, dims: null,                     isSurface: true,  locked: false, nFloors: 1  }
       ],
       createdAt: '2026-03-10'
+    },
+    {
+      id: 'proj-581',
+      projectCode: '581',
+      name: 'Eibengasse H2',
+      client: 'City of Vienna',
+      typology: 'Residential',
+      status: 'past',
+      employees: 260,
+      gfaPerEmp: 44,
+      benchmark: 'custom',
+      siteArea: 3624,
+      notes: 'Architect selection competition, Stadtquartier Eibengasse, Vienna 1220. Residential building Plot H2 — 117 dwelling units (types A–E, 1–5 bedrooms) across 10 floors. Total above-grade GFA 11,558 m². 3 stairwells, 3 lifts, 55 parking spaces.',
+      programs: [
+        { id: 'housing',     name: 'Housing',     color: '#fb923c', share: 68, dims: { l: 44, w: 22, h: 3   }, isSurface: false, locked: false, nFloors: 10 },
+        { id: 'communal',    name: 'Communal',    color: '#34d399', share: 11, dims: { l: 16, w: 16, h: 3   }, isSurface: false, locked: false, nFloors: 1  },
+        { id: 'circulation', name: 'Circulation', color: '#60a5fa', share: 11, dims: null,                     isSurface: true,  locked: false, nFloors: 1  },
+        { id: 'storage',     name: 'Storage',     color: '#fbbf24', share:  7, dims: { l: 10, w: 10, h: 2.5 }, isSurface: false, locked: false, nFloors: 1  },
+        { id: 'technical',   name: 'Technical',   color: '#a78bfa', share:  3, dims: { l: 8,  w: 8,  h: 3   }, isSurface: false, locked: false, nFloors: 1  }
+      ],
+      createdAt: '2025-12-01'
     }
   ],
 
