@@ -91,13 +91,44 @@ const Store = {
         infra: { l: 12, w: 12, h: 5 }
       },
       createdAt: '2025-11-20'
+    },
+    {
+      id: 'proj-578',
+      projectCode: '578',
+      name: 'ga8 Frankfurt',
+      client: 'Stadt Frankfurt',
+      typology: 'Mixed-Use High-Rise',
+      employees: 1200,
+      gfaPerEmp: 24,
+      benchmark: 'custom',
+      siteArea: 0,
+      notes: 'Realisierungswettbewerb ga8 Frankfurt. Mixed-use high-rise with office tower, residential tower, hotel, and cultural plinth. Data extracted from F-1 Flächen area schedule.',
+      programs: [
+        { id: 'buero',   name: 'Büro',              color: '#60a5fa', share: 43, dims: { l: 40, w: 40, h: 4   }, isSurface: false, locked: false, nFloors: 30 },
+        { id: 'wohnen',  name: 'Wohnen',             color: '#fb923c', share: 23, dims: { l: 30, w: 30, h: 3   }, isSurface: false, locked: false, nFloors: 16 },
+        { id: 'hotel',   name: 'Hotel',              color: '#a78bfa', share: 14, dims: { l: 25, w: 25, h: 3.5 }, isSurface: false, locked: false, nFloors: 5  },
+        { id: 'innwohn', name: 'Innovatives Wohnen', color: '#fbbf24', share: 12, dims: { l: 20, w: 20, h: 3   }, isSurface: false, locked: false, nFloors: 8  },
+        { id: 'kultur',  name: 'Kunst & Kultur',     color: '#34d399', share:  5, dims: { l: 30, w: 30, h: 6   }, isSurface: false, locked: false, nFloors: 2  },
+        { id: 'sonstig', name: 'Sonstiges',          color: '#00d4ff', share:  3, dims: null,                     isSurface: true,  locked: false, nFloors: 1  }
+      ],
+      createdAt: '2026-03-10'
     }
   ],
 
   load() {
     const raw = localStorage.getItem(this.KEY);
     if (raw) {
-      try { return JSON.parse(raw).map(migrateProject); }
+      try {
+        let projects = JSON.parse(raw).map(migrateProject);
+        // Inject any seed projects that are missing from existing data
+        this.defaults.forEach(seed => {
+          if (!projects.find(p => p.id === seed.id)) {
+            projects.unshift(migrateProject(JSON.parse(JSON.stringify(seed))));
+          }
+        });
+        this.save(projects);
+        return projects;
+      }
       catch { /* fall through */ }
     }
     const defaultsMigrated = this.defaults.map(migrateProject);
