@@ -649,7 +649,7 @@ body::before {
 .editor-wordmark-title {
   font-size: 15px;
   font-weight: 700;
-  letter-spacing: -0.3px;
+  letter-spacing: 0.08em;
   line-height: 1;
   display: block;
   background: linear-gradient(90deg,
@@ -695,7 +695,7 @@ body::before {
 }
 .wordmark-large .editor-wordmark-title {
   font-size: 30px;
-  letter-spacing: -0.6px;
+  letter-spacing: 0.06em;
 }
 .wordmark-large .editor-wordmark-sub {
   font-size: 10px;
