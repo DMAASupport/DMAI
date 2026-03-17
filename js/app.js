@@ -2319,141 +2319,161 @@ function toggleBot() {
 }
 
 function botInit() {
-  const hasKey = !!getBotApiKey();
-  document.getElementById('bot-apikey-setup').style.display = hasKey ? 'none' : 'flex';
-  document.getElementById('bot-input-row').style.display    = hasKey ? 'flex' : 'none';
-  if (hasKey && botHistory.length === 0) {
+  if (botHistory.length === 0) {
+    const projects = Store.load();
+    const names = projects.map(p => '"' + p.name + '"').slice(0, 3).join(', ');
     appendBotMessage('assistant',
-      "Hi! I'm the DMAA Assistant. I can search your project portfolio, answer questions about GFA, programs, budgets, and navigate directly to any project. What would you like to know?");
+      'Hi! I\'m the DMAA Assistant. I know your full project portfolio.\n\nProjects: ' + names + '\n\nTry:\n- "list all projects"\n- "list past projects"\n- "open HFM Stuttgart"\n- "GFA of ga8 Frankfurt"\n- "programs of Eibengasse"\n- "help" for all commands');
   }
 }
 
-function getBotApiKey() {
-  // Strip any non-printable-ASCII characters that would cause header encoding errors
-  return (localStorage.getItem('dmaa-bot-apikey') || '').replace(/[^\x20-\x7E]/g, '').trim();
-}
+function botKeyDown(e) { if (e.key === 'Enter') sendBotMessage(); }
 
-function resetBotApiKey() {
-  localStorage.removeItem('dmaa-bot-apikey');
-  botHistory = [];
-  document.getElementById('bot-messages').innerHTML = '';
-  document.getElementById('bot-apikey-setup').style.display = 'flex';
-  document.getElementById('bot-input-row').style.display    = 'none';
-  document.getElementById('bot-apikey-input').value = '';
-}
-
-function saveBotApiKey() {
-  const key = document.getElementById('bot-apikey-input').value.trim();
-  if (!key) return;
-  localStorage.setItem('dmaa-bot-apikey', key);
-  document.getElementById('bot-apikey-setup').style.display = 'none';
-  document.getElementById('bot-input-row').style.display    = 'flex';
-  appendBotMessage('assistant',
-    "Connected! I'm ready to help. Ask me anything about your DMAA project portfolio.");
-  document.getElementById('bot-input').focus();
-}
-
-function botApiKeyDown(e) { if (e.key === 'Enter') saveBotApiKey(); }
-function botKeyDown(e)    { if (e.key === 'Enter') sendBotMessage(); }
-
-function buildProjectContext() {
-  return JSON.stringify(Store.load().map(p => ({
-    id: p.id, code: p.projectCode, name: p.name,
-    client: p.client, typology: p.typology, status: p.status,
-    location: p.location, competitionType: p.competitionType,
-    totalGFA: p.employees * p.gfaPerEmp,
-    employees: p.employees, gfaPerEmp: p.gfaPerEmp, siteArea: p.siteArea || 0,
-    programs: (p.programs || []).map(pr => ({
-      name: pr.name, share: pr.share,
-      gfa: Math.round((pr.share / 100) * p.employees * p.gfaPerEmp)
-    })),
-    pm: {
-      result: p.projectManagement?.result || '',
-      constructionCost: p.projectManagement?.constructionCost || 0,
-      designFee: p.projectManagement?.designFee || 0,
-      competitionPrize: p.projectManagement?.competitionPrize || 0,
-      teamSize: p.projectManagement?.team?.teamSize || '',
-      totalHours: p.projectManagement?.team?.totalHours || '',
-      dates: p.projectManagement?.dates || {}
-    },
-    createdAt: p.createdAt, notes: p.notes || ''
-  })), null, 2);
-}
-
-async function sendBotMessage() {
+function sendBotMessage() {
   const input = document.getElementById('bot-input');
-  const text  = input.value.trim();
+  const text = input.value.trim();
   if (!text) return;
   input.value = '';
-  document.getElementById('bot-send-btn').disabled = true;
-  document.getElementById('bot-status-line').textContent = 'Thinking…';
-
   appendBotMessage('user', text);
-  botHistory.push({ role: 'user', content: text });
-  if (botHistory.length > 12) botHistory = botHistory.slice(-12);
-
   try {
-    const reply = await callClaudeAPI([...botHistory]);
-    botHistory.push({ role: 'assistant', content: reply });
-
-    const openMatch   = reply.match(/\[OPEN:(proj-[\w-]+)\]/);
-    const displayText = reply.replace(/\[OPEN:[^\]]+\]/g, '').trim();
-    appendBotMessage('assistant', displayText);
-
-    if (openMatch) {
-      setTimeout(() => { toggleBot(); openProject(openMatch[1]); }, 700);
-    }
-  } catch(err) {
-    appendBotMessage('assistant',
-      `Sorry, I couldn't reach the AI. ${err.message || 'Please check your API key.'}`);
+    appendBotMessage('assistant', botRespond(text));
+  } catch(e) {
+    appendBotMessage('assistant', 'Error: ' + e.message);
   }
-
-  document.getElementById('bot-send-btn').disabled = false;
-  document.getElementById('bot-status-line').textContent = 'Ask me about your projects';
 }
 
-async function callClaudeAPI(messages) {
-  const systemPrompt = [
-    'You are the DMAA Assistant, an AI built into the DMAA Program Configurator,',
-    'an architectural portfolio tool used by DMAA studio.',
-    'Help users find information about their projects quickly.',
-    '',
-    'CURRENT PROJECT DATA:',
-    buildProjectContext(),
-    '',
-    'RULES:',
-    '- Answer questions about GFA, programs, budgets, typology, location, competition results, team, and dates',
-    '- Be concise -- 1-3 sentences unless more detail is requested',
-    '- Format numbers nicely: e.g. 9508 m2, 2.4M EUR, 85%',
-    '- If the user asks to open / show / go to / navigate to a project, append [OPEN:proj-id] to your reply',
-    '- Do not invent data; if a field is 0 or empty say it has not been set yet',
-    '- Today\'s date is ' + new Date().toISOString().split('T')[0]
-  ].join('\n');
+function botFindProject(text, projects) {
+  const q = text.toLowerCase();
+  return projects.find(p => {
+    const code = (p.projectCode || '').toLowerCase();
+    const name = (p.name || '').toLowerCase();
+    return (code && q.includes(code)) ||
+      (name && q.includes(name)) ||
+      name.split(/\s+/).some(w => w.length > 3 && q.includes(w)) ||
+      (p.location?.city    && q.includes(p.location.city.toLowerCase())) ||
+      (p.location?.country && q.includes(p.location.country.toLowerCase()));
+  }) || null;
+}
 
-  const body = JSON.stringify({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 512,
-    system: systemPrompt,
-    messages
-  });
+function botFmtN(n)   { return Number(n).toLocaleString(); }
+function botFmtEur(n) {
+  if (!n) return '--';
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M EUR';
+  if (n >= 1000)    return Math.round(n/1000) + 'K EUR';
+  return n + ' EUR';
+}
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': getBotApiKey(),
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-client-side-api-key-flag': 'true'
-    },
-    body: new TextEncoder().encode(body)
-  });
+function botRespond(text) {
+  const q = text.toLowerCase().trim();
+  const projects = Store.load();
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || `HTTP ${res.status}`);
+  // HELP
+  if (/\bhelp\b|what can you|commands/.test(q)) {
+    return 'Supported queries:\n\n"open [project]" -- navigate\n"list [past/ongoing] projects"\n"GFA of [project]"\n"largest/smallest GFA"\n"programs of [project]"\n"budget of [project]"\n"team of [project]"\n"result of [project]"\n"projects in [city/country]"\n[project name] alone -- quick summary';
   }
-  const data = await res.json();
-  return data.content?.[0]?.text || '(no response)';
+
+  // NAVIGATE
+  if (/\b(open|show me|go to|navigate|take me to)\b/.test(q)) {
+    const p = botFindProject(q, projects);
+    if (p) { setTimeout(() => { toggleBot(); openProject(p.id); }, 600); return 'Opening ' + p.name + '...'; }
+    return 'Could not find that project. Try the name, code, or city.';
+  }
+
+  // LIST / COUNT
+  if (/how many|list|all project/.test(q)) {
+    const status = /\bpast\b/.test(q) ? 'past' : /\bongoing\b/.test(q) ? 'ongoing' : null;
+    const list = status ? projects.filter(p => p.status === status) : projects;
+    return list.length + ' ' + (status || 'total') + ' project' + (list.length !== 1 ? 's' : '') + ':\n' +
+      list.map(p => '- ' + p.name + ' (' + p.projectCode + ')').join('\n');
+  }
+
+  // GFA
+  if (/\bgfa\b|floor area|total area|\bm2\b|square meter/.test(q)) {
+    if (/largest|biggest/.test(q)) {
+      const s = [...projects].sort((a,b) => (b.employees*b.gfaPerEmp)-(a.employees*a.gfaPerEmp));
+      return 'Largest GFA: ' + s[0].name + ' at ' + botFmtN(s[0].employees*s[0].gfaPerEmp) + ' m2.';
+    }
+    if (/smallest|least/.test(q)) {
+      const s = [...projects].sort((a,b) => (a.employees*a.gfaPerEmp)-(b.employees*b.gfaPerEmp));
+      return 'Smallest GFA: ' + s[0].name + ' at ' + botFmtN(s[0].employees*s[0].gfaPerEmp) + ' m2.';
+    }
+    const p = botFindProject(q, projects);
+    if (p) {
+      const gfa = p.employees * p.gfaPerEmp;
+      return p.name + ' total GFA: ' + botFmtN(gfa) + ' m2\n(' + botFmtN(p.employees) + ' ' + (p.occupantLabel||'occupants') + ' x ' + p.gfaPerEmp + ' m2)';
+    }
+    return projects.map(p => p.name + ': ' + botFmtN(p.employees*p.gfaPerEmp) + ' m2').join('\n');
+  }
+
+  // PROGRAMS
+  if (/program|breakdown/.test(q)) {
+    const p = botFindProject(q, projects);
+    if (!p) return 'Which project? Try "programs of [name]".';
+    const gfa = p.employees * p.gfaPerEmp;
+    return p.name + ' programs:\n' +
+      (p.programs||[]).map(pr => '- ' + pr.name + ': ' + pr.share + '% (' + botFmtN(Math.round(pr.share/100*gfa)) + ' m2)').join('\n');
+  }
+
+  // BUDGET
+  if (/budget|construction cost|\bfee\b|\bprize\b/.test(q)) {
+    const p = botFindProject(q, projects);
+    if (!p) return 'Which project? Try "budget of [name]".';
+    const pm = p.projectManagement || {};
+    const cc = pm.constructionCost||0, df = pm.designFee||0, cp = pm.competitionPrize||0;
+    if (!cc && !df && !cp) return p.name + ': no budget data entered yet.';
+    const lines = [];
+    if (cc) lines.push('Construction: ' + botFmtEur(cc));
+    if (df) lines.push('Design fee: '   + botFmtEur(df));
+    if (cp) lines.push('Prize: '        + botFmtEur(cp));
+    lines.push('Total: ' + botFmtEur(cc+df+cp));
+    return p.name + ' budget:\n' + lines.join('\n');
+  }
+
+  // COMPETITION RESULT
+  if (/result|won|competition result/.test(q)) {
+    const rMap = { won:'1st Prize / Won', '2nd-3rd':'2nd or 3rd Place', 'not-selected':'Not Selected' };
+    const p = botFindProject(q, projects);
+    if (p) { const r = p.projectManagement?.result; return p.name + ': ' + (r ? rMap[r]||r : 'result not set yet'); }
+    const withR = projects.filter(p => p.projectManagement?.result);
+    if (!withR.length) return 'No competition results entered yet.';
+    return 'Results:\n' + withR.map(p => '- ' + p.name + ': ' + (rMap[p.projectManagement.result]||p.projectManagement.result)).join('\n');
+  }
+
+  // TEAM
+  if (/\bteam\b|architect|partner|\bhours\b/.test(q)) {
+    const p = botFindProject(q, projects);
+    if (!p) return 'Which project? Try "team of [name]".';
+    const t = p.projectManagement?.team || {};
+    const lines = [];
+    if (t.partner)    lines.push('Partner: '    + t.partner);
+    if (t.architect)  lines.push('Architect: '  + t.architect);
+    if (t.teamSize)   lines.push('Team size: '  + t.teamSize);
+    if (t.totalHours) lines.push('Total hours: ' + botFmtN(t.totalHours));
+    return lines.length ? p.name + ' team:\n' + lines.join('\n') : p.name + ': no team data yet.';
+  }
+
+  // LOCATION FILTER
+  if (/\bprojects in\b|projects.*\b(germany|austria|frankfurt|stuttgart|vienna)\b/.test(q)) {
+    const terms = ['germany','austria','frankfurt','stuttgart','vienna'];
+    const matched = terms.filter(t => q.includes(t));
+    const filtered = projects.filter(p => {
+      const loc = ((p.location?.city||'') + ' ' + (p.location?.country||'')).toLowerCase();
+      return matched.some(t => loc.includes(t));
+    });
+    if (filtered.length) return 'Found:\n' + filtered.map(p => '- ' + p.name + ' (' + (p.location?.city||'') + ')').join('\n');
+    return 'No projects found for that location.';
+  }
+
+  // FALLBACK: try name match -> quick summary
+  const p = botFindProject(q, projects);
+  if (p) {
+    const gfa = p.employees * p.gfaPerEmp;
+    const loc = p.location?.city ? p.location.city + ', ' + p.location.country : '';
+    return p.name + ' (' + p.projectCode + ')\n' + p.typology + (loc ? ' - ' + loc : '') +
+      '\nGFA: ' + botFmtN(gfa) + ' m2  |  ' + p.status;
+  }
+
+  return 'I\'m not sure how to answer that. Type "help" for supported queries, or enter a project name for a quick summary.';
 }
 
 function appendBotMessage(role, text) {
