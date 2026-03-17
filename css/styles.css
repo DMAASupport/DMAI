@@ -2311,8 +2311,8 @@ body::before {
 .pm-field input,
 .pm-select {
   font-size: 13px;
-  padding: 6px 10px;
-  background: var(--glass-bg);
+  padding: 7px 10px;
+  background: var(--bg-elevated);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
@@ -2330,12 +2330,22 @@ body::before {
 .pm-select {
   appearance: none;
   cursor: pointer;
+  background: var(--bg-elevated);
+}
+
+.pm-select option {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.pm-select option:checked {
+  background: #2a2b38;
 }
 
 .pm-input-wrapper {
   display: flex;
   align-items: center;
-  background: var(--glass-bg);
+  background: var(--bg-elevated);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   overflow: hidden;
