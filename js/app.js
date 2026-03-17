@@ -1035,20 +1035,77 @@ function renderPastGallery() {
   if (!grid || !currentProject) return;
   const images = currentProject.images || [];
   if (images.length === 0) {
-    grid.innerHTML = '<div class="gallery-empty">No images yet.</div>';
+    grid.innerHTML = '<div class="gallery-empty">No images yet. Drop images above to add.</div>';
     return;
   }
-  grid.innerHTML = images.map(img => `
-    <div class="gallery-item">
-      <img src="${img.dataUrl}" alt="${escapeHtml(img.name)}">
-      <div class="gallery-item-footer">
-        <span class="gallery-item-name">${escapeHtml(img.name)}</span>
-        <button class="gallery-remove-btn" onclick="removeGalleryImage('${img.id}')" title="Remove">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+
+  const [hero, ...rest] = images;
+
+  const heroHtml = `
+    <div class="pg-hero" onclick="openLightbox(0)">
+      <img src="${hero.dataUrl}" alt="${escapeHtml(hero.name)}">
+      <div class="pg-hero-overlay">
+        <span class="pg-hero-caption">${escapeHtml(hero.name)}</span>
+        <span class="pg-expand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </span>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+
+  const thumbsHtml = rest.length ? `
+    <div class="pg-thumbs">
+      ${rest.map((img, i) => `
+        <div class="pg-thumb" onclick="openLightbox(${i + 1})">
+          <img src="${img.dataUrl}" alt="${escapeHtml(img.name)}">
+          <div class="pg-thumb-overlay">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+          </div>
+        </div>`).join('')}
+    </div>` : '';
+
+  grid.innerHTML = heroHtml + thumbsHtml;
+}
+
+// ─── Lightbox ──────────────────────────────────────────────
+let lightboxImages = [];
+let lightboxIndex  = 0;
+
+function openLightbox(idx) {
+  if (!currentProject) return;
+  lightboxImages = currentProject.images || [];
+  lightboxIndex  = idx;
+  const lb = document.getElementById('lightbox');
+  if (!lb) return;
+  lb.classList.add('active');
+  updateLightbox();
+  document.addEventListener('keydown', lightboxKeyHandler);
+}
+
+function closeLightbox() {
+  const lb = document.getElementById('lightbox');
+  if (lb) lb.classList.remove('active');
+  document.removeEventListener('keydown', lightboxKeyHandler);
+}
+
+function navigateLightbox(dir) {
+  lightboxIndex = (lightboxIndex + dir + lightboxImages.length) % lightboxImages.length;
+  updateLightbox();
+}
+
+function updateLightbox() {
+  const img     = lightboxImages[lightboxIndex];
+  const lbImg   = document.getElementById('lightbox-img');
+  const lbCap   = document.getElementById('lightbox-caption');
+  const lbCount = document.getElementById('lightbox-count');
+  if (lbImg)   { lbImg.src = img.dataUrl; lbImg.alt = img.name; }
+  if (lbCap)   lbCap.textContent = img.name || '';
+  if (lbCount) lbCount.textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`;
+}
+
+function lightboxKeyHandler(e) {
+  if (e.key === 'Escape')     closeLightbox();
+  if (e.key === 'ArrowRight') navigateLightbox(1);
+  if (e.key === 'ArrowLeft')  navigateLightbox(-1);
 }
 
 function initPastGalleryDrop() {
