@@ -9,7 +9,7 @@ function migrateProject(p) {
   if (p.notes === undefined) p.notes = '';
   if (p.projectCode === undefined) p.projectCode = '';
   if (p.status === undefined) p.status = 'ongoing';
-  if (p.images === undefined) p.images = [];
+  if (p.images === undefined) p.images = p.seedImages ? p.seedImages.map(img => ({ id: img.id, src: img.src })) : [];
   if (p.occupantLabel === undefined) p.occupantLabel = 'Employees';
   if (p.location === undefined) p.location = { city: '', country: '' };
   if (p.competitionType === undefined) p.competitionType = '';
@@ -104,6 +104,15 @@ const Store = {
         { id: 'technical',   name: 'Technical',            color: '#ff6b8a', share:  8, dims: { l: 10, w: 10, h: 3   }, isSurface: false, locked: false, nFloors: 1 },
         { id: 'circulation', name: 'Circulation',          color: '#00d4ff', share:  7, dims: null,                     isSurface: true,  locked: false, nFloors: 1 }
       ],
+      seedImages: [
+        { id: 's508-1', src: 'images/508/vis_01.jpg',       caption: 'Render — Exterior view' },
+        { id: 's508-2', src: 'images/508/vis_02.jpg',       caption: 'Render — Street level' },
+        { id: 's508-3', src: 'images/508/vis_03.jpg',       caption: 'Render — Approach' },
+        { id: 's508-4', src: 'images/508/vis_04.jpg',       caption: 'Render — Facade detail' },
+        { id: 's508-5', src: 'images/508/elevation.jpg',    caption: 'Elevation — South-East' },
+        { id: 's508-6', src: 'images/508/storyboard_01.jpg', caption: 'Storyboard 01' },
+        { id: 's508-7', src: 'images/508/storyboard_02.jpg', caption: 'Storyboard 02' }
+      ],
       createdAt: '2021-09-01'
     },
     {
@@ -135,6 +144,14 @@ const Store = {
         { id: 'kultur',  name: 'Arts & Culture',      color: '#34d399', share:  5, dims: { l: 30, w: 30, h: 6   }, isSurface: false, locked: false, nFloors: 2  },
         { id: 'sonstig', name: 'Mixed Use',           color: '#00d4ff', share:  3, dims: null,                     isSurface: true,  locked: false, nFloors: 1  }
       ],
+      seedImages: [
+        { id: 's578-1', src: 'images/578/panel_01.jpg', caption: 'Competition Panel 01' },
+        { id: 's578-2', src: 'images/578/panel_02.jpg', caption: 'Competition Panel 02' },
+        { id: 's578-3', src: 'images/578/panel_03.jpg', caption: 'Competition Panel 03' },
+        { id: 's578-4', src: 'images/578/panel_04.jpg', caption: 'Competition Panel 04' },
+        { id: 's578-5', src: 'images/578/panel_05.jpg', caption: 'Competition Panel 05' },
+        { id: 's578-6', src: 'images/578/panel_06.jpg', caption: 'Competition Panel 06' }
+      ],
       createdAt: '2026-03-10'
     },
     {
@@ -165,6 +182,12 @@ const Store = {
         { id: 'storage',     name: 'Storage',     color: '#fbbf24', share:  7, dims: { l: 10, w: 10, h: 2.5 }, isSurface: false, locked: false, nFloors: 1  },
         { id: 'technical',   name: 'Technical',   color: '#a78bfa', share:  3, dims: { l: 8,  w: 8,  h: 3   }, isSurface: false, locked: false, nFloors: 1  }
       ],
+      seedImages: [
+        { id: 's581-1', src: 'images/581/panel_01.jpg',   caption: 'Competition Panel 01' },
+        { id: 's581-2', src: 'images/581/panel_02.jpg',   caption: 'Competition Panel 02' },
+        { id: 's581-3', src: 'images/581/panel_03.jpg',   caption: 'Competition Panel 03' },
+        { id: 's581-4', src: 'images/581/haengeplan.jpg', caption: 'Hanging Plan' }
+      ],
       createdAt: '2025-12-01'
     }
   ],
@@ -188,6 +211,9 @@ const Store = {
             if (seed.occupantLabel) existing.occupantLabel = seed.occupantLabel;
             if (seed.location) existing.location = seed.location;
             if (seed.competitionType) existing.competitionType = seed.competitionType;
+            if (seed.seedImages && (!existing.images || existing.images.length === 0)) {
+              existing.images = seed.seedImages.map(img => ({ id: img.id, src: img.src }));
+            }
           }
         });
         this.save(projects);
