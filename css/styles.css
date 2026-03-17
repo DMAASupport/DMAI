@@ -1428,8 +1428,8 @@ body::before {
 /* Past projects: hide the entire tab bar — single scrollable page */
 .editor-tabs.mode-past { display: none; }
 
-/* Ongoing projects: hide Gallery (5th tab button) */
-.editor-tabs.mode-ongoing .editor-tab:nth-child(5) { display: none; }
+/* Ongoing projects: hide Gallery (6th tab button) */
+.editor-tabs.mode-ongoing .editor-tab:nth-child(6) { display: none; }
 
 
 /* ─── Past Project Overview ───────────────────────────────── */

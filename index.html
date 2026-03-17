@@ -118,10 +118,11 @@
         <!-- Editor Tabs -->
         <div class="editor-tabs">
             <button class="editor-tab active" onclick="switchEditorTab(0)">Overview</button>
-            <button class="editor-tab" onclick="switchEditorTab(1)">Master Program</button>
-            <button class="editor-tab" onclick="switchEditorTab(2)">3D Catalog</button>
-            <button class="editor-tab" onclick="switchEditorTab(3)">Export</button>
-            <button class="editor-tab" onclick="switchEditorTab(4)">Gallery</button>
+            <button class="editor-tab" onclick="switchEditorTab(1)">Project Management</button>
+            <button class="editor-tab" onclick="switchEditorTab(2)">Master Program</button>
+            <button class="editor-tab" onclick="switchEditorTab(3)">3D Catalog</button>
+            <button class="editor-tab" onclick="switchEditorTab(4)">Export</button>
+            <button class="editor-tab" onclick="switchEditorTab(5)">Gallery</button>
         </div>
 
         <!-- Editor Content -->
@@ -244,7 +245,12 @@
                 </div>
             </div>
 
-            <!-- ─── Tab 1: Master Program ─── -->
+            <!-- ─── Tab 1: Project Management ─── -->
+            <div id="tab-panel-pm" class="tab-panel">
+                <div id="pm-section-ongoing"></div>
+            </div>
+
+            <!-- ─── Tab 2: Master Program ─── -->
             <div id="tab-panel-program" class="tab-panel">
                 <div class="form-grid">
                     <div>

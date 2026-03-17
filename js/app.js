@@ -723,6 +723,7 @@ function initEditor() {
     renderPastGallery();
     initPastGalleryDrop();
   } else {
+    renderPMSection();
     renderGallery();
   }
 
@@ -740,10 +741,10 @@ function switchEditorTab(idx) {
   document.querySelectorAll('.tab-panel').forEach((panel, i) => panel.classList.toggle('active', i === idx));
 
   const isPast = currentProject?.status === 'past';
-  document.getElementById('editor-btn-ppt').style.display = (idx === 1 && !isPast) ? 'inline-flex' : 'none';
-  document.getElementById('editor-btn-obj').style.display = (idx === 2 && !isPast) ? 'inline-flex' : 'none';
+  document.getElementById('editor-btn-ppt').style.display = (idx === 2 && !isPast) ? 'inline-flex' : 'none';
+  document.getElementById('editor-btn-obj').style.display = (idx === 3 && !isPast) ? 'inline-flex' : 'none';
 
-  if (idx === 2 && !isPast) {
+  if (idx === 3 && !isPast) {
     setTimeout(() => {
       if (!scene3d) init3D(); else resize3D();
       update3D();
@@ -786,6 +787,12 @@ function togglePMLock() {
 
 function savePMField(path, value) {
   if (!currentProject) return;
+  // Top-level project fields (not nested in projectManagement)
+  if (path === 'competitionType') {
+    currentProject.competitionType = value;
+    try { Store.update(currentProject); showSaveStatus('saved'); } catch(e) { showSaveStatus('error'); }
+    return;
+  }
   if (!currentProject.projectManagement) currentProject.projectManagement = {};
   const parts = path.split('.');
   let obj = currentProject.projectManagement;
@@ -800,6 +807,114 @@ function savePMField(path, value) {
 
 
 // ─── Past Project Overview ─────────────────────────────────
+function renderPMSection() {
+  const container = document.getElementById('pm-section-ongoing');
+  if (!container || !currentProject) return;
+  const pm = currentProject.projectManagement || {};
+
+  const dateFields = [
+    ['Competition / Brief', 'dates.briefDate'],
+    ['Submission',          'dates.submissionDate'],
+    ['Result',              'dates.resultDate'],
+    ['Construction Start',  'dates.constructionStart'],
+    ['Construction End',    'dates.constructionEnd']
+  ];
+  const teamFields = [
+    ['Partner',      'team.partner',    'text',   'Name'],
+    ['Architect',    'team.architect',  'text',   'Name'],
+    ['Team Size',    'team.teamSize',   'number', '0'],
+    ['Total Hours',  'team.totalHours', 'number', '0']
+  ];
+  const totalGFA = currentProject.employees * currentProject.gfaPerEmp;
+
+  container.innerHTML = `
+    <div class="overview-panel pm-section">
+      <div class="pm-section-header">
+        <h3>Project Management</h3>
+      </div>
+      <div class="pm-grid">
+
+        <div class="pm-panel">
+          <div class="pm-panel-title">Competition</div>
+          <div class="pm-field">
+            <label>Result</label>
+            <select class="pm-select" onchange="savePMField('result', this.value)">
+              <option value=""          ${pm.result===''           ? 'selected':''}>— not set —</option>
+              <option value="won"       ${pm.result==='won'        ? 'selected':''}>🥇 Won / 1st Prize</option>
+              <option value="2nd-3rd"   ${pm.result==='2nd-3rd'   ? 'selected':''}>🥈 2nd / 3rd Place</option>
+              <option value="not-selected" ${pm.result==='not-selected' ? 'selected':''}>✗ Not Selected</option>
+            </select>
+          </div>
+          <div class="pm-field">
+            <label>Competition Type</label>
+            <select class="pm-select" onchange="savePMField('competitionType', this.value)">
+              <option value=""                  ${(currentProject.competitionType||'')===''}                  ? 'selected':''>— not set —</option>
+              <option value="open-competition"  ${(currentProject.competitionType||'')==='open-competition'  ? 'selected':''}>Open Competition</option>
+              <option value="invited-competition" ${(currentProject.competitionType||'')==='invited-competition' ? 'selected':''}>Invited Competition</option>
+              <option value="architect-selection" ${(currentProject.competitionType||'')==='architect-selection' ? 'selected':''}>Architect Selection</option>
+              <option value="commission"         ${(currentProject.competitionType||'')==='commission'         ? 'selected':''}>Direct Commission</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pm-panel">
+          <div class="pm-panel-title">Budget</div>
+          <div class="pm-field">
+            <label>Construction Cost</label>
+            <div class="pm-input-wrapper">
+              <input type="number" value="${pm.constructionCost||''}" placeholder="0"
+                oninput="savePMField('constructionCost', +this.value)">
+              <span class="pm-suffix">€</span>
+            </div>
+          </div>
+          <div class="pm-field">
+            <label>Design Fee</label>
+            <div class="pm-input-wrapper">
+              <input type="number" value="${pm.designFee||''}" placeholder="0"
+                oninput="savePMField('designFee', +this.value)">
+              <span class="pm-suffix">€</span>
+            </div>
+          </div>
+          <div class="pm-field">
+            <label>Competition Prize</label>
+            <div class="pm-input-wrapper">
+              <input type="number" value="${pm.competitionPrize||''}" placeholder="0"
+                oninput="savePMField('competitionPrize', +this.value)">
+              <span class="pm-suffix">€</span>
+            </div>
+          </div>
+          ${pm.constructionCost > 0 ? `
+          <div class="pm-field pm-computed">
+            <label>Cost / m²</label>
+            <span class="pm-computed-value">${Math.round(pm.constructionCost / totalGFA).toLocaleString()} €/m²</span>
+          </div>` : ''}
+        </div>
+
+        <div class="pm-panel">
+          <div class="pm-panel-title">Timeline</div>
+          ${dateFields.map(([label, path]) => `
+          <div class="pm-field">
+            <label>${label}</label>
+            <input type="date" value="${getNestedPM(pm, path)}"
+              onchange="savePMField('${path}', this.value)">
+          </div>`).join('')}
+        </div>
+
+        <div class="pm-panel">
+          <div class="pm-panel-title">Team</div>
+          ${teamFields.map(([label, path, type, ph]) => `
+          <div class="pm-field">
+            <label>${label}</label>
+            <input type="${type}" value="${getNestedPM(pm, path)}" placeholder="${ph}"
+              oninput="savePMField('${path}', this.value)">
+          </div>`).join('')}
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+
 function competitionTypeLabel(type) {
   const map = {
     'open-competition':    'Open Competition',
@@ -2044,6 +2159,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (e.key === '2') switchEditorTab(1);
         if (e.key === '3') switchEditorTab(2);
         if (e.key === '4') switchEditorTab(3);
+        if (e.key === '5') switchEditorTab(4);
       }
     }
   });
