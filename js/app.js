@@ -457,7 +457,8 @@ function renderDashboard() {
 
   // Status filter chips
   let ongoing = projects.filter(p => (p.status || 'ongoing') === 'ongoing');
-  let past    = projects.filter(p => p.status === 'past');
+  let past    = projects.filter(p => p.status === 'past')
+    .sort((a, b) => parseInt(a.projectCode) - parseInt(b.projectCode));
   if (dashboardStatusFilter === 'ongoing') past    = [];
   if (dashboardStatusFilter === 'past')    ongoing = [];
 
