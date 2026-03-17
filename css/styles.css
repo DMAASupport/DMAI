@@ -3205,9 +3205,9 @@ body::before {
 }
 
 #intro-welcome {
-  font-size: 11px;
+  font-size: 17px;
   font-weight: 400;
-  letter-spacing: 0.55em;
+  letter-spacing: 0.45em;
   color: rgba(255, 255, 255, 0.38);
   margin-bottom: 24px;
   visibility: hidden;
@@ -3248,9 +3248,9 @@ body::before {
 
 /* Tagline */
 #intro-tag {
-  font-size: 9.5px;
+  font-size: 14px;
   font-weight: 400;
-  letter-spacing: 0.38em;
+  letter-spacing: 0.32em;
   color: rgba(255, 255, 255, 0.0);
   margin-top: 16px;
   text-transform: uppercase;
