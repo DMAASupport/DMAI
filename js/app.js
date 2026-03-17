@@ -785,6 +785,137 @@ function togglePMLock() {
   initPastGalleryDrop();
 }
 
+// ─── PM Charts ─────────────────────────────────────────────
+let pmBudgetChart = null;
+
+function formatEur(n) {
+  if (!n) return '—';
+  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M €`;
+  if (n >= 1000)    return `${Math.round(n / 1000)}K €`;
+  return `${n} €`;
+}
+
+function buildPMChartsHTML(pm, totalGFA) {
+  const cc = pm.constructionCost || 0;
+  const df = pm.designFee || 0;
+  const cp = pm.competitionPrize || 0;
+  const totalBudget = cc + df + cp;
+  const costPerM2 = (cc > 0 && totalGFA > 0) ? Math.round(cc / totalGFA) : 0;
+  const teamSize   = pm.team?.teamSize   || 0;
+  const totalHours = pm.team?.totalHours || 0;
+  const hPerM2     = (totalHours > 0 && totalGFA > 0) ? (totalHours / totalGFA).toFixed(1) : 0;
+
+  const resultMap = { won: ['1st Prize', 'kpi-won'], '2nd-3rd': ['2nd / 3rd', 'kpi-placed'], 'not-selected': ['Not Selected', 'kpi-lost'] };
+  const [resultLabel, resultClass] = resultMap[pm.result] || [];
+
+  const kpis = [
+    resultLabel ? `<div class="pm-kpi-card ${resultClass}"><div class="pm-kpi-label">Result</div><div class="pm-kpi-value">${resultLabel}</div></div>` : '',
+    totalBudget > 0 ? `<div class="pm-kpi-card"><div class="pm-kpi-label">Total Budget</div><div class="pm-kpi-value">${formatEur(totalBudget)}</div></div>` : '',
+    costPerM2   > 0 ? `<div class="pm-kpi-card"><div class="pm-kpi-label">Cost / m²</div><div class="pm-kpi-value">${costPerM2.toLocaleString()} <span class="pm-kpi-unit">€</span></div></div>` : '',
+    teamSize        ? `<div class="pm-kpi-card"><div class="pm-kpi-label">Team Size</div><div class="pm-kpi-value">${teamSize}</div></div>` : '',
+    totalHours      ? `<div class="pm-kpi-card"><div class="pm-kpi-label">Total Hours</div><div class="pm-kpi-value">${Number(totalHours).toLocaleString()} <span class="pm-kpi-unit">h</span></div></div>` : '',
+    hPerM2      > 0 ? `<div class="pm-kpi-card"><div class="pm-kpi-label">h / m²</div><div class="pm-kpi-value">${hPerM2}</div></div>` : ''
+  ].filter(Boolean).join('');
+
+  return `
+    <div class="pm-charts">
+      ${kpis ? `<div class="pm-kpi-row">${kpis}</div>` : ''}
+      <div class="pm-charts-row">
+        <div class="pm-chart-panel">
+          <div class="pm-chart-title">Budget Breakdown</div>
+          ${totalBudget > 0
+            ? `<div class="pm-donut-wrap"><canvas id="pm-budget-chart" height="220"></canvas></div>`
+            : `<div class="pm-chart-empty">No budget data entered yet</div>`}
+        </div>
+        <div class="pm-chart-panel pm-timeline-wrap">
+          <div class="pm-chart-title">Project Timeline</div>
+          <div id="pm-timeline"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function initPMCharts(pm, totalGFA) {
+  // ── Budget doughnut ──────────────────────────────────────
+  const cc = pm.constructionCost || 0;
+  const df = pm.designFee || 0;
+  const cp = pm.competitionPrize || 0;
+  const totalBudget = cc + df + cp;
+  const canvas = document.getElementById('pm-budget-chart');
+
+  if (canvas && totalBudget > 0) {
+    if (pmBudgetChart) { pmBudgetChart.destroy(); pmBudgetChart = null; }
+    const labels = ['Construction', 'Design Fee', 'Prize'].filter((_, i) => [cc, df, cp][i] > 0);
+    const data   = [cc, df, cp].filter(v => v > 0);
+    const colors = ['#60a5fa', '#a78bfa', '#34d399'];
+    const usedColors = [cc, df, cp].map((v, i) => v > 0 ? colors[i] : null).filter(Boolean);
+
+    pmBudgetChart = new Chart(canvas, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data, backgroundColor: usedColors, borderWidth: 0, hoverOffset: 6 }] },
+      options: {
+        cutout: '72%',
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#64748b', font: { size: 11 }, boxWidth: 8, padding: 14 } },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${formatEur(ctx.parsed)}` } }
+        }
+      },
+      plugins: [{
+        id: 'pmCenter',
+        beforeDraw(chart) {
+          const { ctx } = chart;
+          const meta = chart.getDatasetMeta(0);
+          if (!meta.data.length) return;
+          const cx = meta.data[0].x, cy = meta.data[0].y;
+          ctx.save();
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.font = 'bold 14px Inter,system-ui,sans-serif';
+          ctx.fillStyle = '#f1f5f9';
+          ctx.fillText(formatEur(totalBudget), cx, cy - 9);
+          ctx.font = '10px Inter,system-ui,sans-serif';
+          ctx.fillStyle = '#64748b';
+          ctx.fillText('Total', cx, cy + 9);
+          ctx.restore();
+        }
+      }]
+    });
+  }
+
+  // ── Timeline milestones ──────────────────────────────────
+  const timelineEl = document.getElementById('pm-timeline');
+  if (!timelineEl) return;
+
+  const milestones = [
+    { label: 'Brief',       date: pm.dates?.briefDate },
+    { label: 'Submission',  date: pm.dates?.submissionDate },
+    { label: 'Result',      date: pm.dates?.resultDate },
+    { label: 'Const. Start',date: pm.dates?.constructionStart },
+    { label: 'Const. End',  date: pm.dates?.constructionEnd }
+  ];
+  const hasAny = milestones.some(m => m.date);
+
+  if (!hasAny) {
+    timelineEl.innerHTML = '<div class="pm-chart-empty">No dates entered yet</div>';
+    return;
+  }
+
+  const today = new Date();
+  timelineEl.innerHTML = `<div class="pm-timeline-row">${
+    milestones.map((m, i) => {
+      const d = m.date ? new Date(m.date) : null;
+      const cls = !d ? 'ms-empty' : d <= today ? 'ms-past' : 'ms-future';
+      const fmt = d ? d.toLocaleDateString('en', { month: 'short', year: '2-digit' }) : '—';
+      return `
+        <div class="pm-ms ${cls}">
+          <div class="pm-ms-dot"></div>
+          <div class="pm-ms-label">${m.label}</div>
+          <div class="pm-ms-date">${fmt}</div>
+        </div>
+        ${i < milestones.length - 1 ? '<div class="pm-ms-connector"></div>' : ''}`;
+    }).join('')
+  }</div>`;
+}
+
 function savePMField(path, value) {
   if (!currentProject) return;
   // Top-level project fields (not nested in projectManagement)
@@ -912,7 +1043,11 @@ function renderPMSection() {
 
       </div>
     </div>
+
+    ${buildPMChartsHTML(pm, totalGFA)}
   `;
+
+  setTimeout(() => initPMCharts(pm, totalGFA), 0);
 }
 
 function competitionTypeLabel(type) {
@@ -1096,7 +1231,8 @@ function renderPastOverview() {
           </div>`).join('')}
         </div>
 
-      </div>`}
+      </div>
+      ${pmUnlocked ? buildPMChartsHTML(pm, totalGFA) : ''}`}
     </div>
 
     ${currentProject.notes ? `
@@ -1113,6 +1249,8 @@ function renderPastOverview() {
     </div>
     <div class="gallery-grid" id="past-gallery-grid"></div>
   `;
+
+  if (pmUnlocked) setTimeout(() => initPMCharts(pm, totalGFA), 0);
 }
 
 function changeProjectStatus(status) {
