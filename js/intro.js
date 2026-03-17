@@ -81,47 +81,35 @@
     uniforms,
     vertexShader: `void main() { gl_Position = vec4(position, 1.0); }`,
     fragmentShader: `
+      #define TWO_PI 6.2831853072
+      #define PI 3.14159265359
+
       precision highp float;
       uniform vec2  resolution;
       uniform float time;
 
-      float rnd(float x) { return fract(sin(x) * 1e4); }
-      float rnd(vec2 st)  { return fract(sin(dot(st, vec2(12.9898, 78.233))) * 43758.5453); }
+      float random(in float x) { return fract(sin(x) * 1e4); }
+      float random(vec2 st)    { return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123); }
 
       void main(void) {
         vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
 
-        /* Mosaic / pixelate — the original look */
-        vec2 ms = vec2(4.0, 2.0);
-        vec2 ss = vec2(256.0);
-        uv.x = floor(uv.x * ss.x / ms.x) / (ss.x / ms.x);
-        uv.y = floor(uv.y * ss.y / ms.y) / (ss.y / ms.y);
+        vec2 fMosaicScal = vec2(4.0, 2.0);
+        vec2 vScreenSize = vec2(256.0, 256.0);
+        uv.x = floor(uv.x * vScreenSize.x / fMosaicScal.x) / (vScreenSize.x / fMosaicScal.x);
+        uv.y = floor(uv.y * vScreenSize.y / fMosaicScal.y) / (vScreenSize.y / fMosaicScal.y);
 
-        float dist = length(uv);
-        float t    = time * 0.055 + rnd(uv.x) * 0.4;
-
-        /* DMAA palette */
-        vec3 cyan     = vec3(0.0,   0.831, 1.0  );
-        vec3 lavender = vec3(0.655, 0.545, 0.98 );
-        vec3 coral    = vec3(1.0,   0.42,  0.541);
-        vec3 amber    = vec3(1.0,   0.753, 0.204);
+        float t = time * 0.06 + random(uv.x) * 0.4;
+        float lineWidth = 0.0008;
 
         vec3 color = vec3(0.0);
-        float lw = 0.00068;
-
-        for (int i = 0; i < 5; i++) {
-          float fi = float(i);
-          float ring = lw * fi * fi / abs(fract(t + fi * 0.012) - dist);
-          float m1   = sin(time * 0.12 + fi * 1.3) * 0.5 + 0.5;
-          float m2   = cos(time * 0.08 + fi * 0.9) * 0.5 + 0.5;
-          vec3  c    = mix(mix(cyan, lavender, m1), mix(coral, amber, m2), 0.3);
-          color     += ring * c;
+        for (int j = 0; j < 3; j++) {
+          for (int i = 0; i < 5; i++) {
+            color[j] += lineWidth * float(i * i) / abs(fract(t - 0.01 * float(j) + float(i) * 0.01) * 1.0 - length(uv));
+          }
         }
 
-        /* Soft vignette */
-        color *= 1.0 - dist * 0.38;
-
-        gl_FragColor = vec4(color, 1.0);
+        gl_FragColor = vec4(color[2], color[1], color[0], 1.0);
       }
     `
   });
@@ -140,7 +128,7 @@
 
   (function animate() {
     animId = requestAnimationFrame(animate);
-    uniforms.time.value += 0.04;    /* original mosaic speed */
+    uniforms.time.value += 0.05;    /* matches reference exactly */
     renderer.render(scene, camera);
   })();
 })();
