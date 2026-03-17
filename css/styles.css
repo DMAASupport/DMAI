@@ -655,7 +655,7 @@ body::before {
 
 .editor-wordmark-title {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 900;
   letter-spacing: 0.01em;
   line-height: 1;
   display: block;
@@ -3264,17 +3264,11 @@ body::before {
   transform: translateY(0) scale(1);
 }
 
-/* Glow on DM — thin white, soft cyan halo */
+/* No glow on DM/AI — clean white text for readability */
 #intro-dm .intro-char--on {
-  text-shadow:
-    0 0 30px rgba(255, 255, 255, 0.5),
-    0 0 80px rgba(0, 212, 255, 0.25);
+  text-shadow: none;
 }
 
-/* Glow on AI — bold white, lavender halo */
 #intro-ai .intro-char--on {
-  text-shadow:
-    0 0 30px rgba(255, 255, 255, 0.6),
-    0 0 80px rgba(167, 139, 250, 0.35),
-    0 0 120px rgba(167, 139, 250, 0.15);
+  text-shadow: none;
 }
