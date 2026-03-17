@@ -19,6 +19,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/OBJExporter.js"></script>
 </head>
 <body>
@@ -626,8 +628,7 @@
     </div>
 
     <div id="wm-container">
-      <canvas id="wm-canvas"></canvas>
-      <svg id="wm-svg" class="wm-svg"></svg>
+      <div id="wm-leaflet"></div>
     </div>
 
     <div class="wm-legend">
@@ -648,8 +649,6 @@
   </div>
 </div>
 
-<!-- Tooltip lives outside container to avoid overflow clip -->
-<div id="wm-tooltip"></div>
 
 <script src="js/map.js"></script>
 <script src="js/intro.js"></script>

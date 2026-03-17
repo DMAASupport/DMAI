@@ -3395,26 +3395,15 @@ body::before {
   width: 100%;
   border-radius: 12px;
   overflow: hidden;
-  background: #060810;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  -webkit-mask-image: linear-gradient(to bottom,
-    transparent 0%, rgba(0,0,0,0.5) 5%,
-    black 12%, black 88%,
-    rgba(0,0,0,0.5) 95%, transparent 100%);
-  mask-image: linear-gradient(to bottom,
-    transparent 0%, rgba(0,0,0,0.5) 5%,
-    black 12%, black 88%,
-    rgba(0,0,0,0.5) 95%, transparent 100%);
-}
-#wm-canvas { display: block; }
-.wm-svg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: auto;
 }
 
-.wm-dot { transition: r 0.12s ease; }
+#wm-leaflet {
+  height: 58vh;
+  min-height: 320px;
+  width: 100%;
+  background: #060810;
+}
 
 /* Legend */
 .wm-legend {
@@ -3439,52 +3428,151 @@ body::before {
   flex-shrink: 0;
 }
 
-/* Tooltip — fixed so it escapes overflow:hidden on container */
-#wm-tooltip {
-  position: fixed;
-  z-index: 6010;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-  background: rgba(8, 10, 16, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 12px 14px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.65);
-  min-width: 170px;
-  max-width: 230px;
+/* ── Leaflet overrides ───────────────────────────────────────────────────── */
+
+/* Zoom control */
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: none !important;
 }
-#wm-tooltip.wmt-vis { opacity: 1; }
-.wmt-city {
-  font-size: 13px;
+.leaflet-control-zoom a {
+  background: rgba(10, 12, 18, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  font-size: 16px !important;
+  font-weight: 300 !important;
+  backdrop-filter: blur(8px);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.leaflet-control-zoom a:hover {
+  background: rgba(20, 22, 30, 0.95) !important;
+  color: #ffffff !important;
+}
+.leaflet-control-zoom-in  { border-radius: 8px 8px 0 0 !important; margin-bottom: 2px !important; }
+.leaflet-control-zoom-out { border-radius: 0 0 8px 8px !important; }
+
+/* Attribution */
+.leaflet-control-attribution {
+  background: rgba(6, 8, 14, 0.75) !important;
+  color: rgba(255, 255, 255, 0.2) !important;
+  font-size: 9px !important;
+  padding: 2px 6px !important;
+  border-radius: 4px 0 0 0 !important;
+}
+.leaflet-control-attribution a { color: rgba(255, 255, 255, 0.35) !important; }
+
+/* Hover tooltip */
+.wm-tip {
+  background: rgba(8, 10, 16, 0.94) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 6px !important;
+  color: #fff !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  padding: 4px 10px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55) !important;
+  backdrop-filter: blur(8px);
+}
+.wm-tip::before { display: none !important; }
+
+/* Click popup wrapper */
+.wm-popup .leaflet-popup-content-wrapper {
+  background: rgba(8, 10, 16, 0.97) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  color: #fff !important;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(16px) !important;
+  padding: 0 !important;
+}
+.wm-popup .leaflet-popup-content { margin: 0 !important; }
+.wm-popup .leaflet-popup-tip-container { display: none !important; }
+.wm-popup .leaflet-popup-close-button {
+  color: rgba(255, 255, 255, 0.35) !important;
+  font-size: 18px !important;
+  top: 10px !important;
+  right: 12px !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  font-weight: 300 !important;
+}
+.wm-popup .leaflet-popup-close-button:hover {
+  color: #fff !important;
+  background: none !important;
+}
+
+/* Popup content */
+.wm-pp { padding: 16px 18px 14px; }
+.wm-pp-header { margin-bottom: 12px; }
+.wm-pp-city {
+  font-size: 15px;
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 0.04em;
   line-height: 1.2;
 }
-.wmt-country {
-  font-size: 9.5px;
-  color: rgba(255, 255, 255, 0.35);
-  letter-spacing: 0.14em;
+.wm-pp-country {
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  margin-top: 2px;
-  margin-bottom: 10px;
+  margin-top: 3px;
 }
-.wmt-projects { display: flex; flex-direction: column; gap: 5px; }
-.wmt-proj { display: flex; align-items: center; gap: 7px; }
-.wmt-dot  { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-.wmt-pname {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.78);
-  flex: 1;
+.wm-pp-projects { display: flex; flex-direction: column; gap: 8px; }
+.wm-pp-row { display: flex; align-items: flex-start; gap: 9px; }
+.wm-pp-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.wm-pp-info { flex: 1; min-width: 0; }
+.wm-pp-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.wmt-ptype {
-  font-size: 8.5px;
+.wm-pp-meta {
+  font-size: 9.5px;
   color: rgba(255, 255, 255, 0.28);
-  white-space: nowrap;
+  margin-top: 1px;
+}
+
+/* Custom markers */
+.wm-marker {
+  border-radius: 50%;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.wm-marker:hover { transform: scale(1.6); }
+
+.wm-marker--hub {
+  width: 16px; height: 16px;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.2), 0 0 14px rgba(255,255,255,0.7), 0 0 30px rgba(255,255,255,0.25);
+}
+.wm-marker--ongoing {
+  width: 11px; height: 11px;
+  background: #00d4ff;
+  box-shadow: 0 0 0 2px rgba(0,212,255,0.2), 0 0 12px rgba(0,212,255,0.8), 0 0 24px rgba(0,212,255,0.3);
+}
+.wm-marker--past {
+  width: 11px; height: 11px;
+  background: #a78bfa;
+  box-shadow: 0 0 0 2px rgba(167,139,250,0.2), 0 0 12px rgba(167,139,250,0.7), 0 0 24px rgba(167,139,250,0.3);
+}
+.wm-marker--completed {
+  width: 11px; height: 11px;
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.1), 0 0 8px rgba(255,255,255,0.4);
 }
