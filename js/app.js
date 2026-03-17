@@ -9,7 +9,7 @@ function migrateProject(p) {
   if (p.notes === undefined) p.notes = '';
   if (p.projectCode === undefined) p.projectCode = '';
   if (p.status === undefined) p.status = 'ongoing';
-  if (p.images === undefined) p.images = p.seedImages ? p.seedImages.map(img => ({ id: img.id, src: img.src })) : [];
+  if (p.images === undefined) p.images = p.seedImages ? p.seedImages.map(img => ({ id: img.id, name: img.name, dataUrl: img.dataUrl })) : [];
   if (p.occupantLabel === undefined) p.occupantLabel = 'Employees';
   if (p.location === undefined) p.location = { city: '', country: '' };
   if (p.competitionType === undefined) p.competitionType = '';
@@ -105,13 +105,13 @@ const Store = {
         { id: 'circulation', name: 'Circulation',          color: '#00d4ff', share:  7, dims: null,                     isSurface: true,  locked: false, nFloors: 1 }
       ],
       seedImages: [
-        { id: 's508-1', src: 'images/508/vis_01.jpg',       caption: 'Render — Exterior view' },
-        { id: 's508-2', src: 'images/508/vis_02.jpg',       caption: 'Render — Street level' },
-        { id: 's508-3', src: 'images/508/vis_03.jpg',       caption: 'Render — Approach' },
-        { id: 's508-4', src: 'images/508/vis_04.jpg',       caption: 'Render — Facade detail' },
-        { id: 's508-5', src: 'images/508/elevation.jpg',    caption: 'Elevation — South-East' },
-        { id: 's508-6', src: 'images/508/storyboard_01.jpg', caption: 'Storyboard 01' },
-        { id: 's508-7', src: 'images/508/storyboard_02.jpg', caption: 'Storyboard 02' }
+        { id: 's508-1', name: 'Render — Exterior view',    dataUrl: 'images/508/vis_01.jpg' },
+        { id: 's508-2', name: 'Render — Street level',     dataUrl: 'images/508/vis_02.jpg' },
+        { id: 's508-3', name: 'Render — Approach',         dataUrl: 'images/508/vis_03.jpg' },
+        { id: 's508-4', name: 'Render — Facade detail',    dataUrl: 'images/508/vis_04.jpg' },
+        { id: 's508-5', name: 'Elevation — South-East',    dataUrl: 'images/508/elevation.jpg' },
+        { id: 's508-6', name: 'Storyboard 01',             dataUrl: 'images/508/storyboard_01.jpg' },
+        { id: 's508-7', name: 'Storyboard 02',             dataUrl: 'images/508/storyboard_02.jpg' }
       ],
       createdAt: '2021-09-01'
     },
@@ -145,12 +145,12 @@ const Store = {
         { id: 'sonstig', name: 'Mixed Use',           color: '#00d4ff', share:  3, dims: null,                     isSurface: true,  locked: false, nFloors: 1  }
       ],
       seedImages: [
-        { id: 's578-1', src: 'images/578/panel_01.jpg', caption: 'Competition Panel 01' },
-        { id: 's578-2', src: 'images/578/panel_02.jpg', caption: 'Competition Panel 02' },
-        { id: 's578-3', src: 'images/578/panel_03.jpg', caption: 'Competition Panel 03' },
-        { id: 's578-4', src: 'images/578/panel_04.jpg', caption: 'Competition Panel 04' },
-        { id: 's578-5', src: 'images/578/panel_05.jpg', caption: 'Competition Panel 05' },
-        { id: 's578-6', src: 'images/578/panel_06.jpg', caption: 'Competition Panel 06' }
+        { id: 's578-1', name: 'Competition Panel 01', dataUrl: 'images/578/panel_01.jpg' },
+        { id: 's578-2', name: 'Competition Panel 02', dataUrl: 'images/578/panel_02.jpg' },
+        { id: 's578-3', name: 'Competition Panel 03', dataUrl: 'images/578/panel_03.jpg' },
+        { id: 's578-4', name: 'Competition Panel 04', dataUrl: 'images/578/panel_04.jpg' },
+        { id: 's578-5', name: 'Competition Panel 05', dataUrl: 'images/578/panel_05.jpg' },
+        { id: 's578-6', name: 'Competition Panel 06', dataUrl: 'images/578/panel_06.jpg' }
       ],
       createdAt: '2026-03-10'
     },
@@ -183,10 +183,10 @@ const Store = {
         { id: 'technical',   name: 'Technical',   color: '#a78bfa', share:  3, dims: { l: 8,  w: 8,  h: 3   }, isSurface: false, locked: false, nFloors: 1  }
       ],
       seedImages: [
-        { id: 's581-1', src: 'images/581/panel_01.jpg',   caption: 'Competition Panel 01' },
-        { id: 's581-2', src: 'images/581/panel_02.jpg',   caption: 'Competition Panel 02' },
-        { id: 's581-3', src: 'images/581/panel_03.jpg',   caption: 'Competition Panel 03' },
-        { id: 's581-4', src: 'images/581/haengeplan.jpg', caption: 'Hanging Plan' }
+        { id: 's581-1', name: 'Competition Panel 01', dataUrl: 'images/581/panel_01.jpg' },
+        { id: 's581-2', name: 'Competition Panel 02', dataUrl: 'images/581/panel_02.jpg' },
+        { id: 's581-3', name: 'Competition Panel 03', dataUrl: 'images/581/panel_03.jpg' },
+        { id: 's581-4', name: 'Hanging Plan',         dataUrl: 'images/581/haengeplan.jpg' }
       ],
       createdAt: '2025-12-01'
     }
@@ -212,7 +212,7 @@ const Store = {
             if (seed.location) existing.location = seed.location;
             if (seed.competitionType) existing.competitionType = seed.competitionType;
             if (seed.seedImages && (!existing.images || existing.images.length === 0)) {
-              existing.images = seed.seedImages.map(img => ({ id: img.id, src: img.src }));
+              existing.images = seed.seedImages.map(img => ({ id: img.id, name: img.name, dataUrl: img.dataUrl }));
             }
           }
         });
