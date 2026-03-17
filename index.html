@@ -18,6 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/OBJExporter.js"></script>
 </head>
 <body>
@@ -511,6 +512,16 @@
 <!-- Application Script -->
 <script src="js/app.js?v=2"></script>
 
+<!-- ─── World Map FAB ──────────────────────────────────── -->
+<button id="wm-fab" onclick="toggleWorldMap()" title="DMAA Worldwide Projects">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="2" y1="12" x2="22" y2="12"/>
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+  </svg>
+</button>
+
 <!-- ─── DMAA Assistant Bot ──────────────────────────────── -->
 <div id="dmaa-bot-fab" onclick="toggleBot()" title="DMAA Assistant">
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -581,6 +592,66 @@
   </div>
 </div>
 
+<!-- ─── World Map Panel ──────────────────────────────────── -->
+<div id="world-map-panel" class="wm-panel" onclick="if(event.target===this)toggleWorldMap()">
+  <div class="wm-inner">
+
+    <div class="wm-header">
+      <div class="wm-title-group">
+        <div class="wm-eyebrow">DMAA Knowledge Engine</div>
+        <div class="wm-title">Worldwide Projects</div>
+      </div>
+      <div class="wm-header-right">
+        <div class="wm-stats">
+          <div class="wm-stat">
+            <span class="wm-stat-val" id="wm-stat-projects">—</span>
+            <span class="wm-stat-label">Projects</span>
+          </div>
+          <div class="wm-stat">
+            <span class="wm-stat-val" id="wm-stat-cities">—</span>
+            <span class="wm-stat-label">Cities</span>
+          </div>
+          <div class="wm-stat">
+            <span class="wm-stat-val" id="wm-stat-countries">—</span>
+            <span class="wm-stat-label">Countries</span>
+          </div>
+        </div>
+        <button class="wm-close" onclick="toggleWorldMap()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="wm-container">
+      <canvas id="wm-canvas"></canvas>
+      <svg id="wm-svg" class="wm-svg"></svg>
+    </div>
+
+    <div class="wm-legend">
+      <div class="wm-legend-item">
+        <span class="wm-legend-dot" style="background:#ffffff"></span>HQ &amp; Portfolio
+      </div>
+      <div class="wm-legend-item">
+        <span class="wm-legend-dot" style="background:#00d4ff"></span>Ongoing
+      </div>
+      <div class="wm-legend-item">
+        <span class="wm-legend-dot" style="background:#a78bfa"></span>Past Projects
+      </div>
+      <div class="wm-legend-item">
+        <span class="wm-legend-dot" style="background:rgba(255,255,255,0.4)"></span>Completed Portfolio
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Tooltip lives outside container to avoid overflow clip -->
+<div id="wm-tooltip"></div>
+
+<script src="js/map.js"></script>
 <script src="js/intro.js"></script>
 </body>
 </html>
