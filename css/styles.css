@@ -1988,6 +1988,115 @@ body::before {
   --glass-shadow:       0 8px 32px rgba(0, 0, 0, 0.10);
 }
 
+/* ─── Project Management Section ─────────────────────────── */
+.pm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+}
+
+.pm-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.pm-panel-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 4px;
+}
+
+.pm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pm-field label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.pm-field input,
+.pm-select {
+  font-size: 13px;
+  padding: 6px 10px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font);
+  width: 100%;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.pm-field input:focus,
+.pm-select:focus {
+  outline: none;
+  border-color: rgba(0, 212, 255, 0.4);
+}
+
+.pm-select {
+  appearance: none;
+  cursor: pointer;
+}
+
+.pm-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.pm-input-wrapper:focus-within {
+  border-color: rgba(0, 212, 255, 0.4);
+}
+
+.pm-input-wrapper input {
+  border: none;
+  background: transparent;
+  flex: 1;
+  padding: 6px 10px;
+  min-width: 0;
+}
+
+.pm-suffix {
+  padding: 0 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  border-left: 1px solid var(--glass-border);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.pm-computed {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-top: 1px solid var(--glass-border);
+  margin-top: 2px;
+}
+
+.pm-computed-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-amber);
+}
+
 /* ─── Past Project Promote Button ─────────────────────────── */
 .past-promote-btn {
   display: inline-flex;

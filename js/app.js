@@ -11,6 +11,14 @@ function migrateProject(p) {
   if (p.status === undefined) p.status = 'ongoing';
   if (p.images === undefined) p.images = [];
   if (p.occupantLabel === undefined) p.occupantLabel = 'Employees';
+  if (p.projectManagement === undefined) p.projectManagement = {
+    result: '',
+    constructionCost: 0,
+    designFee: 0,
+    competitionPrize: 0,
+    dates: { briefDate: '', submissionDate: '', resultDate: '', constructionStart: '', constructionEnd: '' },
+    team:  { partner: '', architect: '', teamSize: '', totalHours: '' }
+  };
 
   if (p.programs) {
     // Migrate program-level fields added in v2
@@ -77,6 +85,12 @@ const Store = {
       benchmark: 'custom',
       siteArea: 0,
       notes: 'Competition project ga8 Frankfurt. Mixed-use high-rise with office tower, residential tower, hotel, and cultural plinth. Data extracted from area schedule F-1.',
+      projectManagement: {
+        result: '2nd-3rd',
+        constructionCost: 0, designFee: 0, competitionPrize: 0,
+        dates: { briefDate: '2025-09-01', submissionDate: '2025-12-15', resultDate: '2026-02-01', constructionStart: '', constructionEnd: '' },
+        team:  { partner: '', architect: '', teamSize: '', totalHours: '' }
+      },
       programs: [
         { id: 'buero',   name: 'Office',             color: '#60a5fa', share: 43, dims: { l: 40, w: 40, h: 4   }, isSurface: false, locked: false, nFloors: 30 },
         { id: 'wohnen',  name: 'Housing',             color: '#fb923c', share: 23, dims: { l: 30, w: 30, h: 3   }, isSurface: false, locked: false, nFloors: 16 },
@@ -100,6 +114,12 @@ const Store = {
       benchmark: 'custom',
       siteArea: 3624,
       notes: 'Architect selection competition, Stadtquartier Eibengasse, Vienna 1220. Residential building Plot H2 — 117 dwelling units (types A–E, 1–5 bedrooms) across 10 floors. Total above-grade GFA 11,558 m². 3 stairwells, 3 lifts, 55 parking spaces.',
+      projectManagement: {
+        result: 'not-selected',
+        constructionCost: 0, designFee: 0, competitionPrize: 0,
+        dates: { briefDate: '2025-06-01', submissionDate: '2025-11-01', resultDate: '2025-12-01', constructionStart: '', constructionEnd: '' },
+        team:  { partner: '', architect: '', teamSize: '', totalHours: '' }
+      },
       programs: [
         { id: 'housing',     name: 'Housing',     color: '#fb923c', share: 68, dims: { l: 44, w: 22, h: 3   }, isSurface: false, locked: false, nFloors: 10 },
         { id: 'communal',    name: 'Communal',    color: '#34d399', share: 11, dims: { l: 16, w: 16, h: 3   }, isSurface: false, locked: false, nFloors: 1  },
@@ -676,6 +696,26 @@ function showSaveStatus(state) {
 }
 
 
+// ─── Project Management Helpers ────────────────────────────
+function getNestedPM(pm, path) {
+  return path.split('.').reduce((o, k) => (o != null ? o[k] : '') ?? '', pm);
+}
+
+function savePMField(path, value) {
+  if (!currentProject) return;
+  if (!currentProject.projectManagement) currentProject.projectManagement = {};
+  const parts = path.split('.');
+  let obj = currentProject.projectManagement;
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (obj[parts[i]] === undefined) obj[parts[i]] = {};
+    obj = obj[parts[i]];
+  }
+  obj[parts[parts.length - 1]] = value;
+  try { Store.update(currentProject); showSaveStatus('saved'); }
+  catch(e) { showSaveStatus('error'); }
+}
+
+
 // ─── Past Project Overview ─────────────────────────────────
 function renderPastOverview() {
   const container = document.getElementById('overview-past');
@@ -685,6 +725,23 @@ function renderPastOverview() {
   const programs  = currentProject.programs || [];
   const year      = (currentProject.createdAt || '').split('-')[0];
   const occLabel  = currentProject.occupantLabel || 'Occupants';
+  const pm        = currentProject.projectManagement || {};
+
+  const resultLabels = { won: '🥇 Won / 1st Prize', '2nd-3rd': '🥈 2nd / 3rd Place', 'not-selected': '✗ Not Selected' };
+
+  const dateFields = [
+    ['Competition / Brief', 'dates.briefDate'],
+    ['Submission',          'dates.submissionDate'],
+    ['Result',              'dates.resultDate'],
+    ['Construction Start',  'dates.constructionStart'],
+    ['Construction End',    'dates.constructionEnd']
+  ];
+  const teamFields = [
+    ['Partner',      'team.partner',    'text',   'Name'],
+    ['Architect',    'team.architect',  'text',   'Name'],
+    ['Team Size',    'team.teamSize',   'number', '0'],
+    ['Total Hours',  'team.totalHours', 'number', '0']
+  ];
 
   const programRows = programs.map(p => {
     const gfa = Math.round((p.share / 100) * totalGFA);
@@ -735,6 +792,74 @@ function renderPastOverview() {
     <div class="overview-panel">
       <h3>Program Breakdown</h3>
       <div class="past-programs-list">${programRows}</div>
+    </div>
+
+    <div class="overview-panel pm-section">
+      <h3>Project Management</h3>
+      <div class="pm-grid">
+
+        <div class="pm-panel">
+          <div class="pm-panel-title">Competition</div>
+          <div class="pm-field">
+            <label>Result</label>
+            <select class="pm-select" onchange="savePMField('result', this.value)">
+              <option value="">— not set —</option>
+              <option value="won"          ${pm.result === 'won'          ? 'selected' : ''}>🥇 Won / 1st Prize</option>
+              <option value="2nd-3rd"      ${pm.result === '2nd-3rd'      ? 'selected' : ''}>🥈 2nd / 3rd Place</option>
+              <option value="not-selected" ${pm.result === 'not-selected' ? 'selected' : ''}>✗ Not Selected</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pm-panel">
+          <div class="pm-panel-title">Budget</div>
+          <div class="pm-field">
+            <label>Construction Cost</label>
+            <div class="pm-input-wrapper">
+              <input type="number" value="${pm.constructionCost || ''}" placeholder="0" oninput="savePMField('constructionCost', +this.value)">
+              <span class="pm-suffix">€</span>
+            </div>
+          </div>
+          <div class="pm-field">
+            <label>Design Fee</label>
+            <div class="pm-input-wrapper">
+              <input type="number" value="${pm.designFee || ''}" placeholder="0" oninput="savePMField('designFee', +this.value)">
+              <span class="pm-suffix">€</span>
+            </div>
+          </div>
+          <div class="pm-field">
+            <label>Competition Prize</label>
+            <div class="pm-input-wrapper">
+              <input type="number" value="${pm.competitionPrize || ''}" placeholder="0" oninput="savePMField('competitionPrize', +this.value)">
+              <span class="pm-suffix">€</span>
+            </div>
+          </div>
+          ${pm.constructionCost > 0 ? `
+          <div class="pm-field pm-computed">
+            <label>Cost / m²</label>
+            <span class="pm-computed-value">${Math.round(pm.constructionCost / totalGFA).toLocaleString()} €/m²</span>
+          </div>` : ''}
+        </div>
+
+        <div class="pm-panel">
+          <div class="pm-panel-title">Timeline</div>
+          ${dateFields.map(([label, path]) => `
+          <div class="pm-field">
+            <label>${label}</label>
+            <input type="date" value="${getNestedPM(pm, path)}" onchange="savePMField('${path}', this.value)">
+          </div>`).join('')}
+        </div>
+
+        <div class="pm-panel">
+          <div class="pm-panel-title">Team</div>
+          ${teamFields.map(([label, path, type, ph]) => `
+          <div class="pm-field">
+            <label>${label}</label>
+            <input type="${type}" value="${escapeHtml(String(getNestedPM(pm, path)))}" placeholder="${ph}" oninput="savePMField('${path}', this.value)">
+          </div>`).join('')}
+        </div>
+
+      </div>
     </div>
 
     ${currentProject.notes ? `
