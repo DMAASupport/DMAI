@@ -208,6 +208,7 @@ let dragSrcId = null;
 // Dashboard state
 let dashboardSearchQuery  = '';
 let dashboardStatusFilter = 'all';
+let dashboardSearchField  = 'all';
 let compareSelection      = [];
 
 // Save status debounce
@@ -367,17 +368,24 @@ function renderDashboard() {
   const container = document.getElementById('dashboard-sections');
   let projects = Store.load();
 
-  // Text search — name, client, typology, code, notes, GFA
+  // Text search — scoped by dashboardSearchField
   const query = dashboardSearchQuery.toLowerCase().trim();
   if (query) {
     projects = projects.filter(p => {
       const totalGFA = String(p.employees * p.gfaPerEmp);
-      return p.name.toLowerCase().includes(query) ||
-        p.client.toLowerCase().includes(query) ||
-        p.typology.toLowerCase().includes(query) ||
-        (p.projectCode && p.projectCode.toLowerCase().includes(query)) ||
-        (p.notes && p.notes.toLowerCase().includes(query)) ||
-        totalGFA.includes(query);
+      switch (dashboardSearchField) {
+        case 'code':     return (p.projectCode || '').toLowerCase().includes(query);
+        case 'client':   return p.client.toLowerCase().includes(query);
+        case 'typology': return p.typology.toLowerCase().includes(query);
+        case 'gfa':      return totalGFA.includes(query);
+        default:
+          return p.name.toLowerCase().includes(query) ||
+            p.client.toLowerCase().includes(query) ||
+            p.typology.toLowerCase().includes(query) ||
+            (p.projectCode && p.projectCode.toLowerCase().includes(query)) ||
+            (p.notes && p.notes.toLowerCase().includes(query)) ||
+            totalGFA.includes(query);
+      }
     });
   }
 
@@ -436,6 +444,24 @@ function renderDashboard() {
 
 function filterDashboard(query) {
   dashboardSearchQuery = query;
+  renderDashboard();
+}
+
+const searchFieldPlaceholders = {
+  all:      'Search projects…',
+  code:     'Search by project number…',
+  client:   'Search by client…',
+  typology: 'Search by typology…',
+  gfa:      'Search by GFA (m²)…'
+};
+
+function setSearchField(field) {
+  dashboardSearchField = field;
+  document.querySelectorAll('.search-field-chip').forEach(el =>
+    el.classList.toggle('active', el.dataset.field === field)
+  );
+  const input = document.querySelector('.search-input');
+  if (input) input.placeholder = searchFieldPlaceholders[field] || 'Search projects…';
   renderDashboard();
 }
 
@@ -679,10 +705,10 @@ function renderPastOverview() {
           <h1 class="past-overview-title">${escapeHtml(currentProject.name)}</h1>
           <div class="past-overview-meta">${escapeHtml(currentProject.client)} &middot; ${escapeHtml(currentProject.typology)}${year ? ` &middot; ${year}` : ''}</div>
         </div>
-        <select class="past-status-select" onchange="changeProjectStatus(this.value)">
-          <option value="past" selected>Past Project</option>
-          <option value="ongoing">Move to Ongoing</option>
-        </select>
+        <button class="past-promote-btn" onclick="changeProjectStatus('ongoing')">
+          Move to Ongoing
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
       </div>
     </div>
 
@@ -1677,8 +1703,20 @@ function formatDate(dateStr) {
 }
 
 
+// ─── Theme ─────────────────────────────────────────────────
+function toggleTheme() {
+  const isLight = document.body.dataset.theme === 'light';
+  document.body.dataset.theme = isLight ? '' : 'light';
+  localStorage.setItem('dmaa-theme', document.body.dataset.theme);
+}
+
+
 // ─── Init ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
+  // Restore saved theme
+  const savedTheme = localStorage.getItem('dmaa-theme');
+  if (savedTheme) document.body.dataset.theme = savedTheme;
+
   showView('dashboard');
   renderDashboard();
   initGalleryDrop();
