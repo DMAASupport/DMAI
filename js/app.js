@@ -11,6 +11,8 @@ function migrateProject(p) {
   if (p.status === undefined) p.status = 'ongoing';
   if (p.images === undefined) p.images = [];
   if (p.occupantLabel === undefined) p.occupantLabel = 'Employees';
+  if (p.location === undefined) p.location = { city: '', country: '' };
+  if (p.competitionType === undefined) p.competitionType = '';
   if (p.projectManagement === undefined) p.projectManagement = {
     result: '',
     constructionCost: 0,
@@ -73,6 +75,38 @@ const Store = {
       createdAt: '2026-02-01'
     },
     {
+      id: 'proj-508',
+      projectCode: '508',
+      name: 'HFM Stuttgart',
+      client: 'State of Baden-Württemberg',
+      typology: 'Cultural / Education',
+      status: 'past',
+      occupantLabel: 'Users',
+      location: { city: 'Stuttgart', country: 'Germany' },
+      competitionType: 'open-competition',
+      employees: 200,
+      gfaPerEmp: 48,
+      benchmark: 'custom',
+      siteArea: 1128,
+      notes: 'Open competition for the Hochschule für Musik und Darstellende Kunst Stuttgart. Total BGF 9,508 m² across 9 floors (2 basement + ground + 6 upper). GFZ 6.67. Room program covers 8 functional categories.',
+      projectManagement: {
+        result: '',
+        constructionCost: 0, designFee: 0, competitionPrize: 0,
+        dates: { briefDate: '2021-01-01', submissionDate: '2021-06-01', resultDate: '2021-09-01', constructionStart: '', constructionEnd: '' },
+        team:  { partner: '', architect: '', teamSize: '', totalHours: '' }
+      },
+      programs: [
+        { id: 'performance', name: 'Performance & Events', color: '#a78bfa', share: 22, dims: { l: 20, w: 20, h: 6   }, isSurface: false, locked: false, nFloors: 2 },
+        { id: 'rehearsal',   name: 'Rehearsal & Practice', color: '#60a5fa', share: 28, dims: { l: 10, w: 10, h: 4   }, isSurface: false, locked: false, nFloors: 4 },
+        { id: 'education',   name: 'Teaching & Seminars',  color: '#34d399', share: 18, dims: { l: 12, w: 12, h: 3.5 }, isSurface: false, locked: false, nFloors: 3 },
+        { id: 'admin',       name: 'Administration',       color: '#fbbf24', share: 10, dims: { l: 10, w: 8,  h: 3.5 }, isSurface: false, locked: false, nFloors: 2 },
+        { id: 'gastro',      name: 'Gastronomy',           color: '#fb923c', share:  7, dims: { l: 12, w: 8,  h: 4   }, isSurface: false, locked: false, nFloors: 1 },
+        { id: 'technical',   name: 'Technical',            color: '#ff6b8a', share:  8, dims: { l: 10, w: 10, h: 3   }, isSurface: false, locked: false, nFloors: 1 },
+        { id: 'circulation', name: 'Circulation',          color: '#00d4ff', share:  7, dims: null,                     isSurface: true,  locked: false, nFloors: 1 }
+      ],
+      createdAt: '2021-09-01'
+    },
+    {
       id: 'proj-578',
       projectCode: '578',
       name: 'ga8 Frankfurt',
@@ -80,6 +114,8 @@ const Store = {
       typology: 'Mixed-Use High-Rise',
       status: 'past',
       occupantLabel: 'Occupants',
+      location: { city: 'Frankfurt', country: 'Germany' },
+      competitionType: 'open-competition',
       employees: 1200,
       gfaPerEmp: 24,
       benchmark: 'custom',
@@ -109,6 +145,8 @@ const Store = {
       typology: 'Residential',
       status: 'past',
       occupantLabel: 'Residents',
+      location: { city: 'Vienna', country: 'Austria' },
+      competitionType: 'architect-selection',
       employees: 260,
       gfaPerEmp: 44,
       benchmark: 'custom',
@@ -148,6 +186,8 @@ const Store = {
             if (seed.status) existing.status = seed.status;
             if (seed.projectCode) existing.projectCode = seed.projectCode;
             if (seed.occupantLabel) existing.occupantLabel = seed.occupantLabel;
+            if (seed.location) existing.location = seed.location;
+            if (seed.competitionType) existing.competitionType = seed.competitionType;
           }
         });
         this.save(projects);
@@ -357,6 +397,9 @@ function buildProjectCard(proj, idx) {
       </div>
       <div class="project-card-name">${escapeHtml(proj.name)}</div>
       <div class="project-card-client">${escapeHtml(proj.client)}</div>
+      ${(proj.location && (proj.location.city || proj.location.country))
+        ? `<div class="project-card-location">${escapeHtml([proj.location.city, proj.location.country].filter(Boolean).join(' · '))}</div>`
+        : ''}
       <div class="project-card-stats">
         <div class="stat-item">
           <span class="stat-label">Total GFA</span>
@@ -565,6 +608,9 @@ function openCompareModal() {
           ${statusBadge}
           <div class="cmp-col-name">${escapeHtml(p.name)}</div>
           <div class="cmp-col-meta">${escapeHtml(p.client)} · ${escapeHtml(p.typology)}</div>
+          ${(p.location && (p.location.city || p.location.country))
+            ? `<div class="cmp-col-location">📍 ${escapeHtml([p.location.city, p.location.country].filter(Boolean).join(', '))}</div>`
+            : ''}
         </div>
         <div class="cmp-stat-row">
           <span class="cmp-stat-label">Total GFA</span>
@@ -727,6 +773,16 @@ function savePMField(path, value) {
 
 
 // ─── Past Project Overview ─────────────────────────────────
+function competitionTypeLabel(type) {
+  const map = {
+    'open-competition':    'Open Competition',
+    'invited-competition': 'Invited Competition',
+    'architect-selection': 'Architect Selection',
+    'commission':          'Direct Commission'
+  };
+  return map[type] || type;
+}
+
 function renderPastOverview() {
   const container = document.getElementById('overview-past');
   if (!container || !currentProject) return;
@@ -771,6 +827,16 @@ function renderPastOverview() {
           ${currentProject.projectCode ? `<span class="project-card-code" style="margin-bottom:10px;display:inline-block;">${escapeHtml(currentProject.projectCode)}</span>` : ''}
           <h1 class="past-overview-title">${escapeHtml(currentProject.name)}</h1>
           <div class="past-overview-meta">${escapeHtml(currentProject.client)} &middot; ${escapeHtml(currentProject.typology)}${year ? ` &middot; ${year}` : ''}</div>
+          ${(() => {
+            const loc = currentProject.location || {};
+            const hasLoc = loc.city || loc.country;
+            const hasType = currentProject.competitionType;
+            if (!hasLoc && !hasType) return '';
+            return `<div class="past-overview-badges">
+              ${hasLoc ? `<span class="past-location-badge">📍 ${escapeHtml([loc.city, loc.country].filter(Boolean).join(', '))}</span>` : ''}
+              ${hasType ? `<span class="past-competition-badge">${competitionTypeLabel(currentProject.competitionType)}</span>` : ''}
+            </div>`;
+          })()}
         </div>
         <button class="past-promote-btn" onclick="changeProjectStatus('ongoing')">
           Move to Ongoing

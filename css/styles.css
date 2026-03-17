@@ -557,7 +557,14 @@ body::before {
 .project-card-client {
   font-size: 14px;
   color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.project-card-location {
+  font-size: 11px;
+  color: var(--text-muted);
   margin-bottom: var(--space-lg);
+  letter-spacing: 0.03em;
 }
 
 .project-card-stats {
@@ -2189,6 +2196,46 @@ body::before {
   border-color: rgba(52, 211, 153, 0.4);
   color: var(--accent-emerald);
   background: rgba(52, 211, 153, 0.07);
+}
+
+/* ─── Past Overview — Location & Competition Badges ──────── */
+.past-overview-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.past-location-badge,
+.past-competition-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.04em;
+}
+
+.past-location-badge {
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+}
+
+.past-competition-badge {
+  background: rgba(167, 139, 250, 0.1);
+  color: var(--accent-lavender);
+  border: 1px solid rgba(167, 139, 250, 0.25);
+}
+
+/* ─── Compare Modal — Location ───────────────────────────── */
+.cmp-col-location {
+  font-size: 11px;
+  color: var(--accent-cyan);
+  margin-top: 6px;
+  letter-spacing: 0.03em;
 }
 
 /* ─── Section Heading Row ─────────────────────────────────── */
