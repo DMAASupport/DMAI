@@ -2300,5 +2300,150 @@ window.addEventListener('DOMContentLoaded', () => {
         if (e.key === '5') switchEditorTab(4);
       }
     }
+    // Close bot on Escape
+    if (e.key === 'Escape' && botOpen) toggleBot();
   });
 });
+
+
+// ─── DMAA Assistant Bot ────────────────────────────────────
+let botOpen   = false;
+let botHistory = [];
+let botInited  = false;
+
+function toggleBot() {
+  botOpen = !botOpen;
+  document.getElementById('dmaa-bot-panel').classList.toggle('bot-panel--open', botOpen);
+  if (botOpen && !botInited) { botInit(); botInited = true; }
+  if (botOpen) setTimeout(() => document.getElementById('bot-input')?.focus(), 250);
+}
+
+function botInit() {
+  const hasKey = !!getBotApiKey();
+  document.getElementById('bot-apikey-setup').style.display = hasKey ? 'none' : 'flex';
+  document.getElementById('bot-input-row').style.display    = hasKey ? 'flex' : 'none';
+  if (hasKey && botHistory.length === 0) {
+    appendBotMessage('assistant',
+      "Hi! I'm the DMAA Assistant. I can search your project portfolio, answer questions about GFA, programs, budgets, and navigate directly to any project. What would you like to know?");
+  }
+}
+
+function getBotApiKey() { return localStorage.getItem('dmaa-bot-apikey') || ''; }
+
+function saveBotApiKey() {
+  const key = document.getElementById('bot-apikey-input').value.trim();
+  if (!key) return;
+  localStorage.setItem('dmaa-bot-apikey', key);
+  document.getElementById('bot-apikey-setup').style.display = 'none';
+  document.getElementById('bot-input-row').style.display    = 'flex';
+  appendBotMessage('assistant',
+    "Connected! I'm ready to help. Ask me anything about your DMAA project portfolio.");
+  document.getElementById('bot-input').focus();
+}
+
+function botApiKeyDown(e) { if (e.key === 'Enter') saveBotApiKey(); }
+function botKeyDown(e)    { if (e.key === 'Enter') sendBotMessage(); }
+
+function buildProjectContext() {
+  return JSON.stringify(Store.load().map(p => ({
+    id: p.id, code: p.projectCode, name: p.name,
+    client: p.client, typology: p.typology, status: p.status,
+    location: p.location, competitionType: p.competitionType,
+    totalGFA: p.employees * p.gfaPerEmp,
+    employees: p.employees, gfaPerEmp: p.gfaPerEmp, siteArea: p.siteArea || 0,
+    programs: (p.programs || []).map(pr => ({
+      name: pr.name, share: pr.share,
+      gfa: Math.round((pr.share / 100) * p.employees * p.gfaPerEmp)
+    })),
+    pm: {
+      result: p.projectManagement?.result || '',
+      constructionCost: p.projectManagement?.constructionCost || 0,
+      designFee: p.projectManagement?.designFee || 0,
+      competitionPrize: p.projectManagement?.competitionPrize || 0,
+      teamSize: p.projectManagement?.team?.teamSize || '',
+      totalHours: p.projectManagement?.team?.totalHours || '',
+      dates: p.projectManagement?.dates || {}
+    },
+    createdAt: p.createdAt, notes: p.notes || ''
+  })), null, 2);
+}
+
+async function sendBotMessage() {
+  const input = document.getElementById('bot-input');
+  const text  = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  document.getElementById('bot-send-btn').disabled = true;
+  document.getElementById('bot-status-line').textContent = 'Thinking…';
+
+  appendBotMessage('user', text);
+  botHistory.push({ role: 'user', content: text });
+  if (botHistory.length > 12) botHistory = botHistory.slice(-12);
+
+  try {
+    const reply = await callClaudeAPI([...botHistory]);
+    botHistory.push({ role: 'assistant', content: reply });
+
+    const openMatch   = reply.match(/\[OPEN:(proj-[\w-]+)\]/);
+    const displayText = reply.replace(/\[OPEN:[^\]]+\]/g, '').trim();
+    appendBotMessage('assistant', displayText);
+
+    if (openMatch) {
+      setTimeout(() => { toggleBot(); openProject(openMatch[1]); }, 700);
+    }
+  } catch(err) {
+    appendBotMessage('assistant',
+      `Sorry, I couldn't reach the AI. ${err.message || 'Please check your API key.'}`);
+  }
+
+  document.getElementById('bot-send-btn').disabled = false;
+  document.getElementById('bot-status-line').textContent = 'Ask me about your projects';
+}
+
+async function callClaudeAPI(messages) {
+  const systemPrompt =
+`You are the DMAA Assistant, an AI built into the DMAA Program Configurator — an architectural portfolio tool used by DMAA studio. Help users find information about their projects quickly.
+
+CURRENT PROJECT DATA:
+${buildProjectContext()}
+
+RULES:
+- Answer questions about GFA, programs, budgets, typology, location, competition results, team, and dates
+- Be concise — 1-3 sentences unless more detail is requested
+- Format numbers nicely: 9,508 m², 2.4M €, 85%
+- If the user asks to open / show / go to / navigate to a project, append [OPEN:proj-id] to your reply (use the exact id from the data above)
+- Do not invent data; if a field is 0 or empty say it has not been set yet
+- Today's date is ${new Date().toISOString().split('T')[0]}`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': getBotApiKey(),
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-client-side-api-key-flag': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 512,
+      system: systemPrompt,
+      messages
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  return data.content?.[0]?.text || '(no response)';
+}
+
+function appendBotMessage(role, text) {
+  const el = document.createElement('div');
+  el.className = `bot-msg bot-msg--${role}`;
+  el.textContent = text;
+  const container = document.getElementById('bot-messages');
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+}
