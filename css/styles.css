@@ -1518,7 +1518,7 @@ body::before {
 
 .past-program-row {
   display: grid;
-  grid-template-columns: 12px 1fr 60px 100px;
+  grid-template-columns: 12px 160px 1fr 48px 90px;
   align-items: center;
   gap: var(--space-md);
 }
@@ -1531,19 +1531,43 @@ body::before {
 }
 
 .past-program-name {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-primary);
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.past-program-bar-wrap {
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.past-program-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  width: 0%;
+  opacity: 0.75;
+  animation: bar-grow 0.7s var(--ease-out) forwards;
+}
+
+@keyframes bar-grow {
+  from { width: 0% !important; }
+  to   { width: var(--bar-target, 100%); }
 }
 
 .past-program-share {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-muted);
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .past-program-gfa {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-secondary);
   text-align: right;
   font-variant-numeric: tabular-nums;

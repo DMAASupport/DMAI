@@ -842,6 +842,9 @@ function renderPastOverview() {
       <div class="past-program-row">
         <div class="past-program-color" style="background:${p.color}"></div>
         <div class="past-program-name">${escapeHtml(p.name)}</div>
+        <div class="past-program-bar-wrap">
+          <div class="past-program-bar-fill" style="--bar-target:${p.share}%; background:${p.color};"></div>
+        </div>
         <div class="past-program-share">${p.share}%</div>
         <div class="past-program-gfa">${gfa.toLocaleString()} m²</div>
       </div>`;
