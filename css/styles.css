@@ -659,18 +659,8 @@ body::before {
   letter-spacing: 0.01em;
   line-height: 1;
   display: block;
-  background: linear-gradient(90deg,
-    var(--accent-cyan),
-    var(--accent-lavender),
-    var(--accent-coral),
-    var(--accent-amber),
-    var(--accent-cyan)
-  );
-  background-size: 300% 100%;
-  animation: wordmark-flow 5s linear infinite;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
 }
 
 .editor-wordmark-sub {
