@@ -2328,7 +2328,19 @@ function botInit() {
   }
 }
 
-function getBotApiKey() { return localStorage.getItem('dmaa-bot-apikey') || ''; }
+function getBotApiKey() {
+  // Strip any non-printable-ASCII characters that would cause header encoding errors
+  return (localStorage.getItem('dmaa-bot-apikey') || '').replace(/[^\x20-\x7E]/g, '').trim();
+}
+
+function resetBotApiKey() {
+  localStorage.removeItem('dmaa-bot-apikey');
+  botHistory = [];
+  document.getElementById('bot-messages').innerHTML = '';
+  document.getElementById('bot-apikey-setup').style.display = 'flex';
+  document.getElementById('bot-input-row').style.display    = 'none';
+  document.getElementById('bot-apikey-input').value = '';
+}
 
 function saveBotApiKey() {
   const key = document.getElementById('bot-apikey-input').value.trim();
@@ -2401,19 +2413,29 @@ async function sendBotMessage() {
 }
 
 async function callClaudeAPI(messages) {
-  const systemPrompt =
-`You are the DMAA Assistant, an AI built into the DMAA Program Configurator — an architectural portfolio tool used by DMAA studio. Help users find information about their projects quickly.
+  const systemPrompt = [
+    'You are the DMAA Assistant, an AI built into the DMAA Program Configurator,',
+    'an architectural portfolio tool used by DMAA studio.',
+    'Help users find information about their projects quickly.',
+    '',
+    'CURRENT PROJECT DATA:',
+    buildProjectContext(),
+    '',
+    'RULES:',
+    '- Answer questions about GFA, programs, budgets, typology, location, competition results, team, and dates',
+    '- Be concise -- 1-3 sentences unless more detail is requested',
+    '- Format numbers nicely: e.g. 9508 m2, 2.4M EUR, 85%',
+    '- If the user asks to open / show / go to / navigate to a project, append [OPEN:proj-id] to your reply',
+    '- Do not invent data; if a field is 0 or empty say it has not been set yet',
+    '- Today\'s date is ' + new Date().toISOString().split('T')[0]
+  ].join('\n');
 
-CURRENT PROJECT DATA:
-${buildProjectContext()}
-
-RULES:
-- Answer questions about GFA, programs, budgets, typology, location, competition results, team, and dates
-- Be concise — 1-3 sentences unless more detail is requested
-- Format numbers nicely: 9,508 m², 2.4M €, 85%
-- If the user asks to open / show / go to / navigate to a project, append [OPEN:proj-id] to your reply (use the exact id from the data above)
-- Do not invent data; if a field is 0 or empty say it has not been set yet
-- Today's date is ${new Date().toISOString().split('T')[0]}`;
+  const body = JSON.stringify({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 512,
+    system: systemPrompt,
+    messages
+  });
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -2423,12 +2445,7 @@ RULES:
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-client-side-api-key-flag': 'true'
     },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 512,
-      system: systemPrompt,
-      messages
-    })
+    body: new TextEncoder().encode(body)
   });
 
   if (!res.ok) {

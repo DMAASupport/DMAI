@@ -3013,6 +3013,25 @@ body::before {
   background: var(--glass-bg-hover);
 }
 
+.bot-reset-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  opacity: 0.6;
+  transition: color 0.15s, background 0.15s, opacity 0.15s;
+}
+
+.bot-reset-btn:hover {
+  color: var(--accent-amber);
+  background: var(--glass-bg-hover);
+  opacity: 1;
+}
+
 .bot-messages {
   flex: 1;
   overflow-y: auto;
