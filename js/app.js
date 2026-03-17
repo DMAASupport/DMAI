@@ -231,6 +231,9 @@ let dashboardStatusFilter = 'all';
 let dashboardSearchField  = 'all';
 let compareSelection      = [];
 
+// Project Management lock (resets each session — no persistence)
+let pmUnlocked = false;
+
 // Save status debounce
 let saveStatusTimer = null;
 
@@ -701,6 +704,13 @@ function getNestedPM(pm, path) {
   return path.split('.').reduce((o, k) => (o != null ? o[k] : '') ?? '', pm);
 }
 
+function togglePMLock() {
+  pmUnlocked = !pmUnlocked;
+  renderPastOverview();
+  renderPastGallery();
+  initPastGalleryDrop();
+}
+
 function savePMField(path, value) {
   if (!currentProject) return;
   if (!currentProject.projectManagement) currentProject.projectManagement = {};
@@ -795,7 +805,23 @@ function renderPastOverview() {
     </div>
 
     <div class="overview-panel pm-section">
-      <h3>Project Management</h3>
+      <div class="pm-section-header">
+        <h3>Project Management</h3>
+        <button class="pm-lock-btn ${pmUnlocked ? 'unlocked' : 'locked'}" onclick="togglePMLock()" title="${pmUnlocked ? 'Lock section' : 'Unlock section'}">
+          ${pmUnlocked
+            ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 019.9-1"/></svg>`
+            : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`
+          }
+          ${pmUnlocked ? 'Lock' : 'Unlock'}
+        </button>
+      </div>
+
+      ${!pmUnlocked ? `
+      <div class="pm-locked-overlay">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <div class="pm-locked-title">Restricted</div>
+        <div class="pm-locked-sub">Project management data is locked.<br>Click the unlock button to view.</div>
+      </div>` : `
       <div class="pm-grid">
 
         <div class="pm-panel">
@@ -859,7 +885,7 @@ function renderPastOverview() {
           </div>`).join('')}
         </div>
 
-      </div>
+      </div>`}
     </div>
 
     ${currentProject.notes ? `
