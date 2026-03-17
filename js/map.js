@@ -41,11 +41,6 @@
       projects: [{ name: 'Eye Filmmuseum', type: 'Cultural', status: 'completed' }]
     },
     {
-      id: 'neom', label: 'NEOM', country: 'Saudi Arabia',
-      lat: 27.990, lng: 35.182,
-      projects: [{ name: 'NEOM AI Campus', type: 'AI Campus', status: 'ongoing' }]
-    },
-    {
       id: 'goyang', label: 'Goyang', country: 'South Korea',
       lat: 37.656, lng: 126.835,
       projects: [{ name: 'Hyundai Motorstudio', type: 'Showroom / Cultural', status: 'completed' }]
