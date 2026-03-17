@@ -6,8 +6,8 @@
   const LOGO_AT     = 1900;   // "DMAI" letter reveal starts
   const LINE_AT     = 2700;   // underline expands
   const TAG_AT      = 2900;   // tagline fades in
-  const FADEOUT_AT  = 4400;   // fade begins
-  const FADE_DUR    = 1100;   // fade duration
+  const FADEOUT_AT  = 5800;   // fade begins — long hold to admire
+  const FADE_DUR    = 1600;   // slow, cinematic fade
 
   const overlay = document.getElementById('intro-overlay');
   if (!overlay) return;
@@ -85,49 +85,41 @@
       uniform vec2  resolution;
       uniform float time;
 
+      float rnd(float x) { return fract(sin(x) * 1e4); }
+      float rnd(vec2 st)  { return fract(sin(dot(st, vec2(12.9898, 78.233))) * 43758.5453); }
+
       void main(void) {
         vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
 
-        float dist  = length(uv);
-        float angle = atan(uv.y, uv.x);
+        /* Mosaic / pixelate — the original look */
+        vec2 ms = vec2(4.0, 2.0);
+        vec2 ss = vec2(256.0);
+        uv.x = floor(uv.x * ss.x / ms.x) / (ss.x / ms.x);
+        uv.y = floor(uv.y * ss.y / ms.y) / (ss.y / ms.y);
 
-        /* Organic wobble — rings breathe and undulate */
-        float wobble = 0.022 * sin(angle * 5.0 + time * 0.35)
-                             * cos(angle * 2.0 - time * 0.2);
-        float d = dist + wobble;
+        float dist = length(uv);
+        float t    = time * 0.055 + rnd(uv.x) * 0.4;
 
         /* DMAA palette */
         vec3 cyan     = vec3(0.0,   0.831, 1.0  );
         vec3 lavender = vec3(0.655, 0.545, 0.98 );
         vec3 coral    = vec3(1.0,   0.42,  0.541);
+        vec3 amber    = vec3(1.0,   0.753, 0.204);
 
         vec3 color = vec3(0.0);
+        float lw = 0.00068;
 
-        /* 12 smooth expanding rings — no pixelation */
-        for (int i = 0; i < 12; i++) {
-          float fi    = float(i);
-          float speed = 0.028 + fi * 0.003;
-          float phase = fi * 0.0833;           /* evenly spaced */
-          float life  = fract(time * speed + phase);
-          float r     = life * 1.75;           /* expands outward */
-          float fade  = pow(1.0 - life, 1.4); /* smooth fade-out */
-          float w     = 0.007 - life * 0.005; /* gets thinner */
-          float ring  = (w / (abs(d - r) + 0.0008)) * fade;
-          ring = min(ring, 2.2);
-
-          float hue = sin(time * 0.09 + fi * 1.15) * 0.5 + 0.5;
-          vec3  c   = mix(cyan, lavender, hue);
-          c = mix(c, coral, clamp(sin(time * 0.06 + fi * 0.85) * 0.25, 0.0, 1.0));
-
-          color += ring * c * 0.65;
+        for (int i = 0; i < 5; i++) {
+          float fi = float(i);
+          float ring = lw * fi * fi / abs(fract(t + fi * 0.012) - dist);
+          float m1   = sin(time * 0.12 + fi * 1.3) * 0.5 + 0.5;
+          float m2   = cos(time * 0.08 + fi * 0.9) * 0.5 + 0.5;
+          vec3  c    = mix(mix(cyan, lavender, m1), mix(coral, amber, m2), 0.3);
+          color     += ring * c;
         }
 
-        /* Soft central glow */
-        color += cyan * (0.012 / (d * d + 0.015));
-
-        /* Radial depth vignette */
-        float vig = 1.0 - smoothstep(0.3, 1.5, dist);
-        color = color * (0.12 + vig * 0.88);
+        /* Soft vignette */
+        color *= 1.0 - dist * 0.38;
 
         gl_FragColor = vec4(color, 1.0);
       }
@@ -136,7 +128,7 @@
 
   scene.add(new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2), material));
 
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
   function resize() {
@@ -148,7 +140,7 @@
 
   (function animate() {
     animId = requestAnimationFrame(animate);
-    uniforms.time.value += 0.018;   /* slower = smoother, more cinematic */
+    uniforms.time.value += 0.04;    /* original mosaic speed */
     renderer.render(scene, camera);
   })();
 })();
