@@ -199,172 +199,52 @@
     }
   }
 
-  // ── SVG overlay (arcs + markers) ─────────────────────────────────────────
+  // ── SVG overlay (static markers only) ───────────────────────────────────
   function buildSVG(svg) {
     svg.innerHTML = '';
     svg.setAttribute('viewBox', `0 0 ${VW} ${VH}`);
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-    // Defs
     const defs = ns('defs');
     defs.innerHTML = `
       <filter id="wm-glow" x="-70%" y="-70%" width="240%" height="240%">
         <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="b"/>
         <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
-      <linearGradient id="wm-arc-east" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%"   stop-color="#00d4ff" stop-opacity="0.1"/>
-        <stop offset="40%"  stop-color="#00d4ff" stop-opacity="0.7"/>
-        <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.35"/>
-      </linearGradient>
-      <linearGradient id="wm-arc-west" x1="100%" y1="0%" x2="0%" y2="0%">
-        <stop offset="0%"   stop-color="#00d4ff" stop-opacity="0.1"/>
-        <stop offset="40%"  stop-color="#00d4ff" stop-opacity="0.7"/>
-        <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.35"/>
-      </linearGradient>
-      <radialGradient id="wm-halo" cx="50%" cy="50%" r="50%">
-        <stop offset="0%"   stop-color="#00d4ff" stop-opacity="0.22"/>
-        <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
-      </radialGradient>
     `;
     svg.appendChild(defs);
 
-    const hub    = LOCATIONS.find(l => l.hub);
-    const [hx, hy] = proj(hub.lat, hub.lng);
-
-    // Arc targets: skip locations very close to Vienna
-    const arcTargets = LOCATIONS.filter(l => !l.hub && Math.abs(l.lng - hub.lng) > 4);
-
-    // ── Arcs ──
-    arcTargets.forEach((loc, i) => {
-      const [tx, ty] = proj(loc.lat, loc.lng);
-      const d        = arcPath(hx, hy, tx, ty);
-      const gradId   = tx >= hx ? 'wm-arc-east' : 'wm-arc-west';
-
-      const path = ns('path');
-      path.setAttribute('d', d);
-      path.setAttribute('fill', 'none');
-      path.setAttribute('stroke', `url(#${gradId})`);
-      path.setAttribute('stroke-width', '0.75');
-      path.setAttribute('opacity', '0');
-      svg.appendChild(path);
-
-      // Exact path length for clean dash animation
-      const len = path.getTotalLength() + 1;
-      path.setAttribute('stroke-dasharray', len);
-      path.setAttribute('stroke-dashoffset', len);
-
-      const t0 = (0.4 + i * 0.13).toFixed(2) + 's';
-
-      svgAnim(path, 'stroke-dashoffset', len, 0, '1.6s', t0, 'spline', '0.4 0 0.2 1');
-      svgAnim(path, 'opacity', '0', '0.38', '0.25s', t0, 'linear');
-
-      // Traveling dot
-      const dot = ns('circle');
-      dot.setAttribute('r', '2');
-      dot.setAttribute('fill', '#00d4ff');
-      dot.setAttribute('opacity', '0');
-
-      const motion = ns('animateMotion');
-      motion.setAttribute('path', d);
-      motion.setAttribute('dur', (1.5 + i * 0.07).toFixed(2) + 's');
-      motion.setAttribute('begin', (0.5 + i * 0.13).toFixed(2) + 's');
-      motion.setAttribute('repeatCount', 'indefinite');
-      motion.setAttribute('calcMode', 'spline');
-      motion.setAttribute('keySplines', '0.4 0 0.6 1');
-
-      const fadeA = ns('animate');
-      fadeA.setAttribute('attributeName', 'opacity');
-      fadeA.setAttribute('values', '0;0.9;0.9;0');
-      fadeA.setAttribute('keyTimes', '0;0.06;0.9;1');
-      fadeA.setAttribute('dur', (1.5 + i * 0.07).toFixed(2) + 's');
-      fadeA.setAttribute('begin', (0.5 + i * 0.13).toFixed(2) + 's');
-      fadeA.setAttribute('repeatCount', 'indefinite');
-
-      dot.appendChild(motion);
-      dot.appendChild(fadeA);
-      svg.appendChild(dot);
-    });
-
-    // ── Location markers ──
-    LOCATIONS.forEach((loc, i) => {
-      const [px, py] = proj(loc.lat, loc.lng);
-      const isHub     = !!loc.hub;
+    LOCATIONS.forEach(loc => {
+      const [px, py]   = proj(loc.lat, loc.lng);
+      const isHub      = !!loc.hub;
       const hasOngoing = loc.projects.some(p => p.status === 'ongoing' || p.status === 'hq');
       const hasPast    = loc.projects.some(p => p.status === 'past');
 
-      const color = isHub       ? '#ffffff'
-                  : hasOngoing  ? '#00d4ff'
-                  : hasPast     ? '#a78bfa'
-                  :               'rgba(255,255,255,0.6)';
+      const color = isHub      ? '#ffffff'
+                  : hasOngoing ? '#00d4ff'
+                  : hasPast    ? '#a78bfa'
+                  :              'rgba(255,255,255,0.6)';
 
-      const r = isHub ? 5 : loc.projects.length >= 3 ? 4.5 : 3.5;
+      const r = isHub ? 5 : 3.5;
 
       const g = ns('g');
-      g.setAttribute('class', 'wm-loc');
       g.setAttribute('transform', `translate(${px.toFixed(1)},${py.toFixed(1)})`);
-      g.setAttribute('data-id', loc.id);
-      g.style.setProperty('--wm-appear', (0.15 + i * 0.07).toFixed(2) + 's');
-
-      // Hub ambient halo
-      if (isHub) {
-        const halo = ns('circle');
-        halo.setAttribute('r', '26');
-        halo.setAttribute('fill', 'url(#wm-halo)');
-        g.appendChild(halo);
-      }
-
-      // Pulse ring 1
-      const p1 = ns('circle');
-      p1.setAttribute('r', r + 1);
-      p1.setAttribute('fill', 'none');
-      p1.setAttribute('stroke', color);
-      p1.setAttribute('stroke-width', '0.8');
-      svgAnim(p1, 'r',       r + 1, r + 16, '2.8s', (i * 0.3).toFixed(2) + 's');
-      svgAnim(p1, 'opacity', '0.5', '0',    '2.8s', (i * 0.3).toFixed(2) + 's');
-      g.appendChild(p1);
-
-      // Hub gets a second slower pulse
-      if (isHub) {
-        const p2 = ns('circle');
-        p2.setAttribute('r', r + 3);
-        p2.setAttribute('fill', 'none');
-        p2.setAttribute('stroke', color);
-        p2.setAttribute('stroke-width', '0.5');
-        svgAnim(p2, 'r',       r + 3, r + 30, '2.8s', '1.2s');
-        svgAnim(p2, 'opacity', '0.3', '0',    '2.8s', '1.2s');
-        g.appendChild(p2);
-      }
+      g.setAttribute('style', 'cursor:pointer');
 
       // Main dot
       const dot = ns('circle');
       dot.setAttribute('r', r);
       dot.setAttribute('fill', color);
       dot.setAttribute('filter', 'url(#wm-glow)');
-      dot.setAttribute('class', 'wm-dot');
       g.appendChild(dot);
 
-      // Project count badge for multi-project cities
-      if (loc.projects.length > 1) {
-        const badge = ns('text');
-        badge.setAttribute('x', r + 4);
-        badge.setAttribute('y', -(r + 2));
-        badge.setAttribute('font-size', '5.5');
-        badge.setAttribute('font-family', 'Inter, sans-serif');
-        badge.setAttribute('font-weight', '600');
-        badge.setAttribute('fill', color);
-        badge.setAttribute('opacity', '0.85');
-        badge.textContent = loc.projects.length;
-        g.appendChild(badge);
-      }
-
-      // Invisible hit area for easier hover
+      // Invisible hit area
       const hit = ns('circle');
       hit.setAttribute('r', '14');
       hit.setAttribute('fill', 'transparent');
       g.appendChild(hit);
 
-      // Hover events
+      // Hover: scale dot + show tooltip
       g.addEventListener('mouseenter', e => {
         dot.setAttribute('r', r + 2);
         showTip(e, loc);
@@ -377,17 +257,6 @@
 
       svg.appendChild(g);
     });
-  }
-
-  // ── Quadratic arc (lifts upward away from equator) ────────────────────────
-  function arcPath(x1, y1, x2, y2) {
-    const dx   = x2 - x1, dy = y2 - y1;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    const mx   = (x1 + x2) / 2, my = (y1 + y2) / 2;
-    const lift = Math.min(dist * 0.28, 60);
-    // Perpendicular upward offset in screen coords
-    const nx = -dy / dist, ny = dx / dist;
-    return `M ${x1.toFixed(1)} ${y1.toFixed(1)} Q ${(mx + nx * lift).toFixed(1)} ${(my + ny * lift - 20).toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`;
   }
 
   // ── Tooltip ───────────────────────────────────────────────────────────────
@@ -438,19 +307,6 @@
   // ── SVG helpers ───────────────────────────────────────────────────────────
   function ns(tag) {
     return document.createElementNS('http://www.w3.org/2000/svg', tag);
-  }
-
-  function svgAnim(el, attr, from, to, dur, begin, calcMode, keySplines) {
-    const a = ns('animate');
-    a.setAttribute('attributeName', attr);
-    a.setAttribute('from', from);
-    a.setAttribute('to',   to);
-    a.setAttribute('dur',  dur);
-    a.setAttribute('begin', begin);
-    a.setAttribute('repeatCount', 'indefinite');
-    if (calcMode)  a.setAttribute('calcMode',  calcMode);
-    if (keySplines) a.setAttribute('keySplines', keySplines);
-    el.appendChild(a);
   }
 
 })();
