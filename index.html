@@ -12,6 +12,7 @@
     <!-- Styles -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/schedule.css">
+    <link rel="stylesheet" href="css/tenders.css">
 
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -53,6 +54,10 @@
                 </div>
             </div>
             <div class="top-bar-actions">
+                <button class="btn btn-ghost" onclick="showTenders()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+                    Tenders
+                </button>
                 <button class="btn btn-primary" onclick="openNewProjectModal()">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
                     New Project
@@ -455,6 +460,281 @@
 
 
 <!-- ================================================================
+     VIEW: TENDERS LIST
+     ================================================================ -->
+<div id="view-tenders" class="view">
+    <!-- Top Bar -->
+    <div class="tender-top-bar">
+        <div class="tender-top-bar-left">
+            <div class="editor-wordmark wordmark-large">
+                <span class="editor-wordmark-title"><span style="font-weight:200">DM</span><span style="font-weight:900">AI</span></span>
+            </div>
+            <div class="breadcrumb">
+                <a onclick="goToDashboard()">Projects</a>
+                <span class="separator">›</span>
+                <span class="current">Tenders</span>
+            </div>
+        </div>
+        <div class="tender-top-bar-actions">
+            <button class="btn btn-ghost" onclick="goToDashboard()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="7" x2="2" y2="7"/><polyline points="6 3 2 7 6 11"/></svg>
+                Back
+            </button>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="tenders-content">
+        <div class="tenders-page-title">Tender Submissions</div>
+        <div class="tenders-page-sub">Manage competition briefs, team assembly, letters of interest and portfolio selection.</div>
+
+        <!-- Filter chips -->
+        <div class="tender-filter-chips">
+            <button class="tender-filter-chip active" data-filter="all"       onclick="setTenderFilter('all')">All</button>
+            <button class="tender-filter-chip"        data-filter="active"    onclick="setTenderFilter('active')">Active</button>
+            <button class="tender-filter-chip"        data-filter="submitted" onclick="setTenderFilter('submitted')">Submitted</button>
+            <button class="tender-filter-chip"        data-filter="won"       onclick="setTenderFilter('won')">Won</button>
+            <button class="tender-filter-chip"        data-filter="lost"      onclick="setTenderFilter('lost')">Lost</button>
+        </div>
+
+        <!-- Tender Grid -->
+        <div class="tender-grid" id="tender-grid"></div>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     VIEW: TENDER EDITOR
+     ================================================================ -->
+<div id="view-tender-editor" class="view">
+    <!-- Top Bar -->
+    <div class="tender-top-bar">
+        <div class="tender-top-bar-left">
+            <div class="editor-wordmark wordmark-large">
+                <span class="editor-wordmark-title"><span style="font-weight:200">DM</span><span style="font-weight:900">AI</span></span>
+            </div>
+            <div class="breadcrumb">
+                <a onclick="goToDashboard()">Projects</a>
+                <span class="separator">›</span>
+                <a onclick="goToTenders()">Tenders</a>
+                <span class="separator">›</span>
+                <span class="current" id="tender-editor-breadcrumb">Tender</span>
+            </div>
+        </div>
+        <div class="tender-top-bar-actions">
+            <button class="btn btn-excel" onclick="exportTenderExcel()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
+                Export
+            </button>
+            <button class="btn btn-ghost" onclick="goToTenders()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="7" x2="2" y2="7"/><polyline points="6 3 2 7 6 11"/></svg>
+                Back
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tender-tabs-bar">
+        <button class="tender-tab active" onclick="switchTenderTab(0)">Brief &amp; Info</button>
+        <button class="tender-tab"        onclick="switchTenderTab(1)">Portfolio</button>
+        <button class="tender-tab"        onclick="switchTenderTab(2)">Team</button>
+        <button class="tender-tab"        onclick="switchTenderTab(3)">Letter of Interest</button>
+        <button class="tender-tab"        onclick="switchTenderTab(4)">Checklist</button>
+    </div>
+
+    <!-- Tab 0: Brief & Info -->
+    <div class="tender-tab-panel active" id="tender-tab-0">
+        <div class="tender-editor-content">
+            <!-- Drop zone -->
+            <div class="brief-dropzone" id="brief-dropzone">
+                <div class="brief-dropzone-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                </div>
+                <div class="brief-dropzone-label">Drop brief here</div>
+                <div class="brief-dropzone-sub">PDF, DOCX, or any file — or click to browse</div>
+            </div>
+            <input type="file" id="brief-file-input" style="display:none">
+            <div id="brief-file-badge" style="display:none"></div>
+
+            <!-- Details form -->
+            <div class="tender-form-panel">
+                <h3>Tender Details</h3>
+                <div class="tender-form-grid">
+                    <div class="tender-field tender-form-grid--full">
+                        <label>Tender Title</label>
+                        <input type="text" id="tender-title" class="tender-inp" placeholder="e.g. New Cultural Centre Vienna"
+                               oninput="saveTenderField('title', this.value); document.getElementById('tender-editor-breadcrumb').textContent = this.value || 'Untitled'">
+                    </div>
+                    <div class="tender-field">
+                        <label>Client / Authority</label>
+                        <input type="text" id="tender-client" class="tender-inp" placeholder="e.g. City of Vienna"
+                               oninput="saveTenderField('client', this.value)">
+                    </div>
+                    <div class="tender-field">
+                        <label>Location</label>
+                        <input type="text" id="tender-location" class="tender-inp" placeholder="e.g. Vienna, Austria"
+                               oninput="saveTenderField('location', this.value)">
+                    </div>
+                    <div class="tender-field">
+                        <label>Submission Deadline</label>
+                        <input type="date" id="tender-deadline" class="tender-inp"
+                               onchange="saveTenderField('deadline', this.value)">
+                    </div>
+                    <div class="tender-field">
+                        <label>Brief Received</label>
+                        <input type="date" id="tender-briefdate" class="tender-inp"
+                               onchange="saveTenderField('briefDate', this.value)">
+                    </div>
+                    <div class="tender-field">
+                        <label>Typology</label>
+                        <input type="text" id="tender-typology" class="tender-inp" placeholder="e.g. Cultural, Residential"
+                               oninput="saveTenderField('typology', this.value)">
+                    </div>
+                    <div class="tender-field">
+                        <label>Competition Type</label>
+                        <select id="tender-comptype" class="tender-sel" onchange="saveTenderField('competitionType', this.value)">
+                            <option value="open">Open Competition</option>
+                            <option value="invited">Invited Competition</option>
+                            <option value="direct">Direct Commission</option>
+                        </select>
+                    </div>
+                    <div class="tender-field">
+                        <label>Required GFA (m²)</label>
+                        <input type="number" id="tender-gfa" class="tender-inp" placeholder="0"
+                               oninput="saveTenderField('estimatedGFA', +this.value)">
+                    </div>
+                    <div class="tender-field">
+                        <label>Estimated Budget (€)</label>
+                        <input type="number" id="tender-budget" class="tender-inp" placeholder="0"
+                               oninput="saveTenderField('estimatedBudget', +this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brief Notes -->
+            <div class="tender-form-panel">
+                <h3>Brief Notes</h3>
+                <textarea id="tender-briefnotes" class="tender-textarea" style="width:100%;box-sizing:border-box"
+                          placeholder="Key requirements, constraints, and notes extracted from the brief…"
+                          oninput="saveTenderField('briefNotes', this.value)"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 1: Portfolio -->
+    <div class="tender-tab-panel" id="tender-tab-1">
+        <div class="tender-editor-content">
+            <div id="tender-portfolio-content"></div>
+        </div>
+    </div>
+
+    <!-- Tab 2: Team -->
+    <div class="tender-tab-panel" id="tender-tab-2">
+        <div class="tender-editor-content">
+            <div class="team-actions-row">
+                <button class="btn btn-ghost" onclick="openRosterPanel()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                    Pick from Roster
+                </button>
+                <button class="btn btn-ghost" onclick="openRosterPanel()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                    Manage Roster
+                </button>
+            </div>
+            <div class="team-member-list" id="tender-team-list"></div>
+        </div>
+    </div>
+
+    <!-- Tab 3: Letter of Interest -->
+    <div class="tender-tab-panel" id="tender-tab-3">
+        <div class="tender-editor-content">
+            <div class="loi-actions">
+                <button class="btn btn-ghost" onclick="fillLoiTemplate()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Use Template
+                </button>
+                <button class="btn btn-ghost" id="loi-copy-btn" onclick="copyLoi()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                    Copy
+                </button>
+            </div>
+            <textarea id="loi-textarea" class="loi-textarea"
+                      placeholder="Your letter of interest text will appear here. Click 'Use Template' to generate a starting point, then customise it."
+                      oninput="saveTenderField('loi', this.value)"></textarea>
+        </div>
+    </div>
+
+    <!-- Tab 4: Checklist -->
+    <div class="tender-tab-panel" id="tender-tab-4">
+        <div class="tender-editor-content">
+            <!-- Progress bar -->
+            <div class="checklist-progress-row">
+                <span class="checklist-progress-label" id="checklist-progress-label">0 of 6 steps complete</span>
+                <div class="checklist-progress-track">
+                    <div class="checklist-progress-fill" id="checklist-progress-fill" style="width:0%"></div>
+                </div>
+            </div>
+
+            <!-- Checklist items -->
+            <div class="checklist-list" id="checklist-list"></div>
+
+            <!-- Status -->
+            <div class="tender-status-row">
+                <label>Tender Status</label>
+                <select id="tender-status-sel" class="tender-status-sel" onchange="updateTenderStatus(this.value)">
+                    <option value="draft">Draft</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="submitted">Submitted</option>
+                    <option value="won">Won</option>
+                    <option value="lost">Lost</option>
+                    <option value="withdrawn">Withdrawn</option>
+                </select>
+            </div>
+
+            <!-- Export -->
+            <div class="tender-export-section">
+                <h3>Export</h3>
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:var(--space-md)">Download a full tender summary including brief details, selected projects, team list, letter of interest and checklist.</p>
+                <button class="btn btn-excel" onclick="exportTenderExcel()">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
+                    Export Tender Summary (Excel)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Roster Slide-in Panel ──────────────────────────────────────────────── -->
+<div class="roster-overlay" id="roster-overlay" onclick="if(event.target===this)closeRosterPanel()">
+    <div class="roster-panel">
+        <div class="roster-header">
+            <div class="roster-title">Team Roster</div>
+            <button class="roster-close-btn" onclick="closeRosterPanel()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="roster-body">
+            <div id="roster-person-list"></div>
+        </div>
+        <div class="roster-add-form">
+            <div class="roster-add-title">Add Colleague</div>
+            <div class="roster-add-grid">
+                <input type="text"  id="roster-inp-name"  class="roster-inp" placeholder="Full name *">
+                <input type="text"  id="roster-inp-role"  class="roster-inp" placeholder="Role (Partner, Architect…)">
+                <input type="email" id="roster-inp-email" class="roster-inp" placeholder="Email">
+                <input type="text"  id="roster-inp-exp"   class="roster-inp" placeholder="Years experience">
+                <input type="text"  id="roster-inp-edu"   class="roster-inp" placeholder="Education" style="grid-column:1/-1">
+                <textarea id="roster-inp-cv" class="roster-inp" placeholder="CV notes / specialization" style="grid-column:1/-1;resize:vertical;min-height:60px"></textarea>
+            </div>
+            <div class="roster-add-actions">
+                <button class="btn btn-primary" onclick="saveRosterPerson()" style="font-size:13px;padding:8px 18px">Add to Roster</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ================================================================
      MODAL: New Project
      ================================================================ -->
 <div id="modal-overlay" class="modal-overlay" onclick="if(event.target===this)closeModal()">
@@ -539,6 +819,8 @@
 
 <!-- Application Script -->
 <script src="js/app.js?v=2"></script>
+<script src="js/team.js"></script>
+<script src="js/tenders.js"></script>
 
 <!-- ─── World Map FAB ──────────────────────────────────── -->
 <button id="wm-fab" onclick="toggleWorldMap()" title="DMAA Worldwide Projects">
@@ -574,12 +856,30 @@
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:4px">
+      <button class="bot-reset-btn" onclick="toggleBotApiPanel()" title="Configure Claude AI key" id="bot-key-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
       <button class="bot-close-btn" onclick="toggleBot()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2.5" stroke-linecap="round">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
       </button>
+    </div>
+  </div>
+
+  <!-- API key config panel (hidden by default) -->
+  <div class="bot-apikey-setup" id="bot-apikey-setup" style="display:none">
+    <div class="bot-apikey-label">Claude AI — optional upgrade</div>
+    <div class="bot-apikey-sub">Add an Anthropic API key to enable natural language understanding. Without it the bot uses built-in rules.</div>
+    <input type="password" id="bot-apikey-input" class="bot-apikey-field"
+           placeholder="sk-ant-api03-…" onkeydown="botApiKeyDown(event)">
+    <div style="display:flex;gap:8px;width:100%">
+      <button class="bot-apikey-btn" onclick="saveBotApiKey()" style="flex:1">Save key</button>
+      <button class="bot-apikey-btn" onclick="clearBotApiKey()" style="flex:0 0 auto;background:rgba(255,107,138,0.15);color:#ff6b8a;border-color:rgba(255,107,138,0.3)">Remove</button>
     </div>
   </div>
 

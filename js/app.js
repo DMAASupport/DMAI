@@ -313,6 +313,13 @@ function showView(viewName) {
   currentView = viewName;
 }
 
+function showTenders() {
+  if (currentProject) saveCurrentProject();
+  currentProject = null;
+  showView('tenders');
+  if (typeof renderTenderList === 'function') renderTenderList();
+}
+
 function goToDashboard() {
   if (currentProject) saveCurrentProject();
   currentProject = null;
@@ -2511,6 +2518,7 @@ window.addEventListener('DOMContentLoaded', () => {
   showView('dashboard');
   renderDashboard();
   initGalleryDrop();
+  if (typeof initBriefDrop === 'function') initBriefDrop();
 
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {
