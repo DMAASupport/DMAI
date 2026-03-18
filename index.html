@@ -267,17 +267,18 @@
                 <div id="pm-section-ongoing"></div>
 
                 <!-- ─── Schedule ─── -->
-                <div class="sched-container">
-                    <div class="sched-topbar">
-                        <div>
-                            <div class="section-title" style="margin:0">Project Schedule</div>
-                            <div class="sched-topbar-sub">Organise phases, deadlines and deliverables</div>
-                        </div>
+                <div class="overview-panel sched-container">
+                    <div class="sched-topbar" style="margin-bottom:var(--space-lg);padding-bottom:var(--space-sm);border-bottom:1px solid var(--glass-border)">
+                        <h3 style="margin:0;padding:0;border:none;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);display:flex;align-items:center;gap:var(--space-sm)">
+                            <span style="width:3px;height:12px;border-radius:2px;background:var(--accent-cyan);display:inline-block;flex-shrink:0"></span>
+                            Project Schedule
+                        </h3>
                         <button class="btn btn-primary" onclick="schOpenAddPhase()">
                             <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
                             Add Phase
                         </button>
                     </div>
+                    <div class="sched-topbar-sub" style="margin:-12px 0 16px;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:.03em">Organise phases, deadlines and deliverables</div>
                     <div class="sched-gantt-wrap" id="sched-gantt"></div>
                     <div id="sched-phases"></div>
                     <div id="sched-footer"></div>
