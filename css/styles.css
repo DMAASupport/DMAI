@@ -3378,37 +3378,49 @@ body::after {
   font-size: 120px;
   line-height: 0.92;
   letter-spacing: -0.01em;
-  opacity: 0;
-  transition: opacity 0.5s ease;
 }
 
-#intro-logo.intro-logo--on {
-  opacity: 1;
-}
-
-#intro-logo.intro-logo--beat {
-  animation: introBeat 1.1s ease-in-out forwards;
-}
-
-@keyframes introBeat {
-  0%   { transform: scale(1);    }
-  14%  { transform: scale(1.07); }
-  28%  { transform: scale(1);    }
-  42%  { transform: scale(1.04); }
-  60%  { transform: scale(1);    }
-  100% { transform: scale(1);    }
-}
-
-/* DM — ultra thin for contrast */
+/* DM — ultra-thin, fades in first */
 #intro-dm {
   color: #ffffff;
   font-weight: 200;
+  opacity: 0;
+  display: inline-block;
+  transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* AI — ultra bold, same white, jumps out typographically */
+#intro-dm.intro-dm--on {
+  opacity: 1;
+}
+
+/* AI — ultra-bold, glowing cyan gradient, appears after DM then pulses */
 #intro-ai {
-  color: #ffffff;
   font-weight: 900;
+  opacity: 0;
+  display: inline-block;
+  background: linear-gradient(135deg, #ffffff 0%, #00d4ff 60%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 18px rgba(0, 212, 255, 0.55)) drop-shadow(0 0 40px rgba(0, 212, 255, 0.25));
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#intro-ai.intro-ai--on {
+  opacity: 1;
+}
+
+#intro-ai.intro-ai--beat {
+  animation: introAiBeat 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes introAiBeat {
+  0%   { transform: scale(1);    filter: drop-shadow(0 0 18px rgba(0,212,255,0.55)) drop-shadow(0 0 40px rgba(0,212,255,0.25)); }
+  12%  { transform: scale(1.10); filter: drop-shadow(0 0 32px rgba(0,212,255,0.90)) drop-shadow(0 0 70px rgba(0,212,255,0.50)); }
+  26%  { transform: scale(0.97); filter: drop-shadow(0 0 18px rgba(0,212,255,0.55)) drop-shadow(0 0 40px rgba(0,212,255,0.25)); }
+  38%  { transform: scale(1.06); filter: drop-shadow(0 0 26px rgba(0,212,255,0.75)) drop-shadow(0 0 55px rgba(0,212,255,0.35)); }
+  56%  { transform: scale(1);    filter: drop-shadow(0 0 18px rgba(0,212,255,0.55)) drop-shadow(0 0 40px rgba(0,212,255,0.25)); }
+  100% { transform: scale(1);    filter: drop-shadow(0 0 18px rgba(0,212,255,0.55)) drop-shadow(0 0 40px rgba(0,212,255,0.25)); }
 }
 
 /* Thin horizontal line accent */

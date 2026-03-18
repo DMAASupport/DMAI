@@ -1,12 +1,13 @@
 (function () {
   'use strict';
 
-  // ── Timeline (ms) — total duration ~6 s ──────────────────────
+  // ── Timeline (ms) — total duration ~7 s ──────────────────────
   const WELCOME_AT     =  700;   // "WELCOME TO" letter reveal
-  const LOGO_AT        = 1900;   // "DMAI" appears all at once
-  const BEAT_AT        = 2250;   // heartbeat pulse on DMAI
-  const LINE_AT        = 2700;   // underline expands
-  const TAG_AT         = 2900;   // tagline fades in
+  const DM_AT          = 1900;   // "DM" fades in
+  const AI_AT          = 2220;   // "AI" fades in 320ms after DM
+  const BEAT_AT        = 2450;   // heartbeat pulse on AI only
+  const LINE_AT        = 2850;   // underline expands
+  const TAG_AT         = 3050;   // tagline fades in
   const CANVAS_FADE_AT = 3600;   // shader glare fades — text only from here
   const CANVAS_FADE_DUR= 1200;   // canvas fades over 1.2 s
   const FADEOUT_AT     = 5500;   // overlay begins final fade  (~7 s total)
@@ -73,14 +74,22 @@
   // ── Sequence ──────────────────────────────────────────────────
   addTimer(() => reveal(document.getElementById('intro-welcome'), 90), WELCOME_AT);
 
+  // DM fades in first
   addTimer(() => {
-    const logo = document.getElementById('intro-logo');
-    if (logo) logo.classList.add('intro-logo--on');
-  }, LOGO_AT);
+    const dm = document.getElementById('intro-dm');
+    if (dm) dm.classList.add('intro-dm--on');
+  }, DM_AT);
 
+  // AI fades in after DM
   addTimer(() => {
-    const logo = document.getElementById('intro-logo');
-    if (logo) logo.classList.add('intro-logo--beat');
+    const ai = document.getElementById('intro-ai');
+    if (ai) ai.classList.add('intro-ai--on');
+  }, AI_AT);
+
+  // AI heartbeat pulse
+  addTimer(() => {
+    const ai = document.getElementById('intro-ai');
+    if (ai) ai.classList.add('intro-ai--beat');
   }, BEAT_AT);
 
   addTimer(() => {
