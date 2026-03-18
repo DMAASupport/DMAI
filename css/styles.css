@@ -2383,6 +2383,7 @@ body::before {
 /* ─── PM Charts ───────────────────────────────────────────── */
 .pm-charts {
   margin-top: var(--space-lg);
+  margin-bottom: var(--space-lg);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
