@@ -11,7 +11,7 @@
   const CANVAS_FADE_AT = 3600;   // shader glare fades — text only from here
   const CANVAS_FADE_DUR= 1200;   // canvas fades over 1.2 s
   const FADEOUT_AT     = 5500;   // overlay begins final fade  (~7.5 s total)
-  const FADE_DUR       = 2000;   // overlay fade duration (+0.5s slower reveal)
+  const FADE_DUR       = 2500;   // overlay fade duration
 
   const overlay = document.getElementById('intro-overlay');
   if (!overlay) return;
