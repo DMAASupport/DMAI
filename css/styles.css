@@ -3323,6 +3323,7 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 #intro-canvas {
@@ -3357,6 +3358,8 @@ body::after {
   line-height: 0.92;
   letter-spacing: -0.01em;
   visibility: hidden;
+  transform-origin: center center;
+  will-change: transform, opacity;
 }
 
 /* DM — ultra thin for contrast */
@@ -3419,6 +3422,45 @@ body::after {
 
 #intro-ai .intro-char--on {
   text-shadow: none;
+}
+
+/* ── Skip hint ──────────────────────────────────────────────── */
+#intro-skip-hint {
+  position: absolute;
+  bottom: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: hintPulse 2.8s ease-in-out infinite 2s both;
+}
+
+@keyframes hintPulse {
+  0%, 100% { color: rgba(255, 255, 255, 0.18); }
+  50%       { color: rgba(255, 255, 255, 0.55); }
+}
+
+/* ── App container drop-in reveal ───────────────────────────── */
+@keyframes appReveal {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+    filter: blur(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0px);
+  }
+}
+
+.app-reveal {
+  animation: appReveal 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 
