@@ -2540,10 +2540,9 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// ─── DMAA Assistant Bot ────────────────────────────────────
-let botOpen   = false;
-let botHistory = [];
-let botInited  = false;
+// ─── DMAA Assistant Bot (local rule-based) ─────────────────
+let botOpen  = false;
+let botInited = false;
 
 function toggleBot() {
   botOpen = !botOpen;
@@ -2553,143 +2552,145 @@ function toggleBot() {
 }
 
 function botInit() {
-  const hasKey = !!getBotApiKey();
-  document.getElementById('bot-apikey-setup').style.display = hasKey ? 'none' : 'flex';
-  document.getElementById('bot-input-row').style.display    = hasKey ? 'flex' : 'none';
-  if (hasKey && botHistory.length === 0) {
-    appendBotMessage('assistant',
-      'Hi! I\'m the DMAA Assistant, powered by Claude AI.\n\nAsk me anything in plain language:\n- "I\'m looking for a residential project"\n- "Show me mixed-use high-rise projects"\n- "What\'s the GFA of HFM Stuttgart?"\n- "Do we have any competition wins?"\n- "Tell me about the Vienna project"');
-  }
+  appendBotMessage('assistant',
+    'Hi! I\'m the DMAA Assistant.\n\nAsk me about your projects:\n- "List all projects"\n- "Show ongoing projects"\n- "Tell me about ga8 Frankfurt"\n- "What\'s the GFA of AI Campus?"\n- "Open AI Campus"\n- "Show residential projects"');
 }
 
-function getBotApiKey() {
-  return (localStorage.getItem('dmaa-bot-apikey') || '').replace(/[^\x20-\x7E]/g, '').trim();
-}
+function botKeyDown(e) { if (e.key === 'Enter') sendBotMessage(); }
 
-function saveBotApiKey() {
-  const key = document.getElementById('bot-apikey-input').value.replace(/[^\x20-\x7E]/g, '').trim();
-  if (!key) return;
-  localStorage.setItem('dmaa-bot-apikey', key);
-  document.getElementById('bot-apikey-setup').style.display = 'none';
-  document.getElementById('bot-input-row').style.display    = 'flex';
-  if (botHistory.length === 0) {
-    appendBotMessage('assistant',
-      'Connected! Ask me anything about your projects in plain language — typology, GFA, programs, budget, competition results, and more.');
-  }
-  document.getElementById('bot-input').focus();
-}
-
-function resetBotApiKey() {
-  localStorage.removeItem('dmaa-bot-apikey');
-  botHistory = [];
-  botInited  = false;
-  document.getElementById('bot-messages').innerHTML = '';
-  document.getElementById('bot-apikey-setup').style.display = 'flex';
-  document.getElementById('bot-input-row').style.display    = 'none';
-  document.getElementById('bot-apikey-input').value = '';
-}
-
-function botApiKeyDown(e) { if (e.key === 'Enter') saveBotApiKey(); }
-function botKeyDown(e)    { if (e.key === 'Enter') sendBotMessage(); }
-
-function buildProjectContext() {
-  return JSON.stringify(Store.load().map(p => ({
-    id: p.id,
-    code: p.projectCode,
-    name: p.name,
-    client: p.client,
-    typology: p.typology,
-    status: p.status,
-    location: p.location,
-    competitionType: p.competitionType,
-    totalGFA: p.employees * p.gfaPerEmp,
-    employees: p.employees,
-    gfaPerEmp: p.gfaPerEmp,
-    occupantLabel: p.occupantLabel || 'Employees',
-    siteArea: p.siteArea || 0,
-    programs: (p.programs || []).map(pr => ({
-      name: pr.name,
-      share: pr.share,
-      gfa: Math.round((pr.share / 100) * p.employees * p.gfaPerEmp)
-    })),
-    pm: {
-      result: p.projectManagement?.result || '',
-      constructionCost: p.projectManagement?.constructionCost || 0,
-      designFee: p.projectManagement?.designFee || 0,
-      competitionPrize: p.projectManagement?.competitionPrize || 0,
-      team: p.projectManagement?.team || {},
-      dates: p.projectManagement?.dates || {}
-    },
-    notes: p.notes || ''
-  })), null, 2);
-}
-
-async function sendBotMessage() {
+function sendBotMessage() {
   const input = document.getElementById('bot-input');
   const text  = input.value.trim();
   if (!text) return;
   input.value = '';
-
-  const btn = document.getElementById('bot-send-btn');
-  btn.disabled = true;
-  document.getElementById('bot-status-line').textContent = 'Thinking…';
-
   appendBotMessage('user', text);
-  botHistory.push({ role: 'user', content: text });
-  if (botHistory.length > 12) botHistory = botHistory.slice(-12);
-
-  try {
-    const reply = await callClaudeAPI([...botHistory]);
-    botHistory.push({ role: 'assistant', content: reply });
-    const openMatch = reply.match(/\[OPEN:(proj-[\w-]+)\]/);
-    appendBotMessage('assistant', reply.replace(/\[OPEN:[^\]]+\]/g, '').trim());
-    if (openMatch) setTimeout(() => { toggleBot(); openProject(openMatch[1]); }, 700);
-  } catch(err) {
-    appendBotMessage('assistant', 'Error: ' + (err.message || 'Could not reach the API. Check your key.'));
-  }
-
-  btn.disabled = false;
-  document.getElementById('bot-status-line').textContent = 'Ask me about your projects';
+  const reply = localBotReply(text);
+  setTimeout(() => {
+    if (reply.open) { appendBotMessage('assistant', reply.text); setTimeout(() => { toggleBot(); openProject(reply.open); }, 700); }
+    else            { appendBotMessage('assistant', reply.text); }
+  }, 200);
 }
 
-async function callClaudeAPI(messages) {
-  const systemPrompt = [
-    'You are the DMAA Assistant, an AI built into DMAA studio\'s Program Configurator.',
-    'DMAA is an architecture studio. This tool manages their competition project portfolio.',
-    'Help users explore projects using natural language.',
-    'You can: find projects by typology, location, or status; answer questions about GFA, programs, budget, team, competition results; explain project data.',
-    'When the user asks to open, show, go to, or navigate to a specific project, append [OPEN:proj-id] (using the project id field) at the very end of your reply.',
-    'Keep responses concise: 2-4 sentences unless more detail is requested.',
-    'Format numbers clearly: 9,508 m2 | 2.4M EUR | 85%.',
-    'Do not invent data. If a field is 0 or empty, say it has not been set yet.',
-    'Today: ' + new Date().toISOString().split('T')[0],
-    '',
-    'FULL PROJECT PORTFOLIO:',
-    buildProjectContext()
-  ].join('\n');
+function localBotReply(raw) {
+  const q  = raw.toLowerCase();
+  const ps = Store.load();
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': getBotApiKey(),
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-client-side-api-key-flag': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 600,
-      system: systemPrompt,
-      messages
-    })
-  });
+  // ── helpers ──────────────────────────────────────────────
+  const fmt = n => n ? Number(n).toLocaleString() : '—';
+  const gfa = p => p.employees * p.gfaPerEmp;
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || 'HTTP ' + res.status);
+  function projectCard(p) {
+    const totalGFA = gfa(p);
+    const programs = (p.programs || []).map(pr =>
+      `  • ${pr.name}: ${pr.share}% (${fmt(Math.round(pr.share / 100 * totalGFA))} m²)`
+    ).join('\n');
+    const pm  = p.projectManagement || {};
+    const loc = p.location ? `\nLocation: ${p.location}` : '';
+    const cli = p.client   ? `\nClient: ${p.client}`     : '';
+    const res = pm.result  ? `\nResult: ${pm.result}`    : '';
+    const cost = pm.constructionCost ? `\nConstruction cost: €${fmt(pm.constructionCost)}` : '';
+    return [
+      `${p.name}${p.projectCode ? ' (' + p.projectCode + ')' : ''}`,
+      `Status: ${p.status === 'ongoing' ? 'Ongoing' : 'Past'}`,
+      `Typology: ${p.typology || '—'}`,
+      loc, cli, res,
+      `GFA: ${fmt(totalGFA)} m²`,
+      cost,
+      programs ? `\nProgram breakdown:\n${programs}` : '',
+      p.notes ? `\nNotes: ${p.notes}` : ''
+    ].filter(Boolean).join('\n');
   }
-  const data = await res.json();
-  return data.content?.[0]?.text || '(no response)';
+
+  // ── intent: help ─────────────────────────────────────────
+  if (/\b(help|what can|commands?)\b/.test(q)) {
+    return { text: 'Here\'s what you can ask me:\n\n• "List all projects" — full portfolio\n• "Show ongoing / past projects"\n• "Tell me about [project name]"\n• "Open [project name]"\n• "GFA of [project]"\n• "Show [typology] projects" (e.g. residential, mixed-use, office)\n• "Projects in [location]"\n• "Competition wins"' };
+  }
+
+  // ── intent: open a specific project ──────────────────────
+  if (/\b(open|go to|navigate to|show me)\b/.test(q)) {
+    const match = ps.find(p =>
+      q.includes(p.name.toLowerCase()) ||
+      (p.projectCode && q.includes(p.projectCode.toLowerCase())) ||
+      q.includes(p.id.toLowerCase())
+    );
+    if (match) return { text: `Opening ${match.name}…`, open: match.id };
+    return { text: 'I couldn\'t find that project. Try "list all projects" to see what\'s available.' };
+  }
+
+  // ── intent: tell me about / details ──────────────────────
+  if (/\b(tell me|about|detail|info|show|describe)\b/.test(q)) {
+    const match = ps.find(p =>
+      q.includes(p.name.toLowerCase()) ||
+      (p.projectCode && q.includes(p.projectCode.toLowerCase()))
+    );
+    if (match) return { text: projectCard(match) + '\n\nType "open ' + match.name + '" to navigate to it.' };
+  }
+
+  // ── intent: GFA query ────────────────────────────────────
+  if (/\bgfa\b/.test(q)) {
+    const match = ps.find(p =>
+      q.includes(p.name.toLowerCase()) ||
+      (p.projectCode && q.includes(p.projectCode.toLowerCase()))
+    );
+    if (match) return { text: `${match.name} has a total GFA of ${fmt(gfa(match))} m² (${match.employees} ${match.occupantLabel || 'employees'} × ${match.gfaPerEmp} m²/person).` };
+    // GFA of all projects
+    const list = ps.map(p => `• ${p.name}: ${fmt(gfa(p))} m²`).join('\n');
+    return { text: `GFA across all projects:\n${list}` };
+  }
+
+  // ── intent: list all ─────────────────────────────────────
+  if (/\b(list|all projects?|portfolio)\b/.test(q)) {
+    const list = ps.map(p => `• ${p.name}${p.projectCode ? ' (' + p.projectCode + ')' : ''} — ${p.typology || 'N/A'} — ${p.status === 'ongoing' ? 'Ongoing' : 'Past'} — ${fmt(gfa(p))} m²`).join('\n');
+    return { text: `Portfolio (${ps.length} projects):\n\n${list}\n\nType "tell me about [name]" for details.` };
+  }
+
+  // ── intent: filter by status ─────────────────────────────
+  if (/\b(ongoing|current|active)\b/.test(q)) {
+    const subset = ps.filter(p => p.status === 'ongoing');
+    if (!subset.length) return { text: 'No ongoing projects found.' };
+    return { text: `Ongoing projects (${subset.length}):\n\n` + subset.map(p => `• ${p.name} — ${p.typology || 'N/A'} — ${fmt(gfa(p))} m²`).join('\n') };
+  }
+  if (/\b(past|completed?|finished|old)\b/.test(q)) {
+    const subset = ps.filter(p => p.status === 'past');
+    if (!subset.length) return { text: 'No past projects found.' };
+    return { text: `Past projects (${subset.length}):\n\n` + subset.map(p => `• ${p.name} — ${p.typology || 'N/A'} — ${fmt(gfa(p))} m²`).join('\n') };
+  }
+
+  // ── intent: filter by typology ───────────────────────────
+  const typologyKeywords = ['residential', 'office', 'mixed', 'hotel', 'cultural', 'education', 'retail', 'industrial', 'campus', 'housing', 'commercial'];
+  for (const kw of typologyKeywords) {
+    if (q.includes(kw)) {
+      const subset = ps.filter(p => p.typology && p.typology.toLowerCase().includes(kw));
+      if (subset.length) return { text: `Projects matching "${kw}" (${subset.length}):\n\n` + subset.map(p => `• ${p.name} — ${p.typology} — ${fmt(gfa(p))} m²`).join('\n') };
+      return { text: `No projects found with typology matching "${kw}".` };
+    }
+  }
+
+  // ── intent: filter by location ───────────────────────────
+  if (/\b(in|located?|location|city|country)\b/.test(q)) {
+    const subset = ps.filter(p => p.location && q.includes(p.location.toLowerCase()));
+    if (subset.length) return { text: `Projects found:\n\n` + subset.map(p => `• ${p.name} (${p.location}) — ${fmt(gfa(p))} m²`).join('\n') };
+  }
+
+  // ── intent: competition wins ─────────────────────────────
+  if (/\b(win|won|competition|prize|award)\b/.test(q)) {
+    const subset = ps.filter(p => {
+      const r = (p.projectManagement?.result || '').toLowerCase();
+      return r.includes('win') || r.includes('1st') || r.includes('first') || r.includes('award');
+    });
+    if (subset.length) return { text: `Competition wins/awards (${subset.length}):\n\n` + subset.map(p => `• ${p.name} — ${p.projectManagement.result}`).join('\n') };
+    return { text: 'No competition results recorded yet. Add them in the Project Management tab.' };
+  }
+
+  // ── intent: project name mentioned anywhere ───────────────
+  const nameMatch = ps.find(p =>
+    q.includes(p.name.toLowerCase()) ||
+    (p.projectCode && q.includes(p.projectCode.toLowerCase()))
+  );
+  if (nameMatch) return { text: projectCard(nameMatch) + '\n\nType "open ' + nameMatch.name + '" to navigate to it.' };
+
+  // ── fallback ─────────────────────────────────────────────
+  return { text: 'I\'m not sure I understood that. Try:\n• "List all projects"\n• "Tell me about [project name]"\n• "Open [project name]"\n• "Show ongoing projects"\n• Type "help" for all commands.' };
 }
 
 function appendBotMessage(role, text) {
