@@ -705,5 +705,89 @@
 }
 
 /* ── Light mode overrides ─────────────────────────────────────────────────── */
-[data-theme="light"] .brief-dropzone.drag-over { background: rgba(0,150,200,0.06); }
-[data-theme="light"] .portfolio-match-card.selected { background: rgba(0,150,200,0.08); }
+body[data-theme="light"] .brief-dropzone.drag-over { background: rgba(0,150,200,0.06); }
+body[data-theme="light"] .portfolio-match-card.selected { background: rgba(0,150,200,0.08); }
+
+/* Tender page title — readable dark gradient */
+body[data-theme="light"] .tenders-page-title {
+  background: linear-gradient(to right, #1a1b25 0%, #4a5568 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body[data-theme="light"] .tenders-page-sub {
+  color: rgba(26, 27, 37, 0.65) !important;
+}
+
+/* Tender top bar */
+body[data-theme="light"] .tender-top-bar {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-top: none !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06) !important;
+}
+
+/* Tender cards */
+body[data-theme="light"] .tender-card {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-top: 1px solid rgba(0, 212, 255, 0.25) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+}
+body[data-theme="light"] .tender-card:hover {
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0,212,255,0.20);
+}
+body[data-theme="light"] .tender-card-title { color: #1a1b25 !important; }
+body[data-theme="light"] .tender-card-client,
+body[data-theme="light"] .tender-card-meta-item { color: rgba(26,27,37,0.65) !important; }
+
+/* Tender tab bar */
+body[data-theme="light"] .tender-tabs-bar {
+  background: rgba(255, 255, 255, 0.80) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+body[data-theme="light"] .tender-tab { color: rgba(26,27,37,0.60) !important; }
+body[data-theme="light"] .tender-tab.active { color: #1a1b25 !important; }
+
+/* Tender filter chips */
+body[data-theme="light"] .tender-filter-chip {
+  background: rgba(255,255,255,0.70);
+  border-color: rgba(0,0,0,0.12);
+  color: rgba(26,27,37,0.70);
+}
+body[data-theme="light"] .tender-filter-chip.active { color: #ffffff; }
+
+/* Tender inputs */
+body[data-theme="light"] .tender-inp,
+body[data-theme="light"] .tender-sel,
+body[data-theme="light"] .tender-textarea,
+body[data-theme="light"] .loi-textarea {
+  background: rgba(255,255,255,0.90) !important;
+  border-color: rgba(0,0,0,0.15) !important;
+  color: #1a1b25 !important;
+}
+body[data-theme="light"] .tender-field label { color: rgba(26,27,37,0.65) !important; }
+
+/* Brief dropzone */
+body[data-theme="light"] .brief-dropzone {
+  background: rgba(255,255,255,0.60) !important;
+  border-color: rgba(0,0,0,0.15) !important;
+  color: rgba(26,27,37,0.55) !important;
+}
+
+/* Portfolio cards */
+body[data-theme="light"] .portfolio-match-card {
+  background: rgba(255,255,255,0.80) !important;
+  border-color: rgba(0,0,0,0.10) !important;
+}
+body[data-theme="light"] .portfolio-match-card .pm-card-name { color: #1a1b25 !important; }
+
+/* Checklist */
+body[data-theme="light"] .checklist-item-label { color: rgba(26,27,37,0.80) !important; }
+
+/* Roster panel */
+body[data-theme="light"] .roster-panel {
+  background: rgba(245,246,252,0.98) !important;
+  border-left: 1px solid rgba(0,0,0,0.10) !important;
+}
+body[data-theme="light"] .team-member-row { color: #1a1b25 !important; }

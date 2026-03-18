@@ -2517,6 +2517,93 @@ body[data-theme="light"] .editor-wordmark-title .wm-dm {
   -webkit-text-fill-color: #1a1b25;
 }
 
+/* ── Dashboard header title — readable on light bg */
+body[data-theme="light"] .dashboard-header h1 {
+  background: linear-gradient(to right, #1a1b25 0%, #4a5568 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── New Project card — light fill instead of dark */
+body[data-theme="light"] .new-project-card::after {
+  background: rgba(240, 242, 248, 0.95) !important;
+}
+body[data-theme="light"] .new-project-card span {
+  color: var(--text-secondary) !important;
+}
+
+/* ── Editor & tender tab bars */
+body[data-theme="light"] .editor-tabs,
+body[data-theme="light"] .tender-tabs-bar {
+  background: rgba(255, 255, 255, 0.80) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme="light"] .editor-tab,
+body[data-theme="light"] .tender-tab {
+  color: rgba(26, 27, 37, 0.65) !important;
+}
+body[data-theme="light"] .editor-tab.active,
+body[data-theme="light"] .tender-tab.active {
+  color: #1a1b25 !important;
+}
+
+/* ── 3D viewport — light grey instead of black */
+body[data-theme="light"] .viewport-3d {
+  background: #e8eaf2 !important;
+  border-color: rgba(0, 212, 255, 0.20);
+}
+
+/* ── KPI / stat cards */
+body[data-theme="light"] .kpi-card,
+body[data-theme="light"] .stat-card,
+body[data-theme="light"] .overview-card,
+body[data-theme="light"] .section-card,
+body[data-theme="light"] .chart-card {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+/* ── Input fields */
+body[data-theme="light"] input[type="text"],
+body[data-theme="light"] input[type="number"],
+body[data-theme="light"] input[type="date"],
+body[data-theme="light"] input[type="email"],
+body[data-theme="light"] textarea,
+body[data-theme="light"] select {
+  background: rgba(255, 255, 255, 0.90) !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  color: #1a1b25 !important;
+}
+
+/* ── Filter chips */
+body[data-theme="light"] .filter-chip,
+body[data-theme="light"] .search-field-chip {
+  background: rgba(255, 255, 255, 0.70);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: rgba(26, 27, 37, 0.70);
+}
+body[data-theme="light"] .filter-chip.active {
+  color: #ffffff;
+}
+
+/* ── Section titles */
+body[data-theme="light"] .section-label,
+body[data-theme="light"] .section-title {
+  color: rgba(26, 27, 37, 0.55) !important;
+}
+
+/* ── FABs */
+body[data-theme="light"] #wm-fab,
+body[data-theme="light"] #dmaa-bot-fab,
+body[data-theme="light"] #theme-toggle {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #1a1b25 !important;
+}
+
 /* ─── Project Management Section ─────────────────────────── */
 .pm-section-header {
   display: flex;
