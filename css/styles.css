@@ -3378,7 +3378,25 @@ body::after {
   font-size: 120px;
   line-height: 0.92;
   letter-spacing: -0.01em;
-  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#intro-logo.intro-logo--on {
+  opacity: 1;
+}
+
+#intro-logo.intro-logo--beat {
+  animation: introBeat 1.1s ease-in-out forwards;
+}
+
+@keyframes introBeat {
+  0%   { transform: scale(1);    }
+  14%  { transform: scale(1.07); }
+  28%  { transform: scale(1);    }
+  42%  { transform: scale(1.04); }
+  60%  { transform: scale(1);    }
+  100% { transform: scale(1);    }
 }
 
 /* DM — ultra thin for contrast */
@@ -3434,14 +3452,7 @@ body::after {
   transform: translateY(0) scale(1);
 }
 
-/* No glow on DM/AI — clean white text for readability */
-#intro-dm .intro-char--on {
-  text-shadow: none;
-}
-
-#intro-ai .intro-char--on {
-  text-shadow: none;
-}
+/* DM/AI text inherits no text-shadow — clean white */
 
 
 /* ─── World Map Panel ─────────────────────────────────────────────────────── */

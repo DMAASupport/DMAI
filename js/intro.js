@@ -3,13 +3,14 @@
 
   // ── Timeline (ms) — total duration ~6 s ──────────────────────
   const WELCOME_AT     =  700;   // "WELCOME TO" letter reveal
-  const LOGO_AT        = 1900;   // "DMAI" letter reveal
+  const LOGO_AT        = 1900;   // "DMAI" appears all at once
+  const BEAT_AT        = 2250;   // heartbeat pulse on DMAI
   const LINE_AT        = 2700;   // underline expands
   const TAG_AT         = 2900;   // tagline fades in
   const CANVAS_FADE_AT = 3600;   // shader glare fades — text only from here
   const CANVAS_FADE_DUR= 1200;   // canvas fades over 1.2 s
-  const FADEOUT_AT     = 4500;   // overlay begins final fade
-  const FADE_DUR       = 1500;   // overlay fade duration  (~6 s total)
+  const FADEOUT_AT     = 5500;   // overlay begins final fade  (~7 s total)
+  const FADE_DUR       = 1500;   // overlay fade duration
 
   const overlay = document.getElementById('intro-overlay');
   if (!overlay) return;
@@ -73,13 +74,14 @@
   addTimer(() => reveal(document.getElementById('intro-welcome'), 90), WELCOME_AT);
 
   addTimer(() => {
-    document.getElementById('intro-logo').style.visibility = 'visible';
-    reveal(document.getElementById('intro-dm'), 110);
+    const logo = document.getElementById('intro-logo');
+    if (logo) logo.classList.add('intro-logo--on');
   }, LOGO_AT);
 
   addTimer(() => {
-    reveal(document.getElementById('intro-ai'), 115);
-  }, LOGO_AT + 2 * 110 + 80);
+    const logo = document.getElementById('intro-logo');
+    if (logo) logo.classList.add('intro-logo--beat');
+  }, BEAT_AT);
 
   addTimer(() => {
     const line = document.getElementById('intro-line');
