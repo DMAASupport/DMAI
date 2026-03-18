@@ -768,8 +768,7 @@ body::after {
 /* AI — bold animated gradient + pulsing glow */
 .editor-wordmark-title .wm-ai {
   font-weight: 900;
-  font-size: 1.08em;          /* slightly larger to visually match intro weight */
-  -webkit-text-stroke: 0.5px rgba(0, 212, 255, 0.6); /* reinforces stroke thickness */
+  -webkit-text-stroke: 1.5px rgba(0, 212, 255, 0.8);
   background: linear-gradient(90deg,
     #ffffff    0%,
     #00d4ff   20%,
