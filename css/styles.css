@@ -147,7 +147,7 @@ body {
     rgba(0, 100, 200, 0) 50%) no-repeat;
   transform-origin: center center;
   animation: orbFirst 28s ease-in-out infinite;
-  opacity: 0.55;
+  opacity: 0.30;
 }
 
 /* Orb 2 — deep indigo (orbits left) */
@@ -157,7 +157,7 @@ body {
     rgba(60, 30, 180, 0) 50%) no-repeat;
   transform-origin: calc(50% - 400px) 50%;
   animation: orbSecond 34s ease-in-out infinite;
-  opacity: 1;
+  opacity: 0.45;
 }
 
 /* Orb 3 — cyan (orbits right) */
@@ -167,7 +167,7 @@ body {
     rgba(0, 180, 220, 0) 50%) no-repeat;
   transform-origin: calc(50% + 400px) 50%;
   animation: orbThird 22s ease-in-out infinite;
-  opacity: 0.50;
+  opacity: 0.28;
 }
 
 /* Orb 4 — muted violet, slow wide arc */
@@ -177,7 +177,7 @@ body {
     rgba(80, 40, 160, 0) 50%) no-repeat;
   transform-origin: calc(50% - 200px) 50%;
   animation: orbFourth 38s ease-in-out infinite;
-  opacity: 0.7;
+  opacity: 0.35;
 }
 
 /* Orb 5 — teal-indigo, far-field slow drift */
@@ -187,7 +187,7 @@ body {
     rgba(0, 120, 160, 0) 50%) no-repeat;
   transform-origin: calc(50% - 800px) calc(50% + 800px);
   animation: orbFifth 30s ease-in-out infinite;
-  opacity: 1;
+  opacity: 0.32;
 }
 
 @keyframes orbFirst {
