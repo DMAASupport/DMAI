@@ -981,6 +981,10 @@ function renderPMSection() {
     <div class="overview-panel pm-section">
       <div class="pm-section-header">
         <h3>Project Management</h3>
+        <button class="btn btn-excel" onclick="exportPMExcel()" style="font-size:11px;padding:6px 14px;">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;vertical-align:-2px"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
+          Export Excel
+        </button>
       </div>
       <div class="pm-grid">
 
@@ -2126,6 +2130,66 @@ function exportCSV() {
   const link = document.createElement('a');
   link.href     = URL.createObjectURL(blob);
   link.download = `DMAA_${currentProject.name.replace(/\s+/g, '_')}_Program.csv`;
+  link.click();
+}
+
+function exportPMExcel() {
+  if (!currentProject) return;
+  const pm   = currentProject.projectManagement || {};
+  const dates = pm.dates || {};
+  const team  = pm.team  || {};
+  const name  = currentProject.name || 'Project';
+
+  const tableRows = [
+    ['DMAA — Project Management Export', '', ''],
+    ['Project', name, ''],
+    [''],
+    ['COMPETITION', '', ''],
+    ['Result',           pm.result             || '—', ''],
+    ['Competition Type', pm.competitionType     || '—', ''],
+    [''],
+    ['BUDGET', '', ''],
+    ['Construction Cost (€)', pm.constructionCost  || 0, ''],
+    ['Design Fee (€)',        pm.designFee         || 0, ''],
+    ['Competition Prize (€)', pm.competitionPrize  || 0, ''],
+    ['Total Budget (€)',      (pm.constructionCost||0) + (pm.designFee||0) + (pm.competitionPrize||0), ''],
+    [''],
+    ['TIMELINE', '', ''],
+    ['Competition / Brief',  dates.briefDate        || '—', ''],
+    ['Submission',           dates.submissionDate   || '—', ''],
+    ['Result Date',          dates.resultDate       || '—', ''],
+    ['Construction Start',   dates.constructionStart|| '—', ''],
+    ['Construction End',     dates.constructionEnd  || '—', ''],
+    [''],
+    ['TEAM', '', ''],
+    ['Partner',     team.partner    || '—', ''],
+    ['Architect',   team.architect  || '—', ''],
+    ['Team Size',   team.teamSize   || 0,   ''],
+    ['Total Hours', team.totalHours || 0,   ''],
+  ];
+
+  // Build HTML table (Excel opens .xls HTML tables natively)
+  const rows = tableRows.map(r => {
+    if (r.length === 1 && r[0] === '') return '<tr><td colspan="2"></td></tr>';
+    const isSectionHeader = r[2] === '' && r[1] === '' && r[0] !== '';
+    if (isSectionHeader) return `<tr><td colspan="2" style="font-weight:bold;background:#217346;color:#fff;padding:4px 8px">${r[0]}</td></tr>`;
+    return `<tr><td style="font-weight:600;padding:3px 8px;white-space:nowrap">${r[0]}</td><td style="padding:3px 8px">${r[1]}</td></tr>`;
+  }).join('');
+
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+    xmlns:x="urn:schemas-microsoft-com:office:excel"
+    xmlns="http://www.w3.org/TR/REC-html40">
+    <head><meta charset="UTF-8">
+    <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>
+    <x:ExcelWorksheet><x:Name>Project Management</x:Name>
+    <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+    </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+    </head><body><table border="0" cellpadding="4" cellspacing="0" style="font-family:Calibri,Arial;font-size:11pt">${rows}</table></body></html>`;
+
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href     = URL.createObjectURL(blob);
+  link.download = `DMAA_${name.replace(/\s+/g,'_')}_ProjectManagement.xls`;
   link.click();
 }
 

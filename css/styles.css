@@ -338,6 +338,40 @@ body::before {
   box-shadow: 0 6px 24px rgba(52, 211, 153, 0.35);
 }
 
+/* ─── App-brand export buttons ───────────────────────────── */
+.btn-excel {
+  background: linear-gradient(135deg, #217346, #185c38);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(33, 115, 70, 0.3);
+}
+.btn-excel:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(33, 115, 70, 0.45);
+}
+.btn-excel:active { transform: translateY(0); }
+
+.btn-ppt {
+  background: linear-gradient(135deg, #c9473e, #b83831);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(201, 71, 62, 0.3);
+}
+.btn-ppt:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(201, 71, 62, 0.45);
+}
+.btn-ppt:active { transform: translateY(0); }
+
+.btn-obj {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+}
+.btn-obj:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(124, 58, 237, 0.45);
+}
+.btn-obj:active { transform: translateY(0); }
+
 .btn-danger {
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.3);
