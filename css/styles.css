@@ -349,7 +349,7 @@ body::after {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-md) var(--space-xl);
-  background: rgba(6, 8, 18, 0.75);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -676,9 +676,9 @@ body::after {
 /* --- Project Card --- */
 .project-card {
   position: relative;
-  background: rgba(8, 10, 20, 0.70);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-top: 1px solid var(--glass-border-hover);
   border-radius: var(--radius-xl);
   overflow: hidden;
   cursor: pointer;
@@ -2455,18 +2455,46 @@ body::after {
 
 /* ─── Light Theme Token Overrides ─────────────────────────── */
 [data-theme="light"] {
-  --bg-primary:         #f0f1f5;
+  --bg-primary:         #eef0f6;
   --bg-secondary:       #ffffff;
   --bg-elevated:        #ffffff;
-  --bg-surface:         #e6e7ef;
+  --bg-surface:         #e2e4ef;
   --text-primary:       #1a1b25;
   --text-secondary:     rgba(26, 27, 37, 0.78);
   --text-muted:         rgba(26, 27, 37, 0.50);
-  --glass-bg:           rgba(0, 0, 0, 0.03);
-  --glass-bg-hover:     rgba(0, 0, 0, 0.06);
+  --glass-bg:           rgba(255, 255, 255, 0.72);
+  --glass-bg-hover:     rgba(255, 255, 255, 0.88);
   --glass-border:       rgba(0, 0, 0, 0.10);
-  --glass-border-hover: rgba(0, 0, 0, 0.22);
-  --glass-shadow:       0 8px 32px rgba(0, 0, 0, 0.10);
+  --glass-border-hover: rgba(0, 0, 0, 0.20);
+  --glass-shadow:       0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Light mode: body uses soft light background */
+[data-theme="light"] body {
+  background: linear-gradient(40deg, #dde1f0, #eef0f8);
+}
+
+/* Light mode: hide orbs (hard-light doesn't work on light bg) */
+[data-theme="light"] #bg-orbs {
+  display: none;
+}
+
+/* Light mode: top-bar and editor bars need a solid readable bg */
+[data-theme="light"] .top-bar,
+[data-theme="light"] .editor-top-bar,
+[data-theme="light"] .tender-top-bar {
+  background: rgba(238, 240, 248, 0.88);
+  border-bottom-color: rgba(0, 0, 0, 0.10);
+}
+
+/* Light mode: project card borders visible */
+[data-theme="light"] .project-card {
+  border-top-color: rgba(0, 212, 255, 0.20);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .project-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0, 212, 255, 0.20);
 }
 
 /* ─── Project Management Section ─────────────────────────── */
