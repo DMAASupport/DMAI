@@ -117,11 +117,15 @@
                 <!-- Save status indicator -->
                 <span id="save-status" class="save-status idle"></span>
 
-                <button id="editor-btn-ppt" class="btn btn-ghost" style="display:none;" onclick="exportPPT()">
+                <button id="editor-btn-excel" class="btn btn-excel" style="display:none;" onclick="exportPMExcel()">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
+                    Export Excel
+                </button>
+                <button id="editor-btn-ppt" class="btn btn-ppt" style="display:none;" onclick="exportPPT()">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
                     Export PPT
                 </button>
-                <button id="editor-btn-obj" class="btn btn-success" style="display:none;" onclick="exportOBJ()">
+                <button id="editor-btn-obj" class="btn btn-obj" style="display:none;" onclick="exportOBJ()">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
                     Export 3D OBJ
                 </button>
@@ -264,13 +268,6 @@
 
             <!-- ─── Tab 1: Project Management ─── -->
             <div id="tab-panel-pm" class="tab-panel">
-                <div class="tab-topbar">
-                    <div class="section-title">Project Management</div>
-                    <button class="btn btn-excel" onclick="exportPMExcel()">
-                        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
-                        Export Excel
-                    </button>
-                </div>
                 <div id="pm-section-ongoing"></div>
 
                 <!-- ─── Schedule ─── -->
@@ -291,13 +288,6 @@
 
             <!-- ─── Tab 2: Master Program ─── -->
             <div id="tab-panel-program" class="tab-panel">
-                <div class="tab-topbar">
-                    <div class="section-title">Master Program</div>
-                    <button class="btn btn-ppt" onclick="exportPPT()">
-                        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
-                        Export PPT
-                    </button>
-                </div>
                 <div class="form-grid">
                     <div>
                         <div class="section-title">Spatial Program</div>
@@ -343,13 +333,6 @@
 
             <!-- ─── Tab 2: 3D Module Catalog ─── -->
             <div id="tab-panel-3d" class="tab-panel">
-                <div class="tab-topbar">
-                    <div class="section-title">3D Module Catalog</div>
-                    <button class="btn btn-obj" onclick="update3D(); setTimeout(exportOBJ, 500);">
-                        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
-                        Export 3D OBJ
-                    </button>
-                </div>
                 <div class="form-grid">
                     <div>
                         <div class="section-title">Module Dimensions (L × W × H × Floors)</div>

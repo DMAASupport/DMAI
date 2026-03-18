@@ -759,8 +759,9 @@ function switchEditorTab(idx) {
   document.querySelectorAll('.tab-panel').forEach((panel, i) => panel.classList.toggle('active', i === idx));
 
   const isPast = currentProject?.status === 'past';
-  document.getElementById('editor-btn-ppt').style.display = (idx === 2 && !isPast) ? 'inline-flex' : 'none';
-  document.getElementById('editor-btn-obj').style.display = (idx === 3 && !isPast) ? 'inline-flex' : 'none';
+  document.getElementById('editor-btn-excel').style.display = (idx === 1 && !isPast) ? 'inline-flex' : 'none';
+  document.getElementById('editor-btn-ppt').style.display   = (idx === 2 && !isPast) ? 'inline-flex' : 'none';
+  document.getElementById('editor-btn-obj').style.display   = (idx === 3 && !isPast) ? 'inline-flex' : 'none';
 
   if (idx === 3 && !isPast) {
     setTimeout(() => {
