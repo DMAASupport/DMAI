@@ -8,10 +8,10 @@
   const BEAT_AT        = 2450;   // heartbeat pulse on AI only
   const LINE_AT        = 2850;   // underline expands
   const TAG_AT         = 3050;   // tagline fades in
-  const CANVAS_FADE_AT = 3600;   // shader glare fades — text only from here
-  const CANVAS_FADE_DUR= 1200;   // canvas fades over 1.2 s
-  const FADEOUT_AT     = 5500;   // overlay begins final fade  (~7.5 s total)
-  const FADE_DUR       = 2500;   // overlay fade duration
+  const CANVAS_FADE_AT = 5200;   // shader glare fades — text breathes longer
+  const CANVAS_FADE_DUR= 1800;   // canvas fades over 1.8 s
+  const FADEOUT_AT     = 8500;   // overlay begins final fade  (~12 s total)
+  const FADE_DUR       = 3500;   // overlay fade duration
 
   const overlay = document.getElementById('intro-overlay');
   if (!overlay) return;
@@ -114,8 +114,9 @@
   // ── Final overlay fade & cleanup ──────────────────────────────
   addTimer(() => {
     if (skipped) return;
-    overlay.style.transition    = 'opacity ' + FADE_DUR + 'ms cubic-bezier(0.4, 0, 0.2, 1)';
+    overlay.style.transition    = 'opacity ' + FADE_DUR + 'ms cubic-bezier(0.7, 0, 0.3, 1), transform ' + FADE_DUR + 'ms cubic-bezier(0.7, 0, 0.3, 1)';
     overlay.style.opacity       = '0';
+    overlay.style.transform     = 'scale(1.04)';
     overlay.style.pointerEvents = 'none';
     setTimeout(() => {
       overlay.remove();
@@ -182,8 +183,12 @@
         vec3 col = cyan_i * mix(cyan,     lavender * 0.60, breath)
                  + lav_i  * mix(lavender, cyan     * 0.50, 1.0 - breath);
 
-        // Radial vignette — focus glow toward centre
-        float vignette = 1.0 - smoothstep(0.4, 1.5, d);
+        // Inner dead-zone — keep center dark so text is fully readable
+        float innerMask = smoothstep(0.30, 0.62, d);
+        col *= innerMask;
+
+        // Outer vignette — wider to give rings more visible space
+        float vignette = 1.0 - smoothstep(0.55, 1.8, d);
         col *= vignette;
 
         gl_FragColor = vec4(col, 1.0);
