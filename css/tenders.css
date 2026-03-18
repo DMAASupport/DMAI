@@ -34,12 +34,15 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-md) var(--space-xl);
-  background: rgba(10, 11, 16, 0.8);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
   position: sticky;
   top: 0;
   z-index: 100;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.3);
 }
 .tender-top-bar-left {
   display: flex;
@@ -62,15 +65,18 @@
 }
 
 .tenders-page-title {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   letter-spacing: -0.5px;
-  color: var(--text-primary);
   margin-bottom: var(--space-sm);
+  background: linear-gradient(to right, #ffffff, #8892b0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .tenders-page-sub {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: 15px;
+  color: var(--text-secondary);
   margin-bottom: var(--space-xl);
 }
 
@@ -81,38 +87,48 @@
   flex-wrap: wrap;
 }
 .tender-filter-chip {
-  padding: 5px 14px;
-  border-radius: var(--radius-pill);
+  padding: 5px 16px;
+  border-radius: 9999px;
   border: 1px solid var(--glass-border);
   background: transparent;
   color: var(--text-muted);
   font-family: var(--font);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-out);
 }
 .tender-filter-chip:hover  { color: var(--text-primary); border-color: var(--glass-border-hover); }
-.tender-filter-chip.active { color: var(--accent-cyan);  border-color: var(--accent-cyan); background: rgba(0,212,255,0.08); }
+.tender-filter-chip.active {
+  color: var(--accent-cyan);
+  border-color: rgba(0,212,255,0.5);
+  background: linear-gradient(135deg, rgba(0,212,255,0.18), rgba(0,153,204,0.12));
+  box-shadow: 0 0 10px rgba(0,212,255,0.2), inset 0 0 8px rgba(0,212,255,0.05);
+  text-shadow: 0 0 12px rgba(0,212,255,0.6);
+}
 
 /* ── Tender Grid ──────────────────────────────────────────────────────────── */
 .tender-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--space-lg);
 }
 
 /* ── Tender Card ──────────────────────────────────────────────────────────── */
 .tender-card {
   position: relative;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: var(--radius-xl);
   padding: var(--space-lg);
   cursor: pointer;
-  transition: border-color var(--duration-fast) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s ease;
   overflow: hidden;
 }
 .tender-card::before {
@@ -136,36 +152,50 @@
   transition: opacity var(--duration-normal) var(--ease-out);
   pointer-events: none;
 }
-.tender-card:hover { border-color: var(--glass-border-hover); transform: translateY(-2px); }
+.tender-card:hover {
+  border-color: rgba(0, 212, 255, 0.25);
+  border-top-color: rgba(0, 212, 255, 0.35);
+  transform: translateY(-6px);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.35), 0 0 40px rgba(0,212,255,0.08), 0 0 0 1px rgba(0,212,255,0.08);
+}
 .tender-card:hover::before { opacity: 0.6; }
 
 .tender-card-new {
-  border-style: dashed;
+  border: 2px dashed rgba(255,255,255,0.1);
+  border-radius: var(--radius-xl);
+  background: rgba(255,255,255,0.02);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
-  min-height: 160px;
+  min-height: 180px;
   color: var(--text-muted);
+  backdrop-filter: blur(16px);
+  transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1);
 }
-.tender-card-new:hover { color: var(--accent-cyan); border-color: var(--accent-cyan); }
-.tender-card-new-label { font-size: 13px; font-weight: 600; }
+.tender-card-new:hover {
+  color: var(--accent-cyan);
+  border-color: rgba(0,212,255,0.4);
+  background: rgba(0,212,255,0.04);
+  transform: translateY(-6px);
+}
+.tender-card-new-label { font-size: 15px; font-weight: 600; }
 
 .tender-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-sm); }
-.tender-card-title  { font-size: 14px; font-weight: 700; color: var(--text-primary); line-height: 1.3; flex: 1; margin-right: var(--space-sm); }
-.tender-card-client { font-size: 12px; color: var(--text-muted); margin-bottom: var(--space-sm); }
+.tender-card-title  { font-size: 18px; font-weight: 700; color: var(--text-primary); line-height: 1.3; flex: 1; margin-right: var(--space-sm); }
+.tender-card-client { font-size: 14px; color: var(--text-secondary); margin-bottom: var(--space-sm); }
 .tender-card-meta   { display: flex; gap: var(--space-sm); flex-wrap: wrap; margin-bottom: var(--space-md); }
 .tender-card-meta-item {
-  font-size: 11px; color: var(--text-muted);
+  font-size: 13px; color: var(--text-muted);
   display: flex; align-items: center; gap: 4px;
 }
 .tender-card-meta-item svg { opacity: 0.5; }
 
 /* Status badges */
 .tender-badge {
-  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
-  text-transform: uppercase; padding: 3px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 4px 10px; border-radius: var(--radius-pill);
   white-space: nowrap; flex-shrink: 0;
 }
 .tender-badge--draft       { background: var(--glass-bg);              color: var(--text-muted);      border: 1px solid var(--glass-border); }
@@ -177,9 +207,9 @@
 
 /* Progress bar */
 .tender-progress { margin-top: var(--space-sm); }
-.tender-progress-label { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
-.tender-progress-track { height: 3px; background: var(--glass-border); border-radius: 2px; overflow: hidden; }
-.tender-progress-fill  { height: 100%; border-radius: 2px; background: var(--accent-cyan); transition: width 0.3s ease; }
+.tender-progress-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+.tender-progress-track { height: 4px; background: var(--glass-border); border-radius: 2px; overflow: hidden; }
+.tender-progress-fill  { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-lavender)); transition: width 0.3s ease; }
 
 /* ── Tender Editor Tabs ────────────────────────────────────────────────────── */
 .tender-tabs-bar {
@@ -187,22 +217,37 @@
   gap: 2px;
   padding: 0 var(--space-xl);
   border-bottom: 1px solid var(--glass-border);
-  background: var(--bg-secondary);
+  background: rgba(10, 11, 16, 0.5);
   overflow-x: auto;
 }
 .tender-tab {
-  padding: 14px 18px;
-  font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
-  color: var(--text-muted);
+  position: relative;
+  padding: 14px 24px;
+  font-size: 14px; font-weight: 500; letter-spacing: -0.1px;
+  color: var(--text-secondary);
   background: none; border: none;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: color var(--duration-fast), border-color var(--duration-fast);
+  transition: color var(--duration-fast);
   white-space: nowrap;
   font-family: var(--font);
 }
 .tender-tab:hover  { color: var(--text-primary); }
-.tender-tab.active { color: var(--accent-cyan); border-bottom-color: var(--accent-cyan); }
+.tender-tab.active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.tender-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0,212,255,0.7), 0 0 20px rgba(0,212,255,0.3);
+}
 
 .tender-tab-panel  { display: none; }
 .tender-tab-panel.active { display: block; }
@@ -285,54 +330,68 @@
 .tender-form-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
 .tender-form-grid--full { grid-column: 1 / -1; }
 
-.tender-field { display: flex; flex-direction: column; gap: 5px; }
+.tender-field { display: flex; flex-direction: column; gap: 6px; }
 .tender-field label {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--text-muted);
+  font-size: 13px; font-weight: 500; letter-spacing: 0.2px;
+  color: var(--text-secondary);
 }
 .tender-inp {
-  background: var(--bg-elevated);
+  width: 100%;
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--glass-border);
-  border-radius: 6px; color: var(--text-primary);
-  font-size: 13px; font-family: var(--font);
-  padding: 8px 12px; outline: none;
-  transition: border-color 0.15s;
+  border-radius: var(--radius-md); color: var(--text-primary);
+  font-size: 15px; font-weight: 500; font-family: var(--font);
+  padding: 10px 14px; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.tender-inp:focus { border-color: rgba(0,212,255,0.5); }
-.tender-inp::placeholder { color: var(--text-muted); opacity: 0.5; }
+.tender-inp:focus {
+  border-color: rgba(0,212,255,0.4);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+}
+.tender-inp::placeholder { color: var(--text-muted); font-weight: 400; }
 .tender-inp[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
 
 .tender-sel {
-  background: var(--bg-elevated);
+  width: 100%;
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--glass-border);
-  border-radius: 6px; color: var(--text-secondary);
-  font-size: 13px; font-family: var(--font);
-  padding: 8px 12px; outline: none; cursor: pointer;
+  border-radius: var(--radius-md); color: var(--text-primary);
+  font-size: 15px; font-weight: 500; font-family: var(--font);
+  padding: 10px 14px; outline: none; cursor: pointer;
+  transition: border-color 0.15s;
 }
+.tender-sel:focus { border-color: rgba(0,212,255,0.4); }
 .tender-textarea {
-  background: var(--bg-elevated);
+  width: 100%;
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--glass-border);
-  border-radius: 6px; color: var(--text-primary);
-  font-size: 13px; font-family: var(--font);
-  padding: 10px 12px; outline: none; resize: vertical;
-  transition: border-color 0.15s; min-height: 90px;
+  border-radius: var(--radius-md); color: var(--text-primary);
+  font-size: 15px; font-weight: 400; font-family: var(--font);
+  padding: 10px 14px; outline: none; resize: vertical;
+  transition: border-color 0.15s, box-shadow 0.15s; min-height: 100px;
   line-height: 1.6;
 }
-.tender-textarea:focus { border-color: rgba(0,212,255,0.5); }
+.tender-textarea:focus {
+  border-color: rgba(0,212,255,0.4);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+}
 
 /* ── LOI textarea ─────────────────────────────────────────────────────────── */
 .loi-textarea {
   width: 100%; box-sizing: border-box;
-  min-height: 360px;
-  background: var(--bg-elevated);
+  min-height: 380px;
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--glass-border);
-  border-radius: 8px; color: var(--text-primary);
-  font-size: 13px; font-family: var(--font);
+  border-radius: var(--radius-md); color: var(--text-primary);
+  font-size: 15px; font-family: var(--font);
   padding: var(--space-lg); outline: none; resize: vertical;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
   line-height: 1.8; white-space: pre-wrap;
 }
-.loi-textarea:focus { border-color: rgba(0,212,255,0.5); }
+.loi-textarea:focus {
+  border-color: rgba(0,212,255,0.4);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+}
 .loi-actions { display: flex; gap: var(--space-sm); margin-bottom: var(--space-md); }
 
 /* ── Portfolio Match Cards ────────────────────────────────────────────────── */
@@ -391,9 +450,9 @@
 .portfolio-match-card.selected .pmc-check {
   background: var(--accent-cyan); border-color: var(--accent-cyan);
 }
-.pmc-name   { font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; padding-right: 22px; }
-.pmc-type   { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
-.pmc-gfa    { font-size: 11px; color: var(--accent-cyan); font-weight: 600; }
+.pmc-name   { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; padding-right: 22px; }
+.pmc-type   { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+.pmc-gfa    { font-size: 12px; color: var(--accent-cyan); font-weight: 600; }
 .pmc-suggest-tag {
   font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -404,9 +463,9 @@
 .portfolio-selection-strip {
   background: rgba(0,212,255,0.06);
   border: 1px solid rgba(0,212,255,0.2);
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 12px; color: var(--accent-cyan);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  font-size: 14px; color: var(--accent-cyan);
   margin-top: var(--space-md);
   display: flex; align-items: center; justify-content: space-between;
 }
@@ -434,8 +493,8 @@
   color: var(--bg-primary); flex-shrink: 0;
 }
 .team-member-info { flex: 1; min-width: 0; }
-.team-member-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
-.team-member-role { font-size: 11px; color: var(--text-muted); }
+.team-member-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.team-member-role { font-size: 13px; color: var(--text-muted); }
 .team-member-remove {
   background: none; border: none; color: var(--text-muted);
   cursor: pointer; padding: 4px; border-radius: 4px;
@@ -445,7 +504,7 @@
 
 .team-empty {
   text-align: center; padding: var(--space-2xl) var(--space-xl);
-  color: var(--text-muted); font-size: 13px;
+  color: var(--text-muted); font-size: 15px;
 }
 
 /* ── Roster Panel (slide-in) ──────────────────────────────────────────────── */
@@ -478,7 +537,7 @@
   border-bottom: 1px solid var(--glass-border);
   flex-shrink: 0;
 }
-.roster-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.roster-title { font-size: 17px; font-weight: 700; color: var(--text-primary); }
 .roster-close-btn {
   background: none; border: none; color: var(--text-muted);
   cursor: pointer; padding: 4px; border-radius: 4px;
@@ -503,8 +562,8 @@
   border-color: rgba(0,212,255,0.3);
 }
 .roster-person-info { flex: 1; min-width: 0; }
-.roster-person-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
-.roster-person-role { font-size: 11px; color: var(--text-muted); }
+.roster-person-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.roster-person-role { font-size: 13px; color: var(--text-muted); }
 .roster-person-check {
   width: 18px; height: 18px; border-radius: 50%;
   border: 1.5px solid var(--glass-border);
@@ -525,7 +584,7 @@
 
 .roster-empty {
   text-align: center; padding: var(--space-xl);
-  color: var(--text-muted); font-size: 13px;
+  color: var(--text-muted); font-size: 15px;
 }
 
 /* Add person form */
@@ -544,14 +603,18 @@
   gap: var(--space-sm); margin-bottom: var(--space-sm);
 }
 .roster-inp {
-  background: var(--bg-surface);
+  width: 100%;
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--glass-border);
-  border-radius: 6px; color: var(--text-primary);
-  font-size: 12px; font-family: var(--font);
-  padding: 7px 10px; outline: none;
-  transition: border-color 0.15s;
+  border-radius: var(--radius-md); color: var(--text-primary);
+  font-size: 14px; font-family: var(--font);
+  padding: 9px 12px; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.roster-inp:focus { border-color: rgba(0,212,255,0.5); }
+.roster-inp:focus {
+  border-color: rgba(0,212,255,0.4);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+}
 .roster-inp::placeholder { color: var(--text-muted); opacity: 0.5; }
 .roster-add-actions { display: flex; gap: var(--space-sm); margin-top: var(--space-sm); }
 
@@ -560,7 +623,7 @@
   display: flex; align-items: center; gap: var(--space-md);
   margin-bottom: var(--space-xl);
 }
-.checklist-progress-label { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+.checklist-progress-label { font-size: 15px; color: var(--text-muted); white-space: nowrap; }
 .checklist-progress-track {
   flex: 1; height: 6px;
   background: var(--glass-border);
@@ -596,7 +659,7 @@
 .checklist-item.done .checklist-cb-box {
   background: var(--accent-emerald); border-color: var(--accent-emerald);
 }
-.checklist-item-label { flex: 1; font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+.checklist-item-label { flex: 1; font-size: 15px; font-weight: 500; color: var(--text-secondary); }
 .checklist-item.done  .checklist-item-label { color: var(--text-muted); text-decoration: line-through; }
 .checklist-item-badge {
   font-size: 10px; font-weight: 600; color: var(--accent-cyan);
@@ -613,11 +676,11 @@
   text-transform: uppercase; color: var(--text-muted);
 }
 .tender-status-sel {
-  background: var(--bg-elevated);
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--glass-border);
-  border-radius: 6px; color: var(--text-primary);
-  font-size: 13px; font-family: var(--font);
-  padding: 8px 12px; outline: none; cursor: pointer;
+  border-radius: var(--radius-md); color: var(--text-primary);
+  font-size: 15px; font-family: var(--font);
+  padding: 10px 14px; outline: none; cursor: pointer;
 }
 
 /* ── Export Section ───────────────────────────────────────────────────────── */
