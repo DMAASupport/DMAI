@@ -765,14 +765,33 @@ body::after {
   -webkit-text-fill-color: #ffffff;
 }
 
-/* AI — bold gradient + glow, matches intro */
+/* AI — bold animated gradient + pulsing glow */
 .editor-wordmark-title .wm-ai {
   font-weight: 900;
-  background: linear-gradient(135deg, #ffffff 0%, #00d4ff 60%, #a78bfa 100%);
+  background: linear-gradient(90deg,
+    #ffffff    0%,
+    #00d4ff   20%,
+    #a78bfa   40%,
+    #ffffff   60%,
+    #00d4ff   80%,
+    #a78bfa  100%
+  );
+  background-size: 300% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.55)) drop-shadow(0 0 14px rgba(0, 212, 255, 0.25));
+  animation: wmAiFlow 4s linear infinite, wmAiGlow 4s ease-in-out infinite;
+}
+
+@keyframes wmAiFlow {
+  0%   { background-position: 0%   50%; }
+  100% { background-position: 300% 50%; }
+}
+
+@keyframes wmAiGlow {
+  0%,  100% { filter: drop-shadow(0 0  6px rgba(0,212,255,0.50)) drop-shadow(0 0 16px rgba(0,212,255,0.20)); }
+  40%        { filter: drop-shadow(0 0 12px rgba(167,139,250,0.70)) drop-shadow(0 0 28px rgba(167,139,250,0.35)); }
+  70%        { filter: drop-shadow(0 0 14px rgba(0,212,255,0.80)) drop-shadow(0 0 32px rgba(0,212,255,0.40)); }
 }
 
 .editor-wordmark-sub {
