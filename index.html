@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="logos/DMAA_black.png">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="css/styles.css?v=14">
+    <link rel="stylesheet" href="css/styles.css?v=15">
     <link rel="stylesheet" href="css/schedule.css?v=3">
     <link rel="stylesheet" href="css/tenders.css?v=5">
 
@@ -26,6 +26,25 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/OBJExporter.js"></script>
 </head>
 <body>
+
+<!-- ─── Ambient Orb Background ───────────────────────────── -->
+<svg style="display:none">
+  <defs>
+    <filter id="bg-goo">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="40" result="blur"/>
+      <feColorMatrix in="blur" mode="matrix"
+        values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 14 -6" result="goo"/>
+      <feBlend in="SourceGraphic" in2="goo"/>
+    </filter>
+  </defs>
+</svg>
+<div id="bg-orbs">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+  <div class="bg-orb bg-orb-4"></div>
+  <div class="bg-orb bg-orb-5"></div>
+</div>
 
 <!-- ─── Intro Animation Overlay ──────────────────────────── -->
 <div id="intro-overlay">

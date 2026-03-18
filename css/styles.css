@@ -117,19 +117,84 @@ body {
   position: relative;
 }
 
-/* --- Animated Mesh Background --- */
-body::before {
-  content: '';
+/* --- Animated Orb Background (inspired by gradient-blob technique) --- */
+#bg-orbs {
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 15% 45%, rgba(0, 212, 255, 0.05) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 55% at 85% 18%, rgba(30, 19, 46, 0.9) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 70% at 50% 88%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse 90% 80% at 50% 50%, rgba(11, 14, 20, 0.6) 0%, #0b0e14 100%);
-  animation: ambientDrift 24s ease-in-out infinite alternate;
   pointer-events: none;
   z-index: 0;
+  overflow: hidden;
+  filter: url(#bg-goo) blur(60px);
+}
+
+.bg-orb {
+  position: absolute;
+  width: 75vw;
+  height: 75vw;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  top: calc(50% - 37.5vw);
+  left: calc(50% - 37.5vw);
+}
+
+/* Orb 1 — deep cyan, drifts slowly top-left → bottom-right */
+.bg-orb-1 {
+  background: radial-gradient(circle at center, rgba(0, 180, 220, 0.22) 0%, transparent 65%);
+  animation: orbDrift1 28s ease-in-out infinite alternate;
+  opacity: 0.9;
+}
+
+/* Orb 2 — muted lavender, rotates around centre */
+.bg-orb-2 {
+  background: radial-gradient(circle at center, rgba(120, 90, 200, 0.18) 0%, transparent 60%);
+  transform-origin: calc(50% - 380px) 50%;
+  animation: orbDrift2 34s ease-in-out infinite alternate;
+  opacity: 0.85;
+}
+
+/* Orb 3 — navy blue-teal, counter-drift */
+.bg-orb-3 {
+  background: radial-gradient(circle at center, rgba(10, 60, 120, 0.28) 0%, transparent 60%);
+  transform-origin: calc(50% + 380px) 50%;
+  animation: orbDrift3 22s ease-in-out infinite alternate;
+  opacity: 1;
+}
+
+/* Orb 4 — faint warm indigo */
+.bg-orb-4 {
+  background: radial-gradient(circle at center, rgba(80, 40, 140, 0.14) 0%, transparent 55%);
+  transform-origin: calc(50% - 180px) calc(50% + 280px);
+  animation: orbDrift4 40s ease-in-out infinite alternate;
+  opacity: 0.7;
+}
+
+/* Orb 5 — subtle teal accent, slow far drift */
+.bg-orb-5 {
+  background: radial-gradient(circle at center, rgba(0, 140, 160, 0.13) 0%, transparent 55%);
+  transform-origin: calc(50% - 700px) calc(50% + 700px);
+  animation: orbDrift5 30s ease-in-out infinite alternate;
+  opacity: 0.8;
+}
+
+@keyframes orbDrift1 {
+  0%   { transform: translate(-12%, -8%);  }
+  100% { transform: translate(10%, 12%);   }
+}
+@keyframes orbDrift2 {
+  0%   { transform: rotate(-10deg) translate(-8%, 6%);  }
+  100% { transform: rotate(14deg)  translate(8%, -10%); }
+}
+@keyframes orbDrift3 {
+  0%   { transform: rotate(8deg)   translate(10%, -6%); }
+  100% { transform: rotate(-12deg) translate(-9%, 8%);  }
+}
+@keyframes orbDrift4 {
+  0%   { transform: rotate(0deg)   translate(5%, 10%);  }
+  100% { transform: rotate(20deg)  translate(-6%, -8%); }
+}
+@keyframes orbDrift5 {
+  0%   { transform: rotate(-5deg)  translate(-10%, 5%); }
+  100% { transform: rotate(10deg)  translate(10%, -7%); }
 }
 
 /* --- Static Noise Texture --- */
@@ -145,14 +210,6 @@ body::after {
   z-index: 0;
 }
 
-@keyframes ambientDrift {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  100% {
-    transform: translate(-2%, 2%) scale(1.04);
-  }
-}
 
 /* --- Utility Animations --- */
 @keyframes fadeInUp {
