@@ -160,16 +160,29 @@
         uv.y = floor(uv.y * vScreenSize.y / fMosaicScal.y) / (vScreenSize.y / fMosaicScal.y);
 
         float t = time * 0.06 + random(uv.x) * 0.4;
-        float lineWidth = 0.0008;
+        float lineWidth = 0.0009;
 
-        vec3 color = vec3(0.0);
-        for (int j = 0; j < 3; j++) {
-          for (int i = 0; i < 5; i++) {
-            color[j] += lineWidth * float(i * i) / abs(fract(t - 0.01 * float(j) + float(i) * 0.01) * 1.0 - length(uv));
-          }
+        // Two intensity layers — slightly phase-offset from each other
+        float cyan_i    = 0.0;
+        float lav_i     = 0.0;
+        for (int i = 0; i < 5; i++) {
+          float w = lineWidth * float(i * i);
+          float d = length(uv);
+          cyan_i += w / abs(fract(t              + float(i) * 0.012) - d);
+          lav_i  += w / abs(fract(t + 0.22       + float(i) * 0.012) - d);
         }
 
-        gl_FragColor = vec4(color[2], color[1], color[0], 1.0);
+        // DMAI brand colours
+        vec3 cyan     = vec3(0.000, 0.831, 1.000);   // #00d4ff
+        vec3 lavender = vec3(0.655, 0.545, 0.980);   // #a78bfa
+
+        // Slow colour breath: lines shift between cyan-dominant and lavender-dominant
+        float breath = sin(time * 0.018) * 0.5 + 0.5;
+
+        vec3 col = cyan_i * mix(cyan, lavender * 0.55, breath)
+                 + lav_i  * mix(lavender, cyan * 0.45, 1.0 - breath);
+
+        gl_FragColor = vec4(col, 1.0);
       }
     `
   });
