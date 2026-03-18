@@ -1285,6 +1285,13 @@ body::after {
 }
 
 /* --- 3D Viewport --- */
+/* ─── 3D Catalog Tab — stacked layout ────────────────────── */
+.catalog-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
 .viewport-3d {
   width: 100%;
   height: clamp(350px, 50vh, 550px);
@@ -1293,6 +1300,10 @@ body::after {
   border: 1px solid rgba(0,212,255,0.15);
   overflow: hidden;
   position: relative;
+}
+
+.viewport-3d--full {
+  height: clamp(480px, 65vh, 780px);
 }
 
 .viewport-3d canvas {
