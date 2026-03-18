@@ -141,46 +141,50 @@
     uniforms,
     vertexShader: `void main() { gl_Position = vec4(position, 1.0); }`,
     fragmentShader: `
-      #define TWO_PI 6.2831853072
-      #define PI 3.14159265359
-
       precision highp float;
       uniform vec2  resolution;
       uniform float time;
 
-      float random(in float x) { return fract(sin(x) * 1e4); }
-      float random(vec2 st)    { return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123); }
+      float random(float x) { return fract(sin(x) * 43758.5453); }
 
       void main(void) {
+        // Full-resolution continuous UVs — no mosaic quantization
         vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
 
-        vec2 fMosaicScal = vec2(4.0, 2.0);
-        vec2 vScreenSize = vec2(256.0, 256.0);
-        uv.x = floor(uv.x * vScreenSize.x / fMosaicScal.x) / (vScreenSize.x / fMosaicScal.x);
-        uv.y = floor(uv.y * vScreenSize.y / fMosaicScal.y) / (vScreenSize.y / fMosaicScal.y);
+        float d = length(uv);
 
-        float t = time * 0.06 + random(uv.x) * 0.4;
-        float lineWidth = 0.0009;
+        // Organic per-column variation: fine grain, low amplitude
+        float colVar = random(floor(uv.x * 180.0) / 180.0) * 0.22;
+        float t = time * 0.038 + colVar;
 
-        // Two intensity layers — slightly phase-offset from each other
-        float cyan_i    = 0.0;
-        float lav_i     = 0.0;
-        for (int i = 0; i < 5; i++) {
-          float w = lineWidth * float(i * i);
-          float d = length(uv);
-          cyan_i += w / abs(fract(t              + float(i) * 0.012) - d);
-          lav_i  += w / abs(fract(t + 0.22       + float(i) * 0.012) - d);
+        // 8 line rings per colour layer for rich complexity
+        float cyan_i = 0.0;
+        float lav_i  = 0.0;
+        for (int i = 1; i <= 8; i++) {
+          float fi = float(i);
+          float w  = 0.00055 * fi * fi;
+          float epsilon = 0.0018;   // soft floor — prevents hard spikes, smooth falloff
+
+          cyan_i += w / (abs(fract(t             + fi * 0.014) - d) + epsilon);
+          lav_i  += w / (abs(fract(t + 0.28      + fi * 0.014) - d) + epsilon);
         }
+
+        // Clamp to suppress any remaining fireflies
+        cyan_i = min(cyan_i, 2.2);
+        lav_i  = min(lav_i,  2.2);
 
         // DMAI brand colours
         vec3 cyan     = vec3(0.000, 0.831, 1.000);   // #00d4ff
         vec3 lavender = vec3(0.655, 0.545, 0.980);   // #a78bfa
 
-        // Slow colour breath: lines shift between cyan-dominant and lavender-dominant
-        float breath = sin(time * 0.018) * 0.5 + 0.5;
+        // Slow breath between cyan-dominant ↔ lavender-dominant
+        float breath = sin(time * 0.014) * 0.5 + 0.5;
+        vec3 col = cyan_i * mix(cyan,     lavender * 0.60, breath)
+                 + lav_i  * mix(lavender, cyan     * 0.50, 1.0 - breath);
 
-        vec3 col = cyan_i * mix(cyan, lavender * 0.55, breath)
-                 + lav_i  * mix(lavender, cyan * 0.45, 1.0 - breath);
+        // Radial vignette — focus glow toward centre
+        float vignette = 1.0 - smoothstep(0.4, 1.5, d);
+        col *= vignette;
 
         gl_FragColor = vec4(col, 1.0);
       }
@@ -190,7 +194,7 @@
   scene.add(new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2), material));
 
   renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3)); // full retina quality
 
   function resize() {
     renderer.setSize(window.innerWidth, window.innerHeight, false);
@@ -202,7 +206,7 @@
   (function animate() {
     if (!renderer) return;
     animId = requestAnimationFrame(animate);
-    uniforms.time.value += 0.05;
+    uniforms.time.value += 0.032; // slower tick = smoother motion
     renderer.render(scene, camera);
   })();
 
