@@ -11,6 +11,7 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/schedule.css">
 
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -139,6 +140,7 @@
             <button class="editor-tab" onclick="switchEditorTab(3)">3D Catalog</button>
             <button class="editor-tab" onclick="switchEditorTab(4)">Export</button>
             <button class="editor-tab" onclick="switchEditorTab(5)">Gallery</button>
+            <button class="editor-tab" onclick="switchEditorTab(6)">Schedule</button>
         </div>
 
         <!-- Editor Content -->
@@ -426,6 +428,35 @@
                 </div>
                 <div class="gallery-grid" id="gallery-grid"></div>
             </div>
+
+            <!-- ─── Tab 6: Schedule ─── -->
+            <div id="tab-panel-schedule" class="tab-panel">
+                <div class="sched-container">
+
+                    <!-- Top bar -->
+                    <div class="sched-topbar">
+                        <div>
+                            <div class="section-title" style="margin:0">Project Schedule</div>
+                            <div class="sched-topbar-sub">Organise phases, deadlines and deliverables</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="schOpenAddPhase()">
+                            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+                            Add Phase
+                        </button>
+                    </div>
+
+                    <!-- Gantt timeline -->
+                    <div class="sched-gantt-wrap" id="sched-gantt"></div>
+
+                    <!-- Phase cards -->
+                    <div id="sched-phases"></div>
+
+                    <!-- Add-phase form footer -->
+                    <div id="sched-footer"></div>
+
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -453,6 +484,10 @@
         <div class="control-group">
             <label>Typology</label>
             <input type="text" id="modal-project-typology" placeholder="e.g. Mixed-Use Cultural">
+        </div>
+        <div class="control-group">
+            <label>Project Deadline <span style="opacity:.45;font-weight:400">(optional)</span></label>
+            <input type="date" id="modal-project-deadline">
         </div>
         <div class="modal-actions">
             <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
@@ -650,6 +685,7 @@
 </div>
 
 
+<script src="js/schedule.js"></script>
 <script src="js/map.js"></script>
 <script src="js/intro.js"></script>
 </body>

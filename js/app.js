@@ -13,6 +13,7 @@ function migrateProject(p) {
   if (p.occupantLabel === undefined) p.occupantLabel = 'Employees';
   if (p.location === undefined) p.location = { city: '', country: '' };
   if (p.competitionType === undefined) p.competitionType = '';
+  if (p.schedule === undefined) p.schedule = { phases: [] };
   if (p.projectManagement === undefined) p.projectManagement = {
     result: '',
     constructionCost: 0,
@@ -363,6 +364,19 @@ function createNewProject() {
   const typology    = typologyInput.value.trim() || 'Mixed-Use';
   const projectCode = codeInput ? codeInput.value.trim() : '';
 
+  const deadline = document.getElementById('modal-project-deadline')?.value || '';
+  const schedule = { phases: [] };
+  if (deadline) {
+    schedule.phases.push({
+      id: 'phase-' + Date.now(),
+      name: 'Project Delivery',
+      color: '#00d4ff',
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: deadline,
+      tasks: []
+    });
+  }
+
   const newProject = {
     id: 'proj-' + Date.now(),
     name, client, typology, projectCode,
@@ -372,6 +386,7 @@ function createNewProject() {
     benchmark: 'custom',
     siteArea: 0,
     notes: '',
+    schedule,
     programs: [
       { id: 'office',    name: 'Offices / R&D',  color: '#ff6b8a', share: 50, dims: { l: 20, w: 20, h: 4   }, isSurface: false, locked: false, nFloors: 1 },
       { id: 'land',      name: 'Landscape',       color: '#34d399', share: 15, dims: null,                      isSurface: true,  locked: false, nFloors: 1 },
@@ -678,6 +693,9 @@ function openNewProjectModal() {
   document.getElementById('modal-project-name').value = '';
   document.getElementById('modal-project-client').value = '';
   document.getElementById('modal-project-typology').value = '';
+  document.getElementById('modal-project-code').value = '';
+  const dl = document.getElementById('modal-project-deadline');
+  if (dl) dl.value = '';
   document.getElementById('modal-project-name').focus();
 }
 
@@ -750,6 +768,7 @@ function switchEditorTab(idx) {
       update3D();
     }, 60);
   }
+  if (idx === 6) renderSchedule();
 }
 
 
