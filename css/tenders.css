@@ -1,11 +1,31 @@
 /* ─── Tender Submission Module ──────────────────────────────────────────────── */
 
+/* ── Tenders dashboard button ─────────────────────────────────────────────── */
+.btn-tenders {
+  background: linear-gradient(135deg, rgba(0,229,255,0.18), rgba(168,85,247,0.18));
+  border: 1px solid rgba(0,229,255,0.45);
+  color: #00e5ff;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.btn-tenders:hover {
+  background: linear-gradient(135deg, rgba(0,229,255,0.30), rgba(168,85,247,0.28));
+  border-color: rgba(0,229,255,0.75);
+  box-shadow: 0 0 14px rgba(0,229,255,0.30);
+  color: #fff;
+}
+
 /* ── View layouts ─────────────────────────────────────────────────────────── */
 #view-tenders,
 #view-tender-editor {
   min-height: 100vh;
-  display: flex;
   flex-direction: column;
+}
+
+#view-tenders.active,
+#view-tender-editor.active {
+  display: flex;
 }
 
 /* ── Top bar (reuses .editor-top-bar pattern) ─────────────────────────────── */
