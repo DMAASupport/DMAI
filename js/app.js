@@ -981,10 +981,6 @@ function renderPMSection() {
     <div class="overview-panel pm-section">
       <div class="pm-section-header">
         <h3>Project Management</h3>
-        <button class="btn btn-excel" onclick="exportPMExcel()" style="font-size:11px;padding:6px 14px;">
-          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;vertical-align:-2px"><path d="M11 9v2.5a1 1 0 01-1 1H4a1 1 0 01-1-1V9"/><polyline points="4.5 5.5 7 8 9.5 5.5"/><line x1="7" y1="8" x2="7" y2="1.5"/></svg>
-          Export Excel
-        </button>
       </div>
       <div class="pm-grid">
 

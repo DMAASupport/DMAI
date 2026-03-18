@@ -824,6 +824,15 @@ body::before {
   display: block;
 }
 
+/* --- Tab Top Bar (title left + action button right) --- */
+.tab-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+}
+.tab-topbar .section-title { margin-bottom: 0; }
+
 /* --- Section Headers --- */
 .section-title {
   font-size: 13px;
