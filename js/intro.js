@@ -1,17 +1,17 @@
 (function () {
   'use strict';
 
-  // ── Timeline (ms) — total duration ~7 s ──────────────────────
+  // ── Timeline (ms) — total duration ~13 s ─────────────────────
   const WELCOME_AT     =  700;   // "WELCOME TO" letter reveal
   const DM_AT          = 1900;   // "DM" fades in
   const AI_AT          = 2220;   // "AI" fades in 320ms after DM
   const BEAT_AT        = 2450;   // heartbeat pulse on AI only
   const LINE_AT        = 2850;   // underline expands
   const TAG_AT         = 3050;   // tagline fades in
-  const CANVAS_FADE_AT = 3600;   // shader glare fades — text only from here
-  const CANVAS_FADE_DUR= 1200;   // canvas fades over 1.2 s
-  const FADEOUT_AT     = 5500;   // overlay begins final fade  (~7.5 s total)
-  const FADE_DUR       = 2500;   // overlay fade duration
+  const CANVAS_FADE_AT = 4500;   // shader glare fades — text breathes longer
+  const CANVAS_FADE_DUR= 1500;   // canvas fades over 1.5 s
+  const FADEOUT_AT     = 6500;   // overlay begins final fade (~8.5 s total)
+  const FADE_DUR       = 2000;   // overlay fade duration
 
   const overlay = document.getElementById('intro-overlay');
   if (!overlay) return;
@@ -155,14 +155,14 @@
 
         // Organic per-column variation: fine grain, low amplitude
         float colVar = random(floor(uv.x * 180.0) / 180.0) * 0.22;
-        float t = time * 0.038 + colVar;
+        float t = time * 0.026 + colVar;
 
         // 8 line rings per colour layer for rich complexity
         float cyan_i = 0.0;
         float lav_i  = 0.0;
         for (int i = 1; i <= 8; i++) {
           float fi = float(i);
-          float w  = 0.00055 * fi * fi;
+          float w  = 0.00068 * fi * fi;
           float epsilon = 0.0018;   // soft floor — prevents hard spikes, smooth falloff
 
           cyan_i += w / (abs(fract(t             + fi * 0.014) - d) + epsilon);
@@ -170,21 +170,31 @@
         }
 
         // Clamp to suppress any remaining fireflies
-        cyan_i = min(cyan_i, 2.2);
-        lav_i  = min(lav_i,  2.2);
+        cyan_i = min(cyan_i, 2.4);
+        lav_i  = min(lav_i,  2.4);
 
         // DMAI brand colours
         vec3 cyan     = vec3(0.000, 0.831, 1.000);   // #00d4ff
         vec3 lavender = vec3(0.655, 0.545, 0.980);   // #a78bfa
 
         // Slow breath between cyan-dominant ↔ lavender-dominant
-        float breath = sin(time * 0.014) * 0.5 + 0.5;
+        float breath = sin(time * 0.012) * 0.5 + 0.5;
         vec3 col = cyan_i * mix(cyan,     lavender * 0.60, breath)
                  + lav_i  * mix(lavender, cyan     * 0.50, 1.0 - breath);
 
-        // Radial vignette — focus glow toward centre
-        float vignette = 1.0 - smoothstep(0.4, 1.5, d);
+        // Animated inner dead-zone: ring starts at screen edge, sweeps inward over ~6s
+        float t_norm    = smoothstep(0.0, 8.5, time);
+        float maskEdge  = mix(1.70, 0.46, t_norm);
+        float innerMask = smoothstep(maskEdge, maskEdge + 0.28, d);
+        col *= innerMask;
+
+        // Outer vignette — pushed wide so ring is fully visible when at screen edge
+        float vignette = 1.0 - smoothstep(1.60, 3.4, d);
         col *= vignette;
+
+        // Fade shader up from black at start — opens from darkness
+        float fadeIn = smoothstep(0.0, 2.2, time);
+        col *= fadeIn;
 
         gl_FragColor = vec4(col, 1.0);
       }
@@ -206,7 +216,7 @@
   (function animate() {
     if (!renderer) return;
     animId = requestAnimationFrame(animate);
-    uniforms.time.value += 0.032; // slower tick = smoother motion
+    uniforms.time.value += 0.022; // slower tick = smoother motion
     renderer.render(scene, camera);
   })();
 
