@@ -802,6 +802,7 @@ body::before {
   left: 50%;
   transform: translateX(-50%);
   width: 32px;
+  box-shadow: 0 0 10px rgba(0,212,255,0.7), 0 0 20px rgba(0,212,255,0.3);
   height: 2px;
   border-radius: 2px;
   background: var(--accent-cyan);
@@ -852,6 +853,7 @@ body::before {
   height: 14px;
   border-radius: 2px;
   background: var(--accent-cyan);
+  box-shadow: 0 0 8px rgba(0,212,255,0.55), 0 0 16px rgba(0,212,255,0.2);
 }
 
 /* --- KPI Cards --- */
@@ -1028,6 +1030,7 @@ body::before {
 
 /* --- Tables --- */
 .data-table-wrapper {
+  position: relative;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
@@ -1222,7 +1225,7 @@ body::before {
   height: clamp(350px, 50vh, 550px);
   background: rgba(0, 0, 0, 0.3);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(0,212,255,0.15);
   overflow: hidden;
   position: relative;
 }
@@ -1290,6 +1293,7 @@ body::before {
 }
 
 .modal {
+  position: relative;
   background: var(--bg-elevated);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
@@ -1574,7 +1578,7 @@ body::before {
 
 .past-program-bar-wrap {
   height: 4px;
-  background: rgba(255,255,255,0.06);
+  background: var(--glass-border);
   border-radius: 2px;
   overflow: hidden;
 }
@@ -2071,7 +2075,12 @@ body::before {
 .project-card::before,
 .new-project-card::before,
 .kpi-card::before,
-.overview-panel::before {
+.overview-panel::before,
+.data-table-wrapper::before,
+.chart-box::before,
+.viewport-3d::before,
+.modal::before,
+.pm-chart-panel::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -2102,10 +2111,19 @@ body::before {
   z-index: 1;
 }
 
-.project-card:hover::before    { opacity: 1; }
-.new-project-card:hover::before { opacity: 1; }
-.kpi-card:hover::before        { opacity: 0.8; }
-.overview-panel:hover::before  { opacity: 0.6; }
+.project-card:hover::before       { opacity: 1; }
+.new-project-card:hover::before   { opacity: 1; }
+.kpi-card:hover::before           { opacity: 0.8; }
+.overview-panel:hover::before     { opacity: 0.6; }
+.data-table-wrapper::before       { opacity: 0.15; }
+.data-table-wrapper:hover::before { opacity: 0.5; }
+.chart-box::before                { opacity: 0.1; }
+.chart-box:hover::before          { opacity: 0.5; }
+.viewport-3d::before              { opacity: 0.2; }
+.viewport-3d:hover::before        { opacity: 0.6; }
+.modal::before                    { opacity: 0.3; }
+.pm-chart-panel::before           { opacity: 0.1; }
+.pm-chart-panel:hover::before     { opacity: 0.4; }
 
 /* ─── Search + Filter Chips ──────────────────────────────── */
 .search-filter-stack {
@@ -2441,7 +2459,7 @@ body::before {
 .pm-kpi-card {
   flex: 1 1 100px;
   min-width: 90px;
-  background: rgba(255,255,255,0.03);
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   padding: 10px 14px;
@@ -2488,7 +2506,8 @@ body::before {
 }
 
 .pm-chart-panel {
-  background: rgba(255,255,255,0.02);
+  position: relative;
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   padding: 16px;
@@ -2552,8 +2571,8 @@ body::before {
 }
 
 .ms-past .pm-ms-dot   { background: var(--accent-cyan); box-shadow: 0 0 6px rgba(0,212,255,0.5); }
-.ms-future .pm-ms-dot { background: rgba(255,255,255,0.15); border: 1.5px solid var(--glass-border); }
-.ms-empty .pm-ms-dot  { background: rgba(255,255,255,0.06); border: 1px dashed var(--glass-border); }
+.ms-future .pm-ms-dot { background: var(--glass-bg-hover); border: 1.5px solid var(--glass-border); }
+.ms-empty .pm-ms-dot  { background: var(--glass-bg);      border: 1px dashed var(--glass-border); }
 
 .pm-ms-connector {
   flex: 1;
@@ -2803,7 +2822,7 @@ body::before {
   align-items: baseline;
   gap: var(--space-sm);
   padding: 5px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .cmp-stat-label {
