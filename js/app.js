@@ -2103,28 +2103,182 @@ function exportOBJ() {
   link.click();
 }
 
-function exportCSV() {
+function exportProjectExcel() {
   if (!currentProject) return;
-  const rows = [['Program', 'Share (%)', 'GFA (m²)', 'Length (m)', 'Width (m)', 'Height (m)', 'Floors', 'Box Count']];
+  const p    = currentProject;
+  const pm   = p.projectManagement || {};
+  const dates = pm.dates  || {};
+  const team  = pm.team   || {};
+  const totalGFA   = (p.employees || 0) * (p.gfaPerEmp || 0);
+  const totalBudget = (pm.constructionCost||0) + (pm.designFee||0) + (pm.competitionPrize||0);
+  const costPerM2   = (pm.constructionCost > 0 && totalGFA > 0) ? Math.round(pm.constructionCost / totalGFA) : '—';
+  const hPerM2      = (team.totalHours > 0 && totalGFA > 0) ? (team.totalHours / totalGFA).toFixed(1) : '—';
+  const year        = (p.createdAt || '').split('-')[0] || '—';
+  const resultLabels = { won: '🥇 Won / 1st Prize', '2nd-3rd': '🥈 2nd / 3rd Place', 'not-selected': '✗ Not Selected' };
+  const compTypeLabels = { 'open-competition': 'Open Competition', 'invited-competition': 'Invited Competition', 'architect-selection': 'Architect Selection', 'commission': 'Direct Commission' };
 
-  currentProject.programs.forEach(p => {
-    const gfa = computedGFA[p.id] || 0;
-    if (p.isSurface) {
-      rows.push([p.name, p.share, gfa, 'Surface', 'Surface', 'Surface', 1, 1]);
-    } else {
-      const d        = p.dims || { l: 0, w: 0, h: 0 };
-      const nFloors  = p.nFloors || 1;
-      const footprint = d.l * d.w * nFloors;
-      const boxCount  = footprint > 0 ? Math.ceil(gfa / footprint) : 0;
-      rows.push([p.name, p.share, gfa, d.l, d.w, d.h, nFloors, boxCount]);
-    }
-  });
+  // ── Styles ──────────────────────────────────────────────
+  const S = {
+    title:   'font-size:18pt;font-weight:bold;color:#ffffff;background:#1a5c38;padding:8px 14px',
+    sub:     'font-size:11pt;color:#ffffff;background:#217346;padding:4px 14px',
+    secHdr:  'font-size:10pt;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#ffffff;background:#217346;padding:6px 10px',
+    lbl:     'font-size:9pt;font-weight:600;color:#1a5c38;background:#e8f5e9;padding:5px 10px;border:1px solid #c8e6c9',
+    val:     'font-size:9pt;color:#1a1b25;background:#ffffff;padding:5px 10px;border:1px solid #e0e0e0',
+    tblHdr:  'font-size:9pt;font-weight:bold;color:#ffffff;background:#217346;padding:6px 10px;border:1px solid #1a5c38',
+    row0:    'font-size:9pt;color:#1a1b25;background:#f1f8f4;padding:5px 10px;border:1px solid #e0e0e0',
+    row1:    'font-size:9pt;color:#1a1b25;background:#ffffff;padding:5px 10px;border:1px solid #e0e0e0',
+    total:   'font-size:9pt;font-weight:bold;color:#1a5c38;background:#e8f5e9;padding:6px 10px;border:1px solid #c8e6c9',
+    blank:   'padding:6px',
+  };
 
-  const csv  = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const row = (label, value, style = '') =>
+    `<tr><td style="${S.lbl}${style}">${label}</td><td style="${S.val}${style}">${value ?? '—'}</td></tr>`;
+
+  // ── Section: Project Overview ────────────────────────────
+  const secOverview = `
+    <tr><td colspan="2" style="${S.secHdr}">Project Overview</td></tr>
+    ${row('Project Name',   p.name || '—')}
+    ${row('Project Code',   p.projectCode || '—')}
+    ${row('Client',         p.client || '—')}
+    ${row('Typology',       p.typology || '—')}
+    ${row('Status',         p.status === 'ongoing' ? 'Ongoing' : 'Past')}
+    ${row('Year',           year)}
+    ${row('Total GFA',      totalGFA > 0 ? totalGFA.toLocaleString() + ' m²' : '—')}
+    ${row('Employees',      p.employees > 0 ? p.employees.toLocaleString() : '—')}
+    ${row('GFA / Employee', p.gfaPerEmp > 0 ? p.gfaPerEmp + ' m²' : '—')}
+    ${row('Site Area',      p.siteArea > 0 ? p.siteArea.toLocaleString() + ' m²' : '—')}
+    <tr><td colspan="2" style="${S.blank}"></td></tr>`;
+
+  // ── Section: Competition ─────────────────────────────────
+  const secComp = `
+    <tr><td colspan="2" style="${S.secHdr}">Competition</td></tr>
+    ${row('Result',           resultLabels[pm.result] || '—')}
+    ${row('Competition Type', compTypeLabels[pm.competitionType] || '—')}
+    <tr><td colspan="2" style="${S.blank}"></td></tr>`;
+
+  // ── Section: Budget ──────────────────────────────────────
+  const fmtEur = v => v > 0 ? '€ ' + Number(v).toLocaleString() : '—';
+  const secBudget = `
+    <tr><td colspan="2" style="${S.secHdr}">Budget</td></tr>
+    ${row('Construction Cost',   fmtEur(pm.constructionCost))}
+    ${row('Design Fee',          fmtEur(pm.designFee))}
+    ${row('Competition Prize',   fmtEur(pm.competitionPrize))}
+    <tr><td style="${S.total}">Total Budget</td><td style="${S.total}">${fmtEur(totalBudget)}</td></tr>
+    ${row('Cost / m²',           costPerM2 !== '—' ? '€ ' + costPerM2.toLocaleString() : '—')}
+    <tr><td colspan="2" style="${S.blank}"></td></tr>`;
+
+  // ── Section: Timeline ────────────────────────────────────
+  const secTimeline = `
+    <tr><td colspan="2" style="${S.secHdr}">Timeline</td></tr>
+    ${row('Competition / Brief',  dates.briefDate         || '—')}
+    ${row('Submission',           dates.submissionDate    || '—')}
+    ${row('Result Date',          dates.resultDate        || '—')}
+    ${row('Construction Start',   dates.constructionStart || '—')}
+    ${row('Construction End',     dates.constructionEnd   || '—')}
+    <tr><td colspan="2" style="${S.blank}"></td></tr>`;
+
+  // ── Section: Team ────────────────────────────────────────
+  const secTeam = `
+    <tr><td colspan="2" style="${S.secHdr}">Team</td></tr>
+    ${row('Partner',      team.partner    || '—')}
+    ${row('Architect',    team.architect  || '—')}
+    ${row('Team Size',    team.teamSize   > 0 ? team.teamSize : '—')}
+    ${row('Total Hours',  team.totalHours > 0 ? Number(team.totalHours).toLocaleString() + ' h' : '—')}
+    ${row('Hours / m²',   hPerM2 !== '—' ? hPerM2 + ' h/m²' : '—')}
+    <tr><td colspan="2" style="${S.blank}"></td></tr>`;
+
+  // ── Section: Master Program ──────────────────────────────
+  const programs = p.programs || [];
+  const totalShare = programs.reduce((s, pg) => s + (pg.share || 0), 0);
+  const programRows = programs.map((pg, i) => {
+    const gfa = Math.round((pg.share / 100) * totalGFA);
+    const rs = i % 2 === 0 ? S.row0 : S.row1;
+    return `<tr>
+      <td style="${rs}">${pg.name}</td>
+      <td style="${rs};text-align:center">${pg.share}%</td>
+      <td style="${rs};text-align:right">${gfa > 0 ? gfa.toLocaleString() + ' m²' : '—'}</td>
+      <td style="${rs};text-align:center">${pg.isSurface ? 'Surface' : 'Volume'}</td>
+    </tr>`;
+  }).join('');
+  const secProgram = `
+    <tr><td colspan="4" style="${S.secHdr}">Master Program</td></tr>
+    <tr>
+      <th style="${S.tblHdr}">Program Type</th>
+      <th style="${S.tblHdr};text-align:center">Share (%)</th>
+      <th style="${S.tblHdr};text-align:right">GFA (m²)</th>
+      <th style="${S.tblHdr};text-align:center">Type</th>
+    </tr>
+    ${programRows}
+    <tr>
+      <td style="${S.total}">TOTAL</td>
+      <td style="${S.total};text-align:center">${totalShare}%</td>
+      <td style="${S.total};text-align:right">${totalGFA > 0 ? totalGFA.toLocaleString() + ' m²' : '—'}</td>
+      <td style="${S.total}"></td>
+    </tr>
+    <tr><td colspan="4" style="${S.blank}"></td></tr>`;
+
+  // ── Section: 3D Catalog ──────────────────────────────────
+  const catalogRows = programs.filter(pg => !pg.isSurface).map((pg, i) => {
+    const gfa = Math.round((pg.share / 100) * totalGFA);
+    const d   = pg.dims || { l: 0, w: 0, h: 0 };
+    const nF  = pg.nFloors || 1;
+    const fp  = d.l * d.w * nF;
+    const units = fp > 0 ? Math.ceil(gfa / fp) : '—';
+    const rs  = i % 2 === 0 ? S.row0 : S.row1;
+    return `<tr>
+      <td style="${rs}">${pg.name}</td>
+      <td style="${rs};text-align:right">${gfa > 0 ? gfa.toLocaleString() + ' m²' : '—'}</td>
+      <td style="${rs};text-align:center">${d.l || '—'} m</td>
+      <td style="${rs};text-align:center">${d.w || '—'} m</td>
+      <td style="${rs};text-align:center">${d.h || '—'} m</td>
+      <td style="${rs};text-align:center">${nF}</td>
+      <td style="${rs};text-align:center">${units}</td>
+    </tr>`;
+  }).join('');
+  const secCatalog = catalogRows ? `
+    <tr><td colspan="7" style="${S.secHdr}">3D Module Catalog</td></tr>
+    <tr>
+      <th style="${S.tblHdr}">Program</th>
+      <th style="${S.tblHdr};text-align:right">Target GFA</th>
+      <th style="${S.tblHdr};text-align:center">L (m)</th>
+      <th style="${S.tblHdr};text-align:center">W (m)</th>
+      <th style="${S.tblHdr};text-align:center">H (m)</th>
+      <th style="${S.tblHdr};text-align:center">Floors</th>
+      <th style="${S.tblHdr};text-align:center">Units</th>
+    </tr>
+    ${catalogRows}` : '';
+
+  // ── Assemble & download ──────────────────────────────────
+  const colspanMax = 7;
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+    xmlns:x="urn:schemas-microsoft-com:office:excel"
+    xmlns="http://www.w3.org/TR/REC-html40">
+    <head><meta charset="UTF-8">
+    <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>
+    <x:ExcelWorksheet><x:Name>Project Report</x:Name>
+    <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+    </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+    <style>td,th{font-family:Calibri,Arial;vertical-align:middle}</style>
+    </head><body>
+    <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;min-width:520px">
+      <tr><td colspan="${colspanMax}" style="${S.title}">DMAA — Project Report</td></tr>
+      <tr><td colspan="${colspanMax}" style="${S.sub}">${p.name || 'Project'}${p.projectCode ? '  ·  Code ' + p.projectCode : ''}  ·  ${new Date().toLocaleDateString('en-GB')}</td></tr>
+      <tr><td colspan="${colspanMax}" style="${S.blank}"></td></tr>
+      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:420px;margin-bottom:0">
+        ${secOverview}${secComp}${secBudget}${secTimeline}${secTeam}
+      </table>
+      <tr><td colspan="${colspanMax}" style="${S.blank}"></td></tr>
+      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;margin-bottom:0">
+        ${secProgram}
+      </table>
+      ${catalogRows ? `<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%">${secCatalog}</table>` : ''}
+    </table>
+    </body></html>`;
+
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const link = document.createElement('a');
   link.href     = URL.createObjectURL(blob);
-  link.download = `DMAA_${currentProject.name.replace(/\s+/g, '_')}_Program.csv`;
+  link.download = `DMAA_${(p.name || 'Project').replace(/\s+/g,'_')}_Report.xls`;
   link.click();
 }
 
