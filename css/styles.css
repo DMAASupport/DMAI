@@ -658,7 +658,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-xl);
+  padding: var(--space-md) var(--space-xl);
   background: rgba(10, 11, 16, 0.8);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--glass-border);
@@ -734,6 +734,8 @@ body::before {
   align-items: center;
   gap: var(--space-sm);
   font-size: 14px;
+  border-left: 1px solid var(--glass-border);
+  padding-left: var(--space-lg);
 }
 
 .breadcrumb a {
