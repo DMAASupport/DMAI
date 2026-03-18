@@ -118,99 +118,127 @@ body {
   position: relative;
 }
 
-/* ── Animated Orb Background — faithful port of gradient-blob technique ── */
+/* ── Animated Orb Background ── */
 #bg-orbs {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
-  /* Reference: feGaussianBlur stdDeviation=10 + feColorMatrix 18/-8 + blur(40px) */
   filter: url(#bg-goo) blur(40px);
 }
 
+/* All orbs individually positioned around the edges — no central anchor */
 .bg-orb {
   position: absolute;
-  width: 80%;
-  height: 80%;
+  width: 50vw;
+  height: 50vw;
   border-radius: 50%;
-  /* Reference uses hard-light — creates rich colour mixing on dark bg */
   mix-blend-mode: hard-light;
-  top:  calc(50% - 40%);
-  left: calc(50% - 40%);
+  opacity: 0.18;
 }
 
-/* Orb 1 — electric blue (center anchor, slow breathe) */
+/* Orb 1 — deep blue, top-left corner */
 .bg-orb-1 {
   background: radial-gradient(circle at center,
-    rgba(0, 100, 200, 1) 0%,
-    rgba(0, 100, 200, 0) 50%) no-repeat;
-  transform-origin: center center;
-  animation: orbFirst 28s ease-in-out infinite;
-  opacity: 0.30;
+    rgba(0, 80, 200, 1) 0%, rgba(0, 80, 200, 0) 70%) no-repeat;
+  top: -15%;
+  left: -10%;
+  animation: orbFloat1 32s ease-in-out infinite;
+  animation-delay: -11s;   /* mid-cycle on load */
 }
 
-/* Orb 2 — deep indigo (orbits left) */
+/* Orb 2 — indigo, top-right corner */
 .bg-orb-2 {
   background: radial-gradient(circle at center,
-    rgba(60, 30, 180, 0.8) 0%,
-    rgba(60, 30, 180, 0) 50%) no-repeat;
-  transform-origin: calc(50% - 400px) 50%;
-  animation: orbSecond 34s ease-in-out infinite;
-  opacity: 0.45;
+    rgba(80, 30, 180, 1) 0%, rgba(80, 30, 180, 0) 70%) no-repeat;
+  top: -10%;
+  right: -12%;
+  left: auto;
+  animation: orbFloat2 38s ease-in-out infinite;
+  animation-delay: -22s;
 }
 
-/* Orb 3 — cyan (orbits right) */
+/* Orb 3 — cyan, bottom-left */
 .bg-orb-3 {
   background: radial-gradient(circle at center,
-    rgba(0, 180, 220, 0.8) 0%,
-    rgba(0, 180, 220, 0) 50%) no-repeat;
-  transform-origin: calc(50% + 400px) 50%;
-  animation: orbThird 22s ease-in-out infinite;
-  opacity: 0.28;
+    rgba(0, 160, 210, 1) 0%, rgba(0, 160, 210, 0) 70%) no-repeat;
+  bottom: -15%;
+  left: -8%;
+  top: auto;
+  animation: orbFloat3 26s ease-in-out infinite;
+  animation-delay: -8s;
 }
 
-/* Orb 4 — muted violet, slow wide arc */
+/* Orb 4 — violet, bottom-right */
 .bg-orb-4 {
   background: radial-gradient(circle at center,
-    rgba(80, 40, 160, 0.8) 0%,
-    rgba(80, 40, 160, 0) 50%) no-repeat;
-  transform-origin: calc(50% - 200px) 50%;
-  animation: orbFourth 38s ease-in-out infinite;
-  opacity: 0.35;
+    rgba(100, 40, 180, 1) 0%, rgba(100, 40, 180, 0) 70%) no-repeat;
+  bottom: -12%;
+  right: -10%;
+  top: auto;
+  left: auto;
+  animation: orbFloat4 44s ease-in-out infinite;
+  animation-delay: -30s;
 }
 
-/* Orb 5 — teal-indigo, far-field slow drift */
+/* Orb 5 — teal, left edge mid-height */
 .bg-orb-5 {
   background: radial-gradient(circle at center,
-    rgba(0, 120, 160, 0.8) 0%,
-    rgba(0, 120, 160, 0) 50%) no-repeat;
-  transform-origin: calc(50% - 800px) calc(50% + 800px);
-  animation: orbFifth 30s ease-in-out infinite;
-  opacity: 0.32;
+    rgba(0, 130, 160, 1) 0%, rgba(0, 130, 160, 0) 70%) no-repeat;
+  top: 30%;
+  left: -20%;
+  animation: orbFloat5 35s ease-in-out infinite;
+  animation-delay: -18s;
 }
 
-@keyframes orbFirst {
-  0%   { transform: translate(0%, 0%)    scale(1);    }
-  33%  { transform: translate(5%, -8%)   scale(1.08); }
-  66%  { transform: translate(-6%, 6%)   scale(0.95); }
-  100% { transform: translate(0%, 0%)    scale(1);    }
+/* Orb 6 — blue-indigo, right edge mid-height */
+.bg-orb-6 {
+  background: radial-gradient(circle at center,
+    rgba(40, 60, 200, 1) 0%, rgba(40, 60, 200, 0) 70%) no-repeat;
+  top: 25%;
+  right: -18%;
+  left: auto;
+  animation: orbFloat6 29s ease-in-out infinite;
+  animation-delay: -14s;
 }
-@keyframes orbSecond {
-  0%   { transform: rotate(0deg);   }
-  100% { transform: rotate(360deg); }
+
+/* Gentle drift keyframes — each unique path */
+@keyframes orbFloat1 {
+  0%   { transform: translate(0%,   0%);   }
+  35%  { transform: translate(8%,   12%);  }
+  70%  { transform: translate(4%,   6%);   }
+  100% { transform: translate(0%,   0%);   }
 }
-@keyframes orbThird {
-  0%   { transform: rotate(0deg);    }
-  100% { transform: rotate(-360deg); }
+@keyframes orbFloat2 {
+  0%   { transform: translate(0%,   0%);   }
+  40%  { transform: translate(-10%, 10%);  }
+  75%  { transform: translate(-5%,  4%);   }
+  100% { transform: translate(0%,   0%);   }
 }
-@keyframes orbFourth {
-  0%   { transform: rotate(0deg);   }
-  100% { transform: rotate(360deg); }
+@keyframes orbFloat3 {
+  0%   { transform: translate(0%,   0%);   }
+  30%  { transform: translate(10%,  -8%);  }
+  65%  { transform: translate(5%,   -4%);  }
+  100% { transform: translate(0%,   0%);   }
 }
-@keyframes orbFifth {
-  0%   { transform: rotate(0deg);    }
-  100% { transform: rotate(-360deg); }
+@keyframes orbFloat4 {
+  0%   { transform: translate(0%,   0%);   }
+  45%  { transform: translate(-8%,  -10%); }
+  80%  { transform: translate(-3%,  -5%);  }
+  100% { transform: translate(0%,   0%);   }
+}
+@keyframes orbFloat5 {
+  0%   { transform: translate(0%,   0%);   }
+  38%  { transform: translate(12%,  -6%);  }
+  72%  { transform: translate(6%,   4%);   }
+  100% { transform: translate(0%,   0%);   }
+}
+@keyframes orbFloat6 {
+  0%   { transform: translate(0%,   0%);   }
+  42%  { transform: translate(-12%, 8%);   }
+  78%  { transform: translate(-6%,  -3%);  }
+  100% { transform: translate(0%,   0%);   }
 }
 
 /* --- Static Noise Texture --- */
