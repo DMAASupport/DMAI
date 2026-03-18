@@ -1,20 +1,61 @@
 (function () {
   'use strict';
 
-  // ── Timeline (ms) ────────────────────────────────────────────
-  const WELCOME_AT  =  700;   // "WELCOME TO" letter reveal starts
-  const LOGO_AT     = 1900;   // "DMAI" letter reveal starts
-  const LINE_AT     = 2700;   // underline expands
-  const TAG_AT      = 2900;   // tagline fades in
-  const FADEOUT_AT  = 5800;   // fade begins — long hold to admire
-  const FADE_DUR    = 1600;   // slow, cinematic fade
+  // ── Timeline (ms) — total duration ~6 s ──────────────────────
+  const WELCOME_AT     =  700;   // "WELCOME TO" letter reveal
+  const LOGO_AT        = 1900;   // "DMAI" letter reveal
+  const LINE_AT        = 2700;   // underline expands
+  const TAG_AT         = 2900;   // tagline fades in
+  const CANVAS_FADE_AT = 3600;   // shader glare fades — text only from here
+  const CANVAS_FADE_DUR= 1200;   // canvas fades over 1.2 s
+  const FADEOUT_AT     = 4500;   // overlay begins final fade
+  const FADE_DUR       = 1500;   // overlay fade duration  (~6 s total)
 
   const overlay = document.getElementById('intro-overlay');
   if (!overlay) return;
 
-  let animId = null, renderer = null;
+  let animId = null, renderer = null, skipped = false;
+  const timers = [];
 
-  // ── Letter-reveal ────────────────────────────────────────────
+  function addTimer(fn, delay) {
+    const id = setTimeout(fn, delay);
+    timers.push(id);
+    return id;
+  }
+
+  function cleanupGL() {
+    if (animId)   { cancelAnimationFrame(animId); animId = null; }
+    if (renderer) { renderer.dispose(); renderer = null; }
+  }
+
+  // ── Skip ──────────────────────────────────────────────────────
+  function skipIntro() {
+    if (skipped) return;
+    skipped = true;
+    timers.forEach(clearTimeout);
+
+    const canvas = document.getElementById('intro-canvas');
+    if (canvas) canvas.style.opacity = '0';
+
+    overlay.style.transition    = 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+    overlay.style.opacity       = '0';
+    overlay.style.pointerEvents = 'none';
+
+    setTimeout(() => {
+      overlay.remove();
+      cleanupGL();
+    }, 450);
+  }
+
+  overlay.addEventListener('click', skipIntro);
+
+  // ── Skip hint ─────────────────────────────────────────────────
+  const hint = document.createElement('div');
+  hint.id = 'intro-skip-hint';
+  hint.textContent = '[ Click anywhere to skip ]';
+  overlay.appendChild(hint);
+
+  // ── Letter-reveal ─────────────────────────────────────────────
   function reveal(el, gap) {
     const text = el.textContent;
     el.textContent = '';
@@ -24,46 +65,54 @@
       s.className = 'intro-char';
       s.textContent = ch === ' ' ? '\u00a0' : ch;
       el.appendChild(s);
-      setTimeout(() => s.classList.add('intro-char--on'), i * gap);
+      addTimer(() => s.classList.add('intro-char--on'), i * gap);
     });
   }
 
-  // ── Schedule text ────────────────────────────────────────────
-  setTimeout(() => reveal(document.getElementById('intro-welcome'), 90),  WELCOME_AT);
+  // ── Sequence ──────────────────────────────────────────────────
+  addTimer(() => reveal(document.getElementById('intro-welcome'), 90), WELCOME_AT);
 
-  setTimeout(() => {
+  addTimer(() => {
     document.getElementById('intro-logo').style.visibility = 'visible';
     reveal(document.getElementById('intro-dm'), 110);
   }, LOGO_AT);
 
-  // AI starts after DM finishes (2 letters × 110ms + 80ms gap)
-  setTimeout(() => {
+  addTimer(() => {
     reveal(document.getElementById('intro-ai'), 115);
   }, LOGO_AT + 2 * 110 + 80);
 
-  setTimeout(() => {
+  addTimer(() => {
     const line = document.getElementById('intro-line');
     if (line) line.classList.add('intro-line--on');
   }, LINE_AT);
 
-  setTimeout(() => {
+  addTimer(() => {
     const tag = document.getElementById('intro-tag');
     if (tag) tag.classList.add('intro-tag--on');
   }, TAG_AT);
 
-  // ── Fade out & cleanup ───────────────────────────────────────
-  setTimeout(() => {
-    overlay.style.transition = 'opacity ' + FADE_DUR + 'ms cubic-bezier(0.4, 0, 0.2, 1)';
-    overlay.style.opacity    = '0';
+  // ── Shader glare fades out — leaving clean text on dark bg ───
+  addTimer(() => {
+    const canvas = document.getElementById('intro-canvas');
+    if (canvas) {
+      canvas.style.transition = 'opacity ' + CANVAS_FADE_DUR + 'ms ease';
+      canvas.style.opacity    = '0';
+    }
+  }, CANVAS_FADE_AT);
+
+  // ── Final overlay fade & cleanup ──────────────────────────────
+  addTimer(() => {
+    if (skipped) return;
+    overlay.style.transition    = 'opacity ' + FADE_DUR + 'ms cubic-bezier(0.4, 0, 0.2, 1)';
+    overlay.style.opacity       = '0';
     overlay.style.pointerEvents = 'none';
     setTimeout(() => {
       overlay.remove();
-      if (animId)   cancelAnimationFrame(animId);
-      if (renderer) renderer.dispose();
+      cleanupGL();
     }, FADE_DUR);
   }, FADEOUT_AT);
 
-  // ── WebGL Shader ─────────────────────────────────────────────
+  // ── WebGL Shader ──────────────────────────────────────────────
   if (!window.THREE) return;
   const THREE  = window.THREE;
   const canvas = document.getElementById('intro-canvas');
@@ -127,8 +176,10 @@
   window.addEventListener('resize', resize, { passive: true });
 
   (function animate() {
+    if (!renderer) return;
     animId = requestAnimationFrame(animate);
-    uniforms.time.value += 0.05;    /* matches reference exactly */
+    uniforms.time.value += 0.05;
     renderer.render(scene, camera);
   })();
+
 })();

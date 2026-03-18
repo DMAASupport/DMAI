@@ -3323,6 +3323,28 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+}
+
+#intro-skip-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  color: rgba(255, 255, 255, 0.15);
+  animation: introHintPulse 2.5s ease-in-out infinite 2s both;
+}
+
+@keyframes introHintPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1.0; }
 }
 
 #intro-canvas {
