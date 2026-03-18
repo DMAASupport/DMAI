@@ -140,7 +140,6 @@
             <button class="editor-tab" onclick="switchEditorTab(3)">3D Catalog</button>
             <button class="editor-tab" onclick="switchEditorTab(4)">Export</button>
             <button class="editor-tab" onclick="switchEditorTab(5)">Gallery</button>
-            <button class="editor-tab" onclick="switchEditorTab(6)">Schedule</button>
         </div>
 
         <!-- Editor Content -->
@@ -266,6 +265,23 @@
             <!-- ─── Tab 1: Project Management ─── -->
             <div id="tab-panel-pm" class="tab-panel">
                 <div id="pm-section-ongoing"></div>
+
+                <!-- ─── Schedule ─── -->
+                <div class="sched-container">
+                    <div class="sched-topbar">
+                        <div>
+                            <div class="section-title" style="margin:0">Project Schedule</div>
+                            <div class="sched-topbar-sub">Organise phases, deadlines and deliverables</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="schOpenAddPhase()">
+                            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+                            Add Phase
+                        </button>
+                    </div>
+                    <div class="sched-gantt-wrap" id="sched-gantt"></div>
+                    <div id="sched-phases"></div>
+                    <div id="sched-footer"></div>
+                </div>
             </div>
 
             <!-- ─── Tab 2: Master Program ─── -->
@@ -429,33 +445,6 @@
                 <div class="gallery-grid" id="gallery-grid"></div>
             </div>
 
-            <!-- ─── Tab 6: Schedule ─── -->
-            <div id="tab-panel-schedule" class="tab-panel">
-                <div class="sched-container">
-
-                    <!-- Top bar -->
-                    <div class="sched-topbar">
-                        <div>
-                            <div class="section-title" style="margin:0">Project Schedule</div>
-                            <div class="sched-topbar-sub">Organise phases, deadlines and deliverables</div>
-                        </div>
-                        <button class="btn btn-primary" onclick="schOpenAddPhase()">
-                            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
-                            Add Phase
-                        </button>
-                    </div>
-
-                    <!-- Gantt timeline -->
-                    <div class="sched-gantt-wrap" id="sched-gantt"></div>
-
-                    <!-- Phase cards -->
-                    <div id="sched-phases"></div>
-
-                    <!-- Add-phase form footer -->
-                    <div id="sched-footer"></div>
-
-                </div>
-            </div>
 
         </div>
     </div>

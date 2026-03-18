@@ -768,7 +768,7 @@ function switchEditorTab(idx) {
       update3D();
     }, 60);
   }
-  if (idx === 6) renderSchedule();
+  if (idx === 1) renderSchedule();
 }
 
 
