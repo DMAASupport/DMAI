@@ -569,11 +569,11 @@ body::after {
 }
 
 .section-heading {
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-primary);
 }
 
 /* --- Projects Grid --- */
@@ -3023,11 +3023,38 @@ body[data-theme="light"] #theme-toggle {
 }
 
 /* ─── Section Heading Row ─────────────────────────────────── */
+@keyframes section-line-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 .section-heading-row {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  padding-bottom: var(--space-md);
   margin-bottom: var(--space-md);
+  position: relative;
+}
+
+.section-heading-row::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 212, 255, 0.6) 20%,
+    rgba(167, 139, 250, 0.7) 50%,
+    rgba(0, 212, 255, 0.6) 80%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: section-line-flow 4s ease-in-out infinite;
 }
 
 .section-count {
