@@ -1,7 +1,7 @@
-/* ─── Schedule Tab ────────────────────────────────────────────────────────── */
+/* ─── Schedule Section ──────────────────────────────────────────────────────── */
 
 .sched-container {
-  max-width: 1100px;
+  margin-top: var(--space-lg);
 }
 .sched-topbar {
   display: flex;
@@ -11,15 +11,15 @@
 }
 .sched-topbar-sub {
   font-size: 12px;
-  color: rgba(255,255,255,0.35);
+  color: var(--text-muted);
   margin-bottom: var(--space-lg);
   letter-spacing: 0.03em;
 }
 
 /* Gantt */
 .sched-gantt-wrap {
-  background: rgba(255,255,255,0.025);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 10px;
   padding: 16px 18px;
   margin-bottom: var(--space-xl);
@@ -39,25 +39,26 @@
 .sched-empty-title {
   font-size: 15px;
   font-weight: 600;
-  color: rgba(255,255,255,0.4);
+  color: var(--text-muted);
 }
 .sched-empty-sub {
   font-size: 12px;
-  color: rgba(255,255,255,0.22);
+  color: var(--text-muted);
+  opacity: 0.6;
   max-width: 300px;
   line-height: 1.6;
 }
 
 /* Phase card */
 .sched-phase {
-  background: var(--bg-card);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 10px;
   margin-bottom: 10px;
   overflow: hidden;
   transition: border-color 0.2s ease;
 }
-.sched-phase:hover { border-color: rgba(255,255,255,0.1); }
+.sched-phase:hover { border-color: var(--glass-border-hover); }
 
 .sched-phase-hdr {
   display: flex;
@@ -68,7 +69,7 @@
   user-select: none;
   gap: 12px;
 }
-.sched-phase-hdr:hover { background: rgba(255,255,255,0.02); }
+.sched-phase-hdr:hover { background: var(--glass-bg-hover); }
 
 .sched-phase-hdr-left {
   display: flex;
@@ -85,14 +86,14 @@
 .sched-phase-name {
   font-size: 13px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .sched-phase-dr {
   font-size: 11px;
-  color: rgba(255,255,255,0.35);
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
@@ -107,11 +108,11 @@
 .sched-prog { display: flex; align-items: center; gap: 6px; }
 .sched-prog-track {
   width: 64px; height: 4px;
-  background: rgba(255,255,255,0.08);
+  background: var(--glass-border);
   border-radius: 2px; overflow: hidden;
 }
 .sched-prog-fill { height: 100%; border-radius: 2px; transition: width 0.3s ease; }
-.sched-prog-lbl { font-size: 10px; color: rgba(255,255,255,0.4); white-space: nowrap; }
+.sched-prog-lbl { font-size: 10px; color: var(--text-muted); white-space: nowrap; }
 
 /* Status badge */
 .sched-badge {
@@ -119,31 +120,31 @@
   text-transform: uppercase; padding: 3px 7px; border-radius: 4px;
 }
 .sched-badge--active    { background: rgba(0,212,255,0.12);  color: #00d4ff; }
-.sched-badge--upcoming  { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); }
+.sched-badge--upcoming  { background: var(--glass-bg);        color: var(--text-muted); border: 1px solid var(--glass-border); }
 .sched-badge--completed { background: rgba(52,211,153,0.12);  color: #34d399; }
 
 /* Phase action buttons */
 .sched-phase-acts { display: flex; gap: 4px; }
 .sched-act-btn {
   background: none;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid var(--glass-border);
   border-radius: 6px;
   width: 26px; height: 26px;
   display: flex; align-items: center; justify-content: center;
-  color: rgba(255,255,255,0.35);
+  color: var(--text-muted);
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
-.sched-act-btn:hover { color: #fff; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+.sched-act-btn:hover { color: var(--text-primary); border-color: var(--glass-border-hover); background: var(--glass-bg-hover); }
 .sched-act-btn--del:hover { color: #ff6b8a; border-color: rgba(255,107,138,0.3); background: rgba(255,107,138,0.06); }
 
-.sched-chevron { color: rgba(255,255,255,0.25); transition: transform 0.2s ease; flex-shrink: 0; }
+.sched-chevron { color: var(--text-muted); transition: transform 0.2s ease; flex-shrink: 0; opacity: 0.6; }
 .sched-phase--col .sched-chevron { transform: rotate(-90deg); }
 
 /* Phase body */
 .sched-phase-body {
   padding: 4px 16px 12px;
-  border-top: 1px solid rgba(255,255,255,0.04);
+  border-top: 1px solid var(--glass-border);
 }
 .sched-body--col { display: none; }
 
@@ -153,7 +154,7 @@
   padding: 7px 8px; border-radius: 7px;
   transition: background 0.12s ease;
 }
-.sched-task:hover { background: rgba(255,255,255,0.03); }
+.sched-task:hover { background: var(--glass-bg-hover); }
 .sched-task:hover .sched-task-del { opacity: 1; }
 .sched-task--overdue { background: rgba(255,107,138,0.04); }
 .sched-task--soon    { background: rgba(251,191,36,0.04);  }
@@ -163,7 +164,7 @@
 .sched-cb input { position: absolute; opacity: 0; width: 0; height: 0; }
 .sched-cbmark {
   position: absolute; inset: 0;
-  border: 1.5px solid rgba(255,255,255,0.2);
+  border: 1.5px solid var(--glass-border-hover);
   border-radius: 4px; background: transparent;
   transition: background 0.15s, border-color 0.15s;
 }
@@ -176,20 +177,20 @@
 }
 
 .sched-task-name {
-  flex: 1; font-size: 12px; color: rgba(255,255,255,0.8);
+  flex: 1; font-size: 12px; color: var(--text-secondary);
   min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.sched-task-struck { text-decoration: line-through; color: rgba(255,255,255,0.28); }
+.sched-task-struck { text-decoration: line-through; color: var(--text-muted); opacity: 0.5; }
 
 .sched-task-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.sched-due { font-size: 10px; color: rgba(255,255,255,0.3); white-space: nowrap; }
+.sched-due { font-size: 10px; color: var(--text-muted); white-space: nowrap; }
 .sched-due--over { color: #ff6b8a; font-weight: 600; }
 .sched-due--soon { color: #fbbf24; font-weight: 600; }
 .sched-prio { font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.75; }
 
 .sched-task-del {
   background: none; border: none;
-  color: rgba(255,255,255,0.2); cursor: pointer;
+  color: var(--text-muted); cursor: pointer;
   padding: 2px; border-radius: 4px;
   opacity: 0; transition: color 0.12s, opacity 0.12s;
   display: flex; align-items: center;
@@ -200,24 +201,24 @@
 .sched-add-task-row {
   display: flex; align-items: center; gap: 6px;
   padding: 6px 8px;
-  background: rgba(255,255,255,0.03);
+  background: var(--glass-bg);
   border-radius: 7px; margin: 6px 0 4px; flex-wrap: wrap;
 }
 .sched-add-task-btn {
   display: flex; align-items: center; gap: 6px;
   background: none; border: none;
-  color: rgba(255,255,255,0.25);
+  color: var(--text-muted);
   font-size: 11px; font-weight: 500; letter-spacing: 0.04em;
   cursor: pointer; padding: 6px 8px; border-radius: 6px; margin-top: 2px;
   transition: color 0.15s, background 0.15s;
 }
-.sched-add-task-btn:hover { color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.04); }
+.sched-add-task-btn:hover { color: var(--text-secondary); background: var(--glass-bg-hover); }
 
 /* Shared inputs */
 .sched-inp {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px; color: #fff;
+  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px; color: var(--text-primary);
   font-size: 12px; font-family: 'Inter', sans-serif;
   padding: 6px 10px; outline: none;
   transition: border-color 0.15s; flex: 1; min-width: 0;
@@ -225,13 +226,13 @@
 .sched-inp:focus { border-color: rgba(0,212,255,0.5); }
 .sched-inp--date { flex: 0 0 auto; width: 136px; }
 .sched-inp--lg   { width: 100%; box-sizing: border-box; }
-.sched-inp::placeholder { color: rgba(255,255,255,0.2); }
+.sched-inp::placeholder { color: var(--text-muted); opacity: 0.6; }
 .sched-inp[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
 
 .sched-sel {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px; color: rgba(255,255,255,0.7);
+  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px; color: var(--text-secondary);
   font-size: 11px; font-family: 'Inter', sans-serif;
   padding: 6px 8px; outline: none; cursor: pointer; flex: 0 0 auto; width: 90px;
 }
@@ -245,7 +246,7 @@
 .sched-btn-add:hover { opacity: 0.85; }
 
 .sched-btn-x {
-  background: none; border: none; color: rgba(255,255,255,0.3);
+  background: none; border: none; color: var(--text-muted);
   cursor: pointer; font-size: 13px; padding: 4px 6px;
   border-radius: 4px; transition: color 0.12s;
 }
@@ -253,19 +254,19 @@
 
 /* Phase add/edit form */
 .sched-phase-form {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 10px; padding: 20px; margin-bottom: 10px;
 }
 .sched-form-hd {
   font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
-  text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 14px;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px;
 }
 .sched-form-dates { display: flex; gap: 12px; margin: 12px 0; }
 .sched-form-field { display: flex; flex-direction: column; gap: 5px; }
 .sched-form-field label, .sched-color-row label {
   font-size: 10px; font-weight: 500; letter-spacing: 0.1em;
-  text-transform: uppercase; color: rgba(255,255,255,0.3);
+  text-transform: uppercase; color: var(--text-muted);
 }
 
 /* Color swatches */
@@ -276,7 +277,7 @@
   border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s;
 }
 .sched-swatch:hover  { transform: scale(1.15); }
-.sched-swatch--on    { border-color: #fff; transform: scale(1.15); }
+.sched-swatch--on    { border-color: var(--text-primary); transform: scale(1.15); }
 
 .sched-form-acts {
   display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;

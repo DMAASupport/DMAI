@@ -71,6 +71,13 @@ function renderGantt(phases) {
   const wrap = document.getElementById('sched-gantt');
   if (!wrap) return;
 
+  // Read theme-aware colors at render time
+  const cs = getComputedStyle(document.documentElement);
+  const clrGrid   = cs.getPropertyValue('--glass-border').trim()  || 'rgba(128,128,128,0.15)';
+  const clrLabel  = cs.getPropertyValue('--text-muted').trim()    || 'rgba(128,128,128,0.6)';
+  const clrToday  = cs.getPropertyValue('--text-secondary').trim()|| 'rgba(128,128,128,0.8)';
+  const clrTaskDot= cs.getPropertyValue('--text-muted').trim()    || 'rgba(128,128,128,0.5)';
+
   const dated = phases.filter(p => p.startDate || p.endDate);
   if (!dated.length) { wrap.innerHTML = ''; return; }
 
@@ -106,8 +113,8 @@ function renderGantt(phases) {
   // Month grid
   months.forEach((m, i) => {
     const x = xAt(m).toFixed(1);
-    s += `<line x1="${x}" y1="${HDR}" x2="${x}" y2="${H}" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>`;
-    s += `<text x="${(+x + 4).toFixed(1)}" y="17" font-size="8.5" fill="rgba(255,255,255,0.28)" font-family="Inter,sans-serif" font-weight="500">${schFmtMon(m)}</text>`;
+    s += `<line x1="${x}" y1="${HDR}" x2="${x}" y2="${H}" stroke="${clrGrid}" stroke-width="1"/>`;
+    s += `<text x="${(+x + 4).toFixed(1)}" y="17" font-size="8.5" fill="${clrLabel}" font-family="Inter,sans-serif" font-weight="500">${schFmtMon(m)}</text>`;
   });
 
   // Phase rows
@@ -146,7 +153,7 @@ function renderGantt(phases) {
       const dc = task.done ? '#34d399'
                : schTaskStatus(task) === 'overdue' ? '#ff6b8a'
                : schTaskStatus(task) === 'soon'    ? '#fbbf24'
-               : 'rgba(255,255,255,0.3)';
+               : clrTaskDot;
       s += `<circle cx="${tx.toFixed(1)}" cy="${(y + bh / 2).toFixed(1)}" r="2.5" fill="${dc}" opacity="0.9"/>`;
     });
   });
@@ -154,9 +161,9 @@ function renderGantt(phases) {
   // Today marker
   if (todayX >= 0 && todayX <= W) {
     const tx = todayX.toFixed(1);
-    s += `<line x1="${tx}" y1="${HDR}" x2="${tx}" y2="${H}" stroke="rgba(255,255,255,0.45)" stroke-width="1" stroke-dasharray="3,2"/>`;
-    s += `<circle cx="${tx}" cy="${HDR}" r="3" fill="rgba(255,255,255,0.55)"/>`;
-    s += `<text x="${(+tx + 4).toFixed(1)}" y="17" font-size="7.5" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-weight="600">TODAY</text>`;
+    s += `<line x1="${tx}" y1="${HDR}" x2="${tx}" y2="${H}" stroke="${clrToday}" stroke-width="1" stroke-dasharray="3,2"/>`;
+    s += `<circle cx="${tx}" cy="${HDR}" r="3" fill="${clrToday}"/>`;
+    s += `<text x="${(+tx + 4).toFixed(1)}" y="17" font-size="7.5" fill="${clrToday}" font-family="Inter,sans-serif" font-weight="600">TODAY</text>`;
   }
 
   s += '</svg>';
