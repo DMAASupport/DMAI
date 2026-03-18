@@ -2453,8 +2453,8 @@ body::after {
 [data-theme="light"] #theme-toggle .icon-sun  { display: block; }
 [data-theme="light"] #theme-toggle .icon-moon { display: none; }
 
-/* ─── Light Theme Token Overrides ─────────────────────────── */
-[data-theme="light"] {
+/* ─── Light Theme — CSS variable overrides (on body itself) ── */
+body[data-theme="light"] {
   --bg-primary:         #eef0f6;
   --bg-secondary:       #ffffff;
   --bg-elevated:        #ffffff;
@@ -2462,39 +2462,59 @@ body::after {
   --text-primary:       #1a1b25;
   --text-secondary:     rgba(26, 27, 37, 0.78);
   --text-muted:         rgba(26, 27, 37, 0.50);
-  --glass-bg:           rgba(255, 255, 255, 0.72);
-  --glass-bg-hover:     rgba(255, 255, 255, 0.88);
+  --glass-bg:           rgba(255, 255, 255, 0.80);
+  --glass-bg-hover:     rgba(255, 255, 255, 0.95);
   --glass-border:       rgba(0, 0, 0, 0.10);
   --glass-border-hover: rgba(0, 0, 0, 0.20);
-  --glass-shadow:       0 8px 32px rgba(0, 0, 0, 0.12);
+  --glass-shadow:       0 4px 24px rgba(0, 0, 0, 0.10);
+
+  /* Light body background — overrides the hardcoded dark gradient */
+  background: #f0f2f8 !important;
+  color: var(--text-primary);
 }
 
-/* Light mode: body uses soft light background */
-[data-theme="light"] body {
-  background: linear-gradient(40deg, #dde1f0, #eef0f8);
+/* Hide animated dark orbs in light mode */
+body[data-theme="light"] #bg-orbs {
+  display: none !important;
 }
 
-/* Light mode: hide orbs (hard-light doesn't work on light bg) */
-[data-theme="light"] #bg-orbs {
+/* Hide dark noise overlay in light mode */
+body[data-theme="light"]::after {
   display: none;
 }
 
-/* Light mode: top-bar and editor bars need a solid readable bg */
-[data-theme="light"] .top-bar,
-[data-theme="light"] .editor-top-bar,
-[data-theme="light"] .tender-top-bar {
-  background: rgba(238, 240, 248, 0.88);
-  border-bottom-color: rgba(0, 0, 0, 0.10);
+/* Top bars — clean white glass */
+body[data-theme="light"] .top-bar,
+body[data-theme="light"] .editor-top-bar,
+body[data-theme="light"] .tender-top-bar {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(20px);
 }
 
-/* Light mode: project card borders visible */
-[data-theme="light"] .project-card {
-  border-top-color: rgba(0, 212, 255, 0.20);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+/* Cards — white frosted glass with soft shadow */
+body[data-theme="light"] .project-card {
+  background: rgba(255, 255, 255, 0.80) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-top: 1px solid rgba(0, 212, 255, 0.25) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-[data-theme="light"] .project-card:hover {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0, 212, 255, 0.20);
+body[data-theme="light"] .project-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 212, 255, 0.25);
+}
+
+/* Section titles and text */
+body[data-theme="light"] .section-title,
+body[data-theme="light"] .project-card-name,
+body[data-theme="light"] .project-card-meta {
+  color: var(--text-primary);
+}
+
+/* Editor top-bar brand area */
+body[data-theme="light"] .editor-wordmark-title .wm-dm {
+  color: #1a1b25;
+  -webkit-text-fill-color: #1a1b25;
 }
 
 /* ─── Project Management Section ─────────────────────────── */
