@@ -540,11 +540,20 @@ body::after {
   min-width: 0;
 }
 
+/* Globe + title row: pull left so h1 aligns with ONGOING / PAST headings */
+.dashboard-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: -60px;         /* -(46px button + 14px gap) */
+  margin-bottom: var(--space-sm);
+}
+
 .dashboard-header h1 {
   font-size: 32px;
   font-weight: 700;
   letter-spacing: -0.5px;
-  margin-bottom: var(--space-sm);
+  margin-bottom: 0;
   background: linear-gradient(to right, #ffffff 0%, #8892b0 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -3919,7 +3928,6 @@ body[data-theme="light"] #theme-toggle {
 /* FAB — globe icon, stacked above bot FAB */
 #wm-fab {
   position: static;
-  margin-top: 3px;
   width: 46px;
   height: 46px;
   border-radius: 50%;
