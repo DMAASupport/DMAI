@@ -2519,6 +2519,8 @@ window.addEventListener('DOMContentLoaded', () => {
   renderDashboard();
   initGalleryDrop();
   if (typeof initBriefDrop === 'function') initBriefDrop();
+  initBotDrag();
+  initBotAutoOpen();
 
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {
@@ -2548,20 +2550,92 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// ─── DMAA Assistant Bot (local rule-based) ─────────────────
-let botOpen  = false;
+// ─── DMAI Assistant Bot (local rule-based) ─────────────────
+let botOpen   = false;
 let botInited = false;
+
+// ── Drag state ─────────────────────────────────────────────
+let botDragging      = false;
+let botDragOffset    = { x: 0, y: 0 };
+let botHasBeenDragged = false;
 
 function toggleBot() {
   botOpen = !botOpen;
   document.getElementById('dmaa-bot-panel').classList.toggle('bot-panel--open', botOpen);
   if (botOpen && !botInited) { botInit(); botInited = true; }
-  if (botOpen) setTimeout(() => document.getElementById('bot-input')?.focus(), 250);
+  if (botOpen) setTimeout(() => document.getElementById('bot-input')?.focus(), 280);
 }
 
 function botInit() {
   appendBotMessage('assistant',
-    'Hi! I\'m the DMAA Assistant.\n\nAsk me about your projects:\n- "List all projects"\n- "Show ongoing projects"\n- "Tell me about ga8 Frankfurt"\n- "What\'s the GFA of AI Campus?"\n- "Open AI Campus"\n- "Show residential projects"');
+    'Hello — I\'m DMAI.\n\nYour intelligent architectural companion. I have full access to your project portfolio.\n\nTry asking:\n— "Show all ongoing projects"\n— "What is the GFA of AI Campus?"\n— "Open NEOM project"');
+}
+
+// ── Auto-open after intro ───────────────────────────────────
+function openBotWithGreeting() {
+  if (botOpen) return;
+  botInited = true; // skip default botInit
+  toggleBot();
+  setTimeout(() => {
+    appendBotMessage('assistant',
+      'Hello — I\'m DMAI.\n\nYour intelligent architectural companion, always here with you.\n\nI have full access to your project portfolio. Try asking:\n— "Show all ongoing projects"\n— "What is the GFA of AI Campus?"\n— "Open NEOM project"');
+    document.getElementById('bot-status-line').textContent = 'Always with you';
+  }, 750);
+}
+
+function initBotAutoOpen() {
+  const overlay = document.getElementById('intro-overlay');
+  if (!overlay) { setTimeout(openBotWithGreeting, 600); return; }
+  const obs = new MutationObserver(mutations => {
+    for (const m of mutations) {
+      for (const node of m.removedNodes) {
+        if (node.id === 'intro-overlay') {
+          obs.disconnect();
+          setTimeout(openBotWithGreeting, 1400);
+          return;
+        }
+      }
+    }
+  });
+  obs.observe(document.body, { childList: true });
+}
+
+// ── Drag to move ────────────────────────────────────────────
+function initBotDrag() {
+  const panel  = document.getElementById('dmaa-bot-panel');
+  const header = panel?.querySelector('.bot-header');
+  if (!header) return;
+
+  header.addEventListener('mousedown', e => {
+    if (e.target.closest('button')) return;
+    botDragging = true;
+    const rect = panel.getBoundingClientRect();
+    botDragOffset.x = e.clientX - rect.left;
+    botDragOffset.y = e.clientY - rect.top;
+    panel.style.transition = 'opacity 0.22s ease';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!botDragging) return;
+    if (!botHasBeenDragged) {
+      botHasBeenDragged = true;
+      const rect = panel.getBoundingClientRect();
+      panel.style.top  = rect.top  + 'px';
+      panel.style.left = rect.left + 'px';
+      panel.classList.add('bot-panel--dragged');
+    }
+    const x = e.clientX - botDragOffset.x;
+    const y = e.clientY - botDragOffset.y;
+    panel.style.left = Math.max(0, Math.min(x, window.innerWidth  - panel.offsetWidth))  + 'px';
+    panel.style.top  = Math.max(0, Math.min(y, window.innerHeight - panel.offsetHeight)) + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!botDragging) return;
+    botDragging = false;
+    panel.style.transition = '';
+  });
 }
 
 function botKeyDown(e) { if (e.key === 'Enter') sendBotMessage(); }

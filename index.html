@@ -7,7 +7,8 @@
     <meta name="description" content="DMAA Architectural Program Configurator for concept design phase. Configure spatial programs, benchmarks, and 3D module catalogs.">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="logos/DMAA_black.png">
+    <link rel="icon" type="image/png" href="Logos/DMAA_black.png">
+    <link rel="apple-touch-icon" href="Logos/DMAA_black.png">
 
     <!-- Styles -->
     <link rel="stylesheet" href="css/styles.css?v=23">
@@ -855,26 +856,44 @@
 
 
 <!-- ─── DMAA Assistant Bot ──────────────────────────────── -->
-<div id="dmaa-bot-fab" onclick="toggleBot()" title="DMAA Assistant">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-    <line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/>
-  </svg>
+<div id="dmaa-bot-fab" onclick="toggleBot()" title="DMAI Assistant">
+  <div class="bot-fab-orb">
+    <div class="bot-fab-ring bot-fab-ring--1"></div>
+    <div class="bot-fab-ring bot-fab-ring--2"></div>
+    <div class="bot-fab-ring bot-fab-ring--3"></div>
+    <svg class="bot-fab-core-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round">
+      <circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/>
+      <circle cx="5.5" cy="7"  r="1.5" fill="currentColor" stroke="none" opacity="0.72"/>
+      <circle cx="18.5" cy="7"  r="1.5" fill="currentColor" stroke="none" opacity="0.72"/>
+      <circle cx="5.5" cy="17" r="1.5" fill="currentColor" stroke="none" opacity="0.72"/>
+      <circle cx="18.5" cy="17" r="1.5" fill="currentColor" stroke="none" opacity="0.72"/>
+      <line x1="12" y1="12" x2="5.5"  y2="7"  stroke-width="0.8" opacity="0.45"/>
+      <line x1="12" y1="12" x2="18.5" y2="7"  stroke-width="0.8" opacity="0.45"/>
+      <line x1="12" y1="12" x2="5.5"  y2="17" stroke-width="0.8" opacity="0.45"/>
+      <line x1="12" y1="12" x2="18.5" y2="17" stroke-width="0.8" opacity="0.45"/>
+    </svg>
+  </div>
 </div>
 
 <div id="dmaa-bot-panel" class="bot-panel">
   <div class="bot-header">
     <div class="bot-header-info">
       <div class="bot-avatar">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12"   cy="12" r="2.5" fill="rgba(255,255,255,0.95)"/>
+          <circle cx="5.5"  cy="7"  r="1.4" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="18.5" cy="7"  r="1.4" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="5.5"  cy="17" r="1.4" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="18.5" cy="17" r="1.4" fill="rgba(255,255,255,0.65)"/>
+          <line x1="12" y1="12" x2="5.5"  y2="7"  stroke="rgba(255,255,255,0.42)" stroke-width="0.9"/>
+          <line x1="12" y1="12" x2="18.5" y2="7"  stroke="rgba(255,255,255,0.42)" stroke-width="0.9"/>
+          <line x1="12" y1="12" x2="5.5"  y2="17" stroke="rgba(255,255,255,0.42)" stroke-width="0.9"/>
+          <line x1="12" y1="12" x2="18.5" y2="17" stroke="rgba(255,255,255,0.42)" stroke-width="0.9"/>
         </svg>
       </div>
       <div>
-        <div class="bot-name">DMAA Assistant</div>
-        <div class="bot-status-line" id="bot-status-line">Ask me about your projects</div>
+        <div class="bot-name">DMAI Assistant</div>
+        <div class="bot-status-line" id="bot-status-line">Architectural intelligence</div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:4px">
