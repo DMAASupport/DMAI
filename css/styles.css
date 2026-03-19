@@ -3345,15 +3345,15 @@ body[data-theme="light"] #theme-toggle {
   height: 70px;
   border-radius: 50%;
   background: rgba(8, 12, 22, 0.88);
-  border: 1.5px solid rgba(255, 72, 72, 0.45);
+  border: 1.5px solid rgba(251, 146, 60, 0.45);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 72, 72, 0.96);
-  box-shadow: 0 0 22px rgba(255, 72, 72, 0.40), 0 0 54px rgba(255, 72, 72, 0.14), 0 6px 26px rgba(0,0,0,0.65);
+  color: rgba(251, 146, 60, 0.96);
+  box-shadow: 0 0 22px rgba(251, 146, 60, 0.40), 0 0 54px rgba(251, 146, 60, 0.14), 0 6px 26px rgba(0,0,0,0.65);
   transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease, filter 0.2s ease, border-color 0.2s ease;
   animation: bot-fab-idle 3s ease-in-out infinite;
 }
@@ -3361,19 +3361,19 @@ body[data-theme="light"] #theme-toggle {
 #dmaa-bot-fab:hover {
   transform: scale(1.08);
   filter: brightness(1.22);
-  box-shadow: 0 0 40px rgba(255, 72, 72, 0.70), 0 0 80px rgba(255, 72, 72, 0.24), 0 6px 26px rgba(0,0,0,0.65);
-  border-color: rgba(255, 72, 72, 0.78);
+  box-shadow: 0 0 40px rgba(251, 146, 60, 0.70), 0 0 80px rgba(251, 146, 60, 0.24), 0 6px 26px rgba(0,0,0,0.65);
+  border-color: rgba(251, 146, 60, 0.78);
   animation: none;
 }
 
 @keyframes bot-fab-idle {
   0%, 100% {
-    box-shadow: 0 0 22px rgba(255, 72, 72, 0.40), 0 0 54px rgba(255, 72, 72, 0.14), 0 6px 26px rgba(0,0,0,0.65);
-    border-color: rgba(255, 72, 72, 0.45);
+    box-shadow: 0 0 22px rgba(251, 146, 60, 0.40), 0 0 54px rgba(251, 146, 60, 0.14), 0 6px 26px rgba(0,0,0,0.65);
+    border-color: rgba(251, 146, 60, 0.45);
   }
   50% {
-    box-shadow: 0 0 36px rgba(255, 72, 72, 0.62), 0 0 80px rgba(255, 72, 72, 0.26), 0 6px 26px rgba(0,0,0,0.65);
-    border-color: rgba(255, 72, 72, 0.72);
+    box-shadow: 0 0 36px rgba(251, 146, 60, 0.62), 0 0 80px rgba(251, 146, 60, 0.26), 0 6px 26px rgba(0,0,0,0.65);
+    border-color: rgba(251, 146, 60, 0.72);
   }
 }
 
@@ -3391,7 +3391,7 @@ body[data-theme="light"] #theme-toggle {
 .bot-fab-ring {
   position: absolute;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 72, 72, 0.58);
+  border: 1.5px solid rgba(251, 146, 60, 0.58);
   width: 34px;
   height: 34px;
   animation: bot-ring-pulse 2.5s ease-out infinite;
@@ -3404,7 +3404,7 @@ body[data-theme="light"] #theme-toggle {
   position: relative;
   z-index: 1;
   flex-shrink: 0;
-  filter: drop-shadow(0 0 5px rgba(255, 72, 72, 0.65));
+  filter: drop-shadow(0 0 5px rgba(251, 146, 60, 0.65));
 }
 
 @keyframes bot-ring-pulse {
@@ -3465,19 +3465,46 @@ body[data-theme="light"] #theme-toggle {
   gap: 12px;
 }
 
-.bot-avatar {
+/* Avatar wrapper holds the pulsing rings */
+.bot-avatar-wrap {
+  position: relative;
   width: 38px;
   height: 38px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lavender));
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.bot-avatar-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(251, 146, 60, 0.52);
+  width: 38px;
+  height: 38px;
+  pointer-events: none;
+  animation: bot-avatar-ring-pulse 2.5s ease-out infinite;
+}
+.bot-avatar-ring--2 { animation-delay: 1.25s; }
+
+@keyframes bot-avatar-ring-pulse {
+  0%   { transform: scale(0.5);  opacity: 0.85; }
+  100% { transform: scale(1.75); opacity: 0;    }
+}
+
+.bot-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.95), rgba(255, 190, 80, 0.85));
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 0 14px rgba(0, 212, 255, 0.38);
+  box-shadow: 0 0 14px rgba(251, 146, 60, 0.42);
   animation: bot-avatar-breathe 3s ease-in-out infinite;
+  z-index: 1;
 }
 
 .bot-avatar::before {
@@ -3490,8 +3517,8 @@ body[data-theme="light"] #theme-toggle {
 }
 
 @keyframes bot-avatar-breathe {
-  0%, 100% { box-shadow: 0 0 14px rgba(0, 212, 255, 0.38); }
-  50%       { box-shadow: 0 0 24px rgba(0, 212, 255, 0.62), 0 0 8px rgba(167, 139, 250, 0.4); }
+  0%, 100% { box-shadow: 0 0 14px rgba(251, 146, 60, 0.42); }
+  50%       { box-shadow: 0 0 24px rgba(251, 146, 60, 0.68), 0 0 8px rgba(255, 190, 80, 0.4); }
 }
 
 .bot-name {
@@ -4146,8 +4173,8 @@ body[data-theme="light"] #theme-toggle {
 /* ─── Vienna Digital Model FAB ──────────────────────────── */
 #vienna-fab {
   position: fixed;
-  right: 0;
-  top: 64px;
+  left: 24px;
+  bottom: 76px;
   z-index: 400;
   text-decoration: none;
   outline: none;
@@ -4158,14 +4185,12 @@ body[data-theme="light"] #theme-toggle {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
   padding: 11px 18px;
   background: rgba(8, 10, 20, 0.82);
   border: 1px solid rgba(52, 211, 153, 0.28);
-  border-right: none;
-  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  border-radius: var(--radius-md);
   backdrop-filter: var(--glass-blur);
-  box-shadow: -3px 0 20px rgba(52, 211, 153, 0.18), 0 4px 32px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 20px rgba(52, 211, 153, 0.18), 0 6px 32px rgba(0, 0, 0, 0.45);
   color: rgba(52, 211, 153, 0.82);
   transition: transform 0.28s var(--ease-spring),
               box-shadow 0.28s ease,
@@ -4176,9 +4201,9 @@ body[data-theme="light"] #theme-toggle {
 }
 
 #vienna-fab:hover .vienna-fab-inner {
-  transform: translateX(-7px);
+  transform: translateY(-4px);
   background: rgba(8, 10, 20, 0.96);
-  box-shadow: -6px 0 36px rgba(52, 211, 153, 0.50), 0 4px 32px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 8px 36px rgba(52, 211, 153, 0.50), 0 6px 32px rgba(0, 0, 0, 0.55);
   border-color: rgba(52, 211, 153, 0.65);
   color: rgba(52, 211, 153, 1);
   animation: none;
@@ -4199,8 +4224,8 @@ body[data-theme="light"] #theme-toggle {
 }
 
 @keyframes vienna-glow {
-  0%, 100% { box-shadow: -3px 0 20px rgba(52, 211, 153, 0.18), 0 4px 32px rgba(0, 0, 0, 0.45); }
-  50%       { box-shadow: -3px 0 30px rgba(52, 211, 153, 0.36), 0 4px 32px rgba(0, 0, 0, 0.45); }
+  0%, 100% { box-shadow: 0 4px 20px rgba(52, 211, 153, 0.18), 0 6px 32px rgba(0, 0, 0, 0.45); }
+  50%       { box-shadow: 0 4px 30px rgba(52, 211, 153, 0.36), 0 6px 32px rgba(0, 0, 0, 0.45); }
 }
 
 body[data-theme="light"] #vienna-fab .vienna-fab-inner {
