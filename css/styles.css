@@ -4072,9 +4072,8 @@ body[data-theme="light"] #theme-toggle {
 /* ─── Vienna Digital Model FAB ──────────────────────────── */
 #vienna-fab {
   position: fixed;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 0;
+  top: 64px;
   z-index: 400;
   text-decoration: none;
   outline: none;
@@ -4083,18 +4082,17 @@ body[data-theme="light"] #theme-toggle {
 
 .vienna-fab-inner {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 9px;
-  padding: 20px 12px;
+  gap: 10px;
+  padding: 11px 18px;
   background: rgba(8, 10, 20, 0.82);
   border: 1px solid rgba(167, 139, 250, 0.26);
-  border-left: none;
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-right: none;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
   backdrop-filter: var(--glass-blur);
-  box-shadow: 3px 0 20px rgba(167, 139, 250, 0.16), 0 4px 32px rgba(0, 0, 0, 0.45);
+  box-shadow: -3px 0 20px rgba(167, 139, 250, 0.16), 0 4px 32px rgba(0, 0, 0, 0.45);
   color: rgba(167, 139, 250, 0.78);
-  transform: translateX(0);
   transition: transform 0.28s var(--ease-spring),
               box-shadow 0.28s ease,
               background 0.28s ease,
@@ -4104,9 +4102,9 @@ body[data-theme="light"] #theme-toggle {
 }
 
 #vienna-fab:hover .vienna-fab-inner {
-  transform: translateX(7px);
+  transform: translateX(-7px);
   background: rgba(8, 10, 20, 0.96);
-  box-shadow: 6px 0 36px rgba(167, 139, 250, 0.48), 0 4px 32px rgba(0, 0, 0, 0.55);
+  box-shadow: -6px 0 36px rgba(167, 139, 250, 0.48), 0 4px 32px rgba(0, 0, 0, 0.55);
   border-color: rgba(167, 139, 250, 0.62);
   color: rgba(167, 139, 250, 1);
   animation: none;
@@ -4116,39 +4114,29 @@ body[data-theme="light"] #theme-toggle {
   flex-shrink: 0;
 }
 
-.vienna-fab-divider {
-  width: 16px;
-  height: 1px;
-  background: rgba(167, 139, 250, 0.22);
-  flex-shrink: 0;
-}
-
 .vienna-fab-text {
-  writing-mode: vertical-lr;
-  text-orientation: mixed;
-  transform: rotate(180deg);
   font-family: var(--font);
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: inherit;
-  line-height: 1;
+  white-space: nowrap;
 }
 
 @keyframes vienna-glow {
-  0%, 100% { box-shadow: 3px 0 20px rgba(167, 139, 250, 0.16), 0 4px 32px rgba(0, 0, 0, 0.45); }
-  50%       { box-shadow: 3px 0 30px rgba(167, 139, 250, 0.32), 0 4px 32px rgba(0, 0, 0, 0.45); }
+  0%, 100% { box-shadow: -3px 0 20px rgba(167, 139, 250, 0.16), 0 4px 32px rgba(0, 0, 0, 0.45); }
+  50%       { box-shadow: -3px 0 30px rgba(167, 139, 250, 0.32), 0 4px 32px rgba(0, 0, 0, 0.45); }
 }
 
 body[data-theme="light"] #vienna-fab .vienna-fab-inner {
   background: rgba(255, 255, 255, 0.85) !important;
   border-color: rgba(124, 58, 237, 0.25) !important;
   color: #7c3aed !important;
-  box-shadow: 3px 0 18px rgba(124, 58, 237, 0.15), 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: -3px 0 18px rgba(124, 58, 237, 0.15), 0 4px 20px rgba(0, 0, 0, 0.12) !important;
 }
 body[data-theme="light"] #vienna-fab:hover .vienna-fab-inner {
   background: rgba(255, 255, 255, 0.98) !important;
   border-color: rgba(124, 58, 237, 0.50) !important;
-  box-shadow: 6px 0 28px rgba(124, 58, 237, 0.30), 0 4px 20px rgba(0, 0, 0, 0.18) !important;
+  box-shadow: -6px 0 28px rgba(124, 58, 237, 0.30), 0 4px 20px rgba(0, 0, 0, 0.18) !important;
 }
