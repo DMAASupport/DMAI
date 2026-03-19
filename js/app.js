@@ -190,6 +190,86 @@ const Store = {
         { id: 's581-4', name: 'Hanging Plan',         dataUrl: 'images/581/haengeplan.jpg' }
       ],
       createdAt: '2025-12-01'
+    },
+    {
+      id: 'proj-550',
+      projectCode: '550',
+      name: 'South Shanghai Sports Center',
+      client: 'Fengxian District, Shanghai',
+      typology: 'Sports Complex',
+      status: 'past',
+      occupantLabel: 'Visitors',
+      location: { city: 'Shanghai', country: 'China' },
+      competitionType: 'invited-competition',
+      employees: 10000,
+      gfaPerEmp: 13,
+      benchmark: 'custom',
+      siteArea: 185000,
+      notes: 'Invited competition for Fengxian District, Shanghai. Large-scale sports complex anchored by a 30,000-seat main arena and a 2,500-seat swimming arena. Total GFA 134,055 m². Features underground parking (44,000 m²), youth training facilities, outdoor fitness plaza, and sports-related commercial uses. Designed for major regional athletics events and everyday community sport.',
+      projectManagement: {
+        result: 'competition',
+        constructionCost: 0, designFee: 0, competitionPrize: 0,
+        dates: { briefDate: '2023-01-01', submissionDate: '2023-06-01', resultDate: '2023-09-01', constructionStart: '', constructionEnd: '' },
+        team:  { partner: '', architect: '', teamSize: '', totalHours: '' }
+      },
+      programs: [
+        { id: 'main-arena',      name: 'Main Arena',            color: '#00d4ff', share: 32, dims: { l: 160, w: 130, h: 35 }, isSurface: false, locked: false, nFloors: 4 },
+        { id: 'swimming-arena',  name: 'Swimming Arena',        color: '#a78bfa', share:  8, dims: { l: 70,  w: 60,  h: 18 }, isSurface: false, locked: false, nFloors: 2 },
+        { id: 'outdoor-fitness', name: 'Outdoor Fitness Plaza', color: '#34d399', share: 15, dims: null,                      isSurface: true,  locked: false, nFloors: 1 },
+        { id: 'youth-training',  name: 'Youth Training Center', color: '#fbbf24', share:  7, dims: { l: 80,  w: 60,  h: 12 }, isSurface: false, locked: false, nFloors: 3 },
+        { id: 'parking',         name: 'Underground Parking',   color: '#60a5fa', share: 33, dims: { l: 220, w: 100, h: 4  }, isSurface: false, locked: false, nFloors: 2 },
+        { id: 'commercial',      name: 'Sports Commercial',     color: '#fb923c', share:  5, dims: { l: 60,  w: 40,  h: 5  }, isSurface: false, locked: false, nFloors: 2 }
+      ],
+      seedImages: [
+        { id: 's550-1', name: 'Aerial Day View',     dataUrl: 'images/550/aerial_day.jpg' },
+        { id: 's550-2', name: 'Aerial Night View',   dataUrl: 'images/550/aerial_night.jpg' },
+        { id: 's550-3', name: 'Main Entrance',       dataUrl: 'images/550/entrance.jpg' },
+        { id: 's550-4', name: 'Main Arena',          dataUrl: 'images/550/arena.jpg' },
+        { id: 's550-5', name: 'Swimming Pool',       dataUrl: 'images/550/pool.jpg' },
+        { id: 's550-6', name: 'Street Level',        dataUrl: 'images/550/street.jpg' },
+        { id: 's550-7', name: 'North Elevation',     dataUrl: 'images/550/elevation_north.jpg' }
+      ],
+      createdAt: '2023-09-01'
+    },
+    {
+      id: 'proj-420',
+      projectCode: '420',
+      name: 'Greenhouse Shanghai',
+      client: 'Shanghai Expo Culture Park',
+      typology: 'Botanical Garden / Greenhouse',
+      status: 'past',
+      occupantLabel: 'Visitors',
+      location: { city: 'Shanghai', country: 'China' },
+      competitionType: 'invited-competition',
+      employees: 3000,
+      gfaPerEmp: 10,
+      benchmark: 'custom',
+      siteArea: 42000,
+      notes: 'Invited competition for the Shanghai Expo Culture Park. A botanical greenhouse complex comprising five distinct climate pavilions — Entrance, Arid Desert, Natural Rainforest, Cloud Garden, and Flower Tower — connected by a continuous circulation path and set within a landscaped outdoor environment. Total GFA ~30,000 m².',
+      projectManagement: {
+        result: 'competition',
+        constructionCost: 0, designFee: 0, competitionPrize: 0,
+        dates: { briefDate: '2018-01-01', submissionDate: '2018-06-01', resultDate: '2018-09-01', constructionStart: '', constructionEnd: '' },
+        team:  { partner: '', architect: '', teamSize: '', totalHours: '' }
+      },
+      programs: [
+        { id: 'entrance',   name: 'Entrance Pavilion',    color: '#00d4ff', share: 15, dims: { l: 40,  w: 35,  h: 12 }, isSurface: false, locked: false, nFloors: 2 },
+        { id: 'arid',       name: 'Arid Desert Pavilion', color: '#fb923c', share: 20, dims: { l: 55,  w: 50,  h: 18 }, isSurface: false, locked: false, nFloors: 2 },
+        { id: 'rainforest', name: 'Natural Rainforest',   color: '#34d399', share: 22, dims: { l: 60,  w: 55,  h: 28 }, isSurface: false, locked: false, nFloors: 3 },
+        { id: 'cloud',      name: 'Cloud Garden',         color: '#a78bfa', share: 18, dims: { l: 50,  w: 45,  h: 22 }, isSurface: false, locked: false, nFloors: 3 },
+        { id: 'flower',     name: 'Flower Tower',         color: '#fbbf24', share: 12, dims: { l: 20,  w: 20,  h: 45 }, isSurface: false, locked: false, nFloors: 10 },
+        { id: 'outdoor',    name: 'Outdoor Landscape',    color: '#60a5fa', share: 13, dims: null,                      isSurface: true,  locked: false, nFloors: 1 }
+      ],
+      seedImages: [
+        { id: 's420-1', name: 'Birdseye View',      dataUrl: 'images/420/birdseye.jpg' },
+        { id: 's420-2', name: 'Exterior Lake View', dataUrl: 'images/420/exterior_lake.jpg' },
+        { id: 's420-3', name: 'Entrance Pavilion',  dataUrl: 'images/420/entrance_pavilion.jpg' },
+        { id: 's420-4', name: 'Arid Desert',        dataUrl: 'images/420/arid_desert.jpg' },
+        { id: 's420-5', name: 'Natural Rainforest', dataUrl: 'images/420/rainforest.jpg' },
+        { id: 's420-6', name: 'Cloud Garden',       dataUrl: 'images/420/cloud_garden.jpg' },
+        { id: 's420-7', name: 'Flower Tower',       dataUrl: 'images/420/flower_tower.jpg' }
+      ],
+      createdAt: '2018-09-01'
     }
   ],
 
