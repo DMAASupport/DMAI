@@ -3919,6 +3919,7 @@ body[data-theme="light"] #theme-toggle {
 /* FAB — globe icon, stacked above bot FAB */
 #wm-fab {
   position: static;
+  margin-top: 3px;
   width: 46px;
   height: 46px;
   border-radius: 50%;
