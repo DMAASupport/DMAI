@@ -544,16 +544,17 @@ body::after {
 .dashboard-title-row {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  margin-left: -60px;         /* -(46px buttons + 14px gap) */
-  margin-bottom: var(--space-sm);
+  position: relative;
+  margin-bottom: 4px;
 }
 
 .dashboard-map-buttons {
+  position: absolute;
+  left: -60px;
+  top: -2px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex-shrink: 0;
 }
 
 .dashboard-header h1 {
