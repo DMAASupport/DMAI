@@ -3666,7 +3666,7 @@ body[data-theme="light"] #theme-toggle {
   font-size: 17px;
   font-weight: 700;
   letter-spacing: 0.45em;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 1.0);
   margin-bottom: 24px;
   visibility: hidden;
   text-transform: uppercase;
@@ -3746,7 +3746,7 @@ body[data-theme="light"] #theme-toggle {
 }
 
 #intro-tag.intro-tag--on {
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 1.0);
 }
 
 /* Letter animation */
@@ -4067,4 +4067,88 @@ body[data-theme="light"] #theme-toggle {
   width: 11px; height: 11px;
   background: rgba(255, 255, 255, 0.65);
   box-shadow: 0 0 0 2px rgba(255,255,255,0.1), 0 0 8px rgba(255,255,255,0.4);
+}
+
+/* ─── Vienna Digital Model FAB ──────────────────────────── */
+#vienna-fab {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 400;
+  text-decoration: none;
+  outline: none;
+  display: block;
+}
+
+.vienna-fab-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 20px 12px;
+  background: rgba(8, 10, 20, 0.82);
+  border: 1px solid rgba(167, 139, 250, 0.26);
+  border-left: none;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: 3px 0 20px rgba(167, 139, 250, 0.16), 0 4px 32px rgba(0, 0, 0, 0.45);
+  color: rgba(167, 139, 250, 0.78);
+  transform: translateX(0);
+  transition: transform 0.28s var(--ease-spring),
+              box-shadow 0.28s ease,
+              background 0.28s ease,
+              border-color 0.28s ease,
+              color 0.28s ease;
+  animation: vienna-glow 3.5s ease-in-out infinite;
+}
+
+#vienna-fab:hover .vienna-fab-inner {
+  transform: translateX(7px);
+  background: rgba(8, 10, 20, 0.96);
+  box-shadow: 6px 0 36px rgba(167, 139, 250, 0.48), 0 4px 32px rgba(0, 0, 0, 0.55);
+  border-color: rgba(167, 139, 250, 0.62);
+  color: rgba(167, 139, 250, 1);
+  animation: none;
+}
+
+.vienna-fab-icon {
+  flex-shrink: 0;
+}
+
+.vienna-fab-divider {
+  width: 16px;
+  height: 1px;
+  background: rgba(167, 139, 250, 0.22);
+  flex-shrink: 0;
+}
+
+.vienna-fab-text {
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-family: var(--font);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: inherit;
+  line-height: 1;
+}
+
+@keyframes vienna-glow {
+  0%, 100% { box-shadow: 3px 0 20px rgba(167, 139, 250, 0.16), 0 4px 32px rgba(0, 0, 0, 0.45); }
+  50%       { box-shadow: 3px 0 30px rgba(167, 139, 250, 0.32), 0 4px 32px rgba(0, 0, 0, 0.45); }
+}
+
+body[data-theme="light"] #vienna-fab .vienna-fab-inner {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(124, 58, 237, 0.25) !important;
+  color: #7c3aed !important;
+  box-shadow: 3px 0 18px rgba(124, 58, 237, 0.15), 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+}
+body[data-theme="light"] #vienna-fab:hover .vienna-fab-inner {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(124, 58, 237, 0.50) !important;
+  box-shadow: 6px 0 28px rgba(124, 58, 237, 0.30), 0 4px 20px rgba(0, 0, 0, 0.18) !important;
 }
