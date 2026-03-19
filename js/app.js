@@ -56,7 +56,7 @@ const Store = {
 
   defaults: [
     {
-      id: 'proj-neom',
+      id: 'proj-586',
       projectCode: '586',
       name: 'AI Campus',
       client: 'Confidential',
@@ -199,7 +199,7 @@ const Store = {
       try {
         let projects = JSON.parse(raw).map(migrateProject);
         // Remove retired seed projects
-        const retired = ['proj-vienna', 'proj-zurich'];
+        const retired = ['proj-vienna', 'proj-zurich', 'proj-neom'];
         projects = projects.filter(p => !retired.includes(p.id));
         // Inject missing seed projects; sync status + projectCode from seed
         this.defaults.forEach(seed => {
@@ -2568,7 +2568,7 @@ function toggleBot() {
 
 function botInit() {
   appendBotMessage('assistant',
-    'Hello — I\'m DMAI.\n\nYour intelligent architectural companion. I have full access to your project portfolio.\n\nTry asking:\n— "Show all ongoing projects"\n— "What is the GFA of AI Campus?"\n— "Open NEOM project"');
+    'Hello — I\'m DMAI.\n\nYour intelligent architectural companion. I have full access to your project portfolio.\n\nTry asking:\n— "Show all ongoing projects"\n— "What is the GFA of AI Campus?"\n— "Open AI Campus"');
 }
 
 // ── Auto-open after intro ───────────────────────────────────
@@ -2578,7 +2578,7 @@ function openBotWithGreeting() {
   toggleBot();
   setTimeout(() => {
     appendBotMessage('assistant',
-      'Hello — I\'m DMAI.\n\nYour intelligent architectural companion, always here with you.\n\nI have full access to your project portfolio. Try asking:\n— "Show all ongoing projects"\n— "What is the GFA of AI Campus?"\n— "Open NEOM project"');
+      'Hello — I\'m DMAI.\n\nYour intelligent architectural companion, always here with you.\n\nI have full access to your project portfolio. Try asking:\n— "Show all ongoing projects"\n— "What is the GFA of AI Campus?"\n— "Open AI Campus"');
     document.getElementById('bot-status-line').textContent = 'Always with you';
   }, 750);
 }
